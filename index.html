@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H.A. BROTHERS PC HOUSE - Pro ERP v4.3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .shop-header-title { font-family: 'Playfair Display', serif; }
+        
+        /* Computer Image Watermark Container */
+        .watermark-box {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            opacity: 0.04;
+            pointer-events: none;
+            width: 70%;
+            text-align: center;
+        }
+        .print-content { position: relative; z-index: 10; }
+
+        @media print {
+            body { background: white !important; margin: 0; padding: 0; }
+            #print-area { 
+                width: 100% !important; 
+                max-height: 297mm !important; 
+                overflow: hidden !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 12mm !important;
+            }
+        }
+    </style>
+    <!-- Firebase SDK Compat (Required for inline scripts) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+<div id="cloud-loader" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900 text-white flex-col">
+    <i class="fa-solid fa-cloud-arrow-down text-6xl animate-bounce mb-4 text-blue-500"></i>
+    <h2 class="text-2xl font-bold">Syncing with Cloud...</h2>
+    <p class="text-slate-400 mt-2">Please wait, checking for cloud backups.</p>
+</div>
+
+    <!-- Top Navbar -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-red-700 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow">
+                    <i class="fa-solid fa-desktop"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg tracking-wider font-serif text-red-500">H.A. BROTHERS <span class="text-xs bg-red-700 px-2 py-0.5 rounded text-white ml-1 font-sans font-normal">PC HOUSE ERP v4.3</span></h1>
+                    <p class="text-[10px] text-slate-400">Reg Num: W/N 9758 | Tax, Discount, Auto-Fill & PC Lifecycle Track</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 text-xs">
+                <span class="bg-slate-800 text-emerald-400 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center"><i class="fa-solid fa-circle text-[8px] mr-1.5 animate-pulse"></i> Engine Online</span>
+                <button onclick="logoutSystem()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg transition font-bold"><i class="fa-solid fa-power-off mr-1"></i> Logout</button>
+            </div>
+        </div>
+        
+        <!-- Sub Navigation Tabs -->
+        <div class="bg-slate-800 border-t border-slate-700/50 px-4">
+            <div class="max-w-7xl mx-auto flex space-x-1 overflow-x-auto text-xs font-semibold">
+                <button onclick="switchTab('dashboard')" class="tab-btn px-3.5 py-3 border-b-2 border-red-500 text-red-400 flex items-center whitespace-nowrap" data-tab="dashboard"><i class="fa-solid fa-chart-pie mr-1.5"></i> Dashboard</button>
+                <button onclick="switchTab('warranty')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap bg-indigo-950/60 text-indigo-300" data-tab="warranty"><i class="fa-solid fa-shield-halved mr-1.5 text-indigo-400"></i> Warranty & Lifecycle</button>
+                <button onclick="switchTab('customers')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap" data-tab="customers"><i class="fa-solid fa-users mr-1.5"></i> Customers CRM</button>
+                <button onclick="switchTab('estimates')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap" data-tab="estimates"><i class="fa-solid fa-microscope mr-1.5 text-pink-400"></i> Lab Estimates</button>
+                <button onclick="switchTab('bulk_estimates')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap" data-tab="bulk_estimates"><i class="fa-solid fa-boxes-stacked mr-1.5 text-orange-400"></i> Bulk Estimates</button>
+                <button onclick="switchTab('quotes')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap" data-tab="quotes"><i class="fa-solid fa-file-lines mr-1.5 text-amber-400"></i> Quotations</button>
+                <button onclick="switchTab('invoices')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap" data-tab="invoices"><i class="fa-solid fa-file-invoice-dollar mr-1.5 text-blue-400"></i> Invoices</button>
+                <button onclick="switchTab('pending-pay')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap bg-rose-950/40 text-rose-300" data-tab="pending-pay"><i class="fa-solid fa-clock mr-1.5 text-rose-400"></i> Pending Payments</button>
+                <button onclick="switchTab('completed-pay')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap" data-tab="completed-pay"><i class="fa-solid fa-circle-check mr-1.5 text-emerald-400"></i> Finished Payments</button>
+                <button onclick="switchTab('cheques-tab')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap bg-amber-950/40 text-amber-300" data-tab="cheques-tab"><i class="fa-solid fa-money-check mr-1.5 text-amber-400"></i> Cheque Control</button>
+                <button onclick="switchTab('suppliers')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap" data-tab="suppliers"><i class="fa-solid fa-microchip mr-1.5"></i> Supplier Serials</button>
+                <button onclick="switchTab('finance')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap" data-tab="finance"><i class="fa-solid fa-wallet mr-1.5"></i> Finance Ledger</button>
+                <button onclick="switchTab('settings')" class="tab-btn px-3.5 py-3 border-b-2 border-transparent hover:text-white text-slate-300 flex items-center whitespace-nowrap" data-tab="settings"><i class="fa-solid fa-gears mr-1.5"></i> System Settings</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+        
+        <!-- CHEQUE DUE ALERTS BANNER -->
+        <div id="cheque-alert-banner" class="hidden bg-gradient-to-r from-amber-600 to-red-600 text-white p-4 rounded-xl shadow-md mb-6 flex justify-between items-center animate-pulse">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-bell-ring text-xl"></i>
+                <div>
+                    <h4 class="font-extrabold text-sm text-amber-100">CHEQUE MATURATION ALERT!</h4>
+                    <p id="cheque-alert-text" class="text-xs font-bold mt-0.5">Ada dawase maru kirimata pending cheques thiyanawa. Karunakara Cheque Management tab eka pariksha karanna.</p>
+                </div>
+            </div>
+            <button onclick="switchTab('cheques-tab')" class="bg-white text-red-700 font-extrabold px-4 py-1.5 rounded-lg text-xs shadow hover:bg-slate-100 transition">Manage Now</button>
+        </div>
+
+        <!-- 0. DASHBOARD TAB -->
+        <div id="dashboard" class="tab-content active">
+            <h2 class="text-xl font-extrabold mb-4 text-slate-800">Business Dashboard</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <div><p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Total Revenue</p><h3 id="dash-income" class="text-2xl font-extrabold text-slate-800 mt-1">Rs. 0.00</h3></div>
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <div><p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Total Expenses</p><h3 id="dash-expense" class="text-2xl font-extrabold text-slate-800 mt-1">Rs. 0.00</h3></div>
+                    <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <div><p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Net Shop Profit</p><h3 id="dash-profit" class="text-2xl font-extrabold text-blue-600 mt-1">Rs. 0.00</h3></div>
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-scale-balanced"></i></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center">
+                    <div><p class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Pending Customer Dues</p><h3 id="dash-pending" class="text-2xl font-extrabold text-rose-600 mt-1">Rs. 0.00</h3></div>
+                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-xl shadow-inner"><i class="fa-solid fa-clock"></i></div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-slate-800 flex items-center text-sm"><i class="fa-solid fa-clock text-rose-500 mr-2"></i> Overdue Collections</h3>
+                        <button onclick="switchTab('pending-pay')" class="text-xs text-blue-600 font-bold hover:underline">View All &rarr;</button>
+                    </div>
+                    <div id="dash-pending-list" class="space-y-2 text-xs"></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center text-sm"><i class="fa-solid fa-bolt text-amber-500 mr-2"></i> Quick Action Center</h3>
+                    <div class="grid grid-cols-2 gap-3 text-xs font-bold">
+                        <button onclick="openDocModal('new', 'Invoice')" class="p-4 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-xl border border-blue-200 transition flex flex-col items-center justify-center text-center space-y-1">
+                            <i class="fa-solid fa-file-invoice-dollar text-xl text-blue-600"></i><span>New Billing Invoice</span>
+                        </button>
+                        <button onclick="openDocModal('new', 'Quotation')" class="p-4 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl border border-amber-200 transition flex flex-col items-center justify-center text-center space-y-1">
+                            <i class="fa-solid fa-file-lines text-xl text-amber-600"></i><span>New Price Quotation</span>
+                        </button>
+                        <button onclick="openDocModal('new', 'Estimate')" class="p-4 bg-pink-50 hover:bg-pink-100 text-pink-800 rounded-xl border border-pink-200 transition flex flex-col items-center justify-center text-center space-y-1 col-span-2">
+                            <i class="fa-solid fa-microscope text-xl text-pink-600"></i><span>New Lab Estimate</span>
+                        </button>
+                        <button onclick="openModal('cust-modal')" class="p-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl border border-emerald-200 transition flex flex-col items-center justify-center text-center space-y-1">
+                            <i class="fa-solid fa-user-plus text-xl text-emerald-600"></i><span>Register Customer</span>
+                        </button>
+                        <button onclick="switchTab('warranty')" class="p-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 rounded-xl border border-indigo-200 transition flex flex-col items-center justify-center text-center space-y-1">
+                            <i class="fa-solid fa-shield-halved text-xl text-indigo-600"></i><span>Check PC Lifecycle</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. WARRANTY & CLAIMS TAB -->
+        <div id="warranty" class="tab-content">
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 rounded-xl shadow-lg mb-6 border border-indigo-900/50">
+                <h2 class="text-2xl font-bold mb-1 flex items-center"><i class="fa-solid fa-magnifying-glass-chart text-indigo-400 mr-2.5"></i> Warranty Tracker & PC Lifecycle History</h2>
+                <p class="text-xs text-indigo-200 mb-4">Search by PC Serial Number to view its entire repair history. You can link new repairs to the same serial number from here.</p>
+                <div class="flex space-x-2 max-w-2xl">
+                    <input type="text" id="war-search-input" placeholder="Type Invoice No or PC/Part Serial Number..." class="flex-grow p-3 rounded-lg text-slate-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner">
+                    <button onclick="checkWarranty()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg font-bold text-sm transition shadow flex items-center shrink-0"><i class="fa-solid fa-search mr-2"></i> Track Lifecycle</button>
+                </div>
+            </div>
+            <div id="war-result-area" class="hidden space-y-4"></div>
+        </div>
+
+        <!-- 3. CUSTOMERS CRM TAB -->
+        <div id="customers" class="tab-content">
+            <div class="flex justify-between items-center mb-4">
+                <div><h2 class="text-xl font-bold">Customer CRM Directory</h2></div>
+                <button onclick="openModal('cust-modal')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Register New Customer</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <input type="text" onkeyup="filterTable('cust-table', this.value)" placeholder="Filter by Name, Phone or ID..." class="p-1.5 px-3 border rounded text-xs w-64 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs" id="cust-table">
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3">Cust ID</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 2)">Name & Address <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Phone (TP)</th><th class="p-3">WhatsApp No</th><th class="p-3">Notes</th><th class="p-3 text-center">Actions</th></tr></thead>
+                        <tbody id="cust-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3.5 ESTIMATES TAB -->
+        <div id="estimates" class="tab-content">
+            <div class="flex justify-between items-center mb-4">
+                <div><h2 class="text-xl font-bold text-pink-700"><i class="fa-solid fa-microscope mr-2"></i>Lab Computer Estimates</h2></div>
+                <button onclick="openDocModal('new', 'Estimate')" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Estimate</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <input type="text" onkeyup="filterTable('estimates-table', this.value)" placeholder="Filter Estimates by EST No, Customer..." class="p-1.5 px-3 border rounded text-xs w-72 focus:outline-none focus:ring-1 focus:ring-pink-500">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs" id="estimates-table">
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 1)">EST No <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Date & Validity</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 3)">Customer Info <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Items Summary</th><th class="p-3">Total (Rs.)</th><th class="p-3 text-center">Actions</th></tr></thead>
+                        <tbody id="estimates-tbody"></tbody>
+                        <tfoot>
+                            <tr class="bg-pink-50 font-extrabold text-pink-900 border-t"><td colspan="5" class="p-3 text-right">Total Estimates Amount:</td><td id="estimates-total-sum" class="p-3 text-pink-700">Rs. 0.00</td><td></td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- BULK ESTIMATES TAB -->
+        <div id="bulk_estimates" class="tab-content">
+            <div class="flex justify-between items-center mb-4">
+                <div><h2 class="text-xl font-bold text-orange-700"><i class="fa-solid fa-boxes-stacked mr-2"></i>Bulk Estimates</h2></div>
+                <button onclick="openDocModal('new', 'Bulk Estimate')" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Bulk Estimate</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <input type="text" onkeyup="filterTable('bulk-estimates-table', this.value)" placeholder="Filter by BES No, Customer..." class="p-1.5 px-3 border rounded text-xs w-72 focus:outline-none focus:ring-1 focus:ring-orange-500">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs" id="bulk-estimates-table">
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 1)">BES No <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Date & Validity</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 3)">Customer Info <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Items Summary</th><th class="p-3">Total (Rs.)</th><th class="p-3 text-center">Actions</th></tr></thead>
+                        <tbody id="bulk-estimates-tbody"></tbody>
+                        <tfoot>
+                            <tr class="bg-orange-50 font-extrabold text-orange-900 border-t"><td colspan="5" class="p-3 text-right">Total Amount:</td><td id="bulk-estimates-total-sum" class="p-3 text-orange-700">Rs. 0.00</td><td></td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. QUOTATIONS TAB -->
+        <div id="quotes" class="tab-content">
+            <div class="flex justify-between items-center mb-4">
+                <div><h2 class="text-xl font-bold text-amber-700"><i class="fa-solid fa-file-lines mr-2"></i>Price Quotations (Estimates)</h2></div>
+                <button onclick="openDocModal('new', 'Quotation')" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Quotation</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <input type="text" onkeyup="filterTable('quotes-table', this.value)" placeholder="Filter Quotations by Quote No, Customer..." class="p-1.5 px-3 border rounded text-xs w-72 focus:outline-none focus:ring-1 focus:ring-amber-500">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs" id="quotes-table">
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 1)">Quote No <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Date & Validity</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 3)">Customer Info <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Items Summary</th><th class="p-3">Total (Rs.)</th><th class="p-3 text-center">Actions</th></tr></thead>
+                        <tbody id="quotes-tbody"></tbody>
+                        <tfoot>
+                            <tr class="bg-amber-50 font-extrabold text-amber-900 border-t"><td colspan="5" class="p-3 text-right">Total Quotes Amount:</td><td id="quotes-total-sum" class="p-3 text-amber-700">Rs. 0.00</td><td></td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. INVOICES TAB -->
+        <div id="invoices" class="tab-content">
+            <div class="flex justify-between items-center mb-4">
+                <div><h2 class="text-xl font-bold text-blue-700"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Formal Billing Invoices</h2></div>
+                <button onclick="openDocModal('new', 'Invoice')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Invoice</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <input type="text" onkeyup="filterTable('invoices-table', this.value)" placeholder="Filter Invoices by Inv No, Customer..." class="p-1.5 px-3 border rounded text-xs w-72 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs" id="invoices-table">
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 1)">Inv No <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Date</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 3)">Customer Info <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Items Summary</th><th class="p-3">Total (Rs.)</th><th class="p-3">Paid / Status</th><th class="p-3 text-center">Actions</th></tr></thead>
+                        <tbody id="invoices-tbody"></tbody>
+                        <tfoot>
+                            <tr class="bg-blue-50 font-extrabold text-blue-900 border-t"><td colspan="5" class="p-3 text-right">Total Invoice Amount:</td><td id="inv-total-sum" class="p-3 text-blue-700">Rs. 0.00</td><td colspan="2"></td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. PENDING PAYMENTS TAB -->
+        <div id="pending-pay" class="tab-content">
+            <div class="bg-rose-50 border border-rose-200 p-4 rounded-xl mb-4 flex justify-between items-center">
+                <div><h2 class="text-lg font-bold text-rose-900 flex items-center"><i class="fa-solid fa-clock-rotate-left mr-2"></i> Pending & Credit Invoices</h2></div>
+                <div class="text-right">
+                    <button onclick="exportCSV('pend-table', 'pending_invoices.csv')" class="bg-emerald-600 text-white px-2.5 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-file-csv"></i> CSV</button>
+                    <button onclick="exportPDF('pend-table', 'pending_invoices.pdf')" class="bg-rose-600 text-white px-2.5 py-1 rounded text-xs font-bold"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <input type="text" onkeyup="filterTable('pend-table', this.value)" placeholder="Filter pending invoices..." class="p-1.5 px-3 border rounded text-xs w-64">
+                    <span class="text-xs font-extrabold text-rose-600" id="pend-total-amt">Outstanding Total: Rs. 0.00</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs" id="pend-table">
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 1)">Inv No & Date <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 2)">Customer Info <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Grand Total</th><th class="p-3">Paid So Far</th><th class="p-3">Balance Due</th><th class="p-3 text-center">Action</th></tr></thead>
+                        <tbody id="pend-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. COMPLETED PAYMENTS TAB -->
+        <div id="completed-pay" class="tab-content">
+            <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl mb-4 flex justify-between items-center">
+                <div><h2 class="text-lg font-bold text-emerald-900 flex items-center"><i class="fa-solid fa-circle-check mr-2"></i> Fully Settled Invoices Archive</h2></div>
+                <div class="text-right">
+                    <button onclick="exportCSV('comp-table', 'finished_invoices.csv')" class="bg-emerald-600 text-white px-2.5 py-1 rounded text-xs font-bold mr-1"><i class="fa-solid fa-file-csv"></i> CSV</button>
+                    <button onclick="exportPDF('comp-table', 'finished_invoices.pdf')" class="bg-rose-600 text-white px-2.5 py-1 rounded text-xs font-bold"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <input type="text" onkeyup="filterTable('comp-table', this.value)" placeholder="Filter completed archives..." class="p-1.5 px-3 border rounded text-xs w-64">
+                    <span class="text-xs font-extrabold text-emerald-600" id="comp-total-amt">Total Collected: Rs. 0.00</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs" id="comp-table">
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 1)">Inv No <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Date</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 3)">Customer Info <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Total Settled (Rs.)</th><th class="p-3">Method</th><th class="p-3 text-center">Actions</th></tr></thead>
+                        <tbody id="comp-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. CHEQUE MANAGEMENT TAB -->
+        <div id="cheques-tab" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <!-- Cheque Convert Utility -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 md:col-span-1">
+                    <h3 class="font-extrabold text-slate-800 mb-2 flex items-center text-xs uppercase tracking-wider text-amber-700"><i class="fa-solid fa-right-left mr-2"></i> Convert Payment to Cheque</h3>
+                    <p class="text-[11px] text-slate-500 mb-3">Parana cash ho bank transfer ekak cheque widihata mark karanna.</p>
+                    <form onsubmit="convertInvoiceToCheque(event)" class="space-y-3 text-xs">
+                        <div><label class="font-bold">Enter Invoice Number *</label><input type="text" id="conv-inv-no" required placeholder="e.g., INV-1001" class="w-full p-2 border rounded mt-0.5 font-bold uppercase"></div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="font-bold">Cheque No *</label><input type="text" id="conv-chq-no" required class="w-full p-2 border rounded mt-0.5"></div>
+                            <div><label class="font-bold">Bank Name *</label><input type="text" id="conv-chq-bank" required placeholder="Commercial Bank" class="w-full p-2 border rounded mt-0.5"></div>
+                        </div>
+                        <div><label class="font-bold">Cheque Maturation Date *</label><input type="date" id="conv-chq-date" required class="w-full p-2 border rounded mt-0.5 font-bold"></div>
+                        <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded shadow transition text-xs"><i class="fa-solid fa-check mr-1"></i> Link Cheque</button>
+                    </form>
+                </div>
+                <!-- Cheques Ledger View -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 md:col-span-2 overflow-hidden flex flex-col">
+                    <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-700 uppercase"><i class="fa-solid fa-money-check mr-1 text-amber-600"></i> Cheques Realtime Ledger</span>
+                        <input type="text" onkeyup="filterTable('chq-table', this.value)" placeholder="Search cheques..." class="p-1 border rounded text-xs w-48">
+                    </div>
+                    <div class="overflow-x-auto flex-grow">
+                        <table class="w-full text-left border-collapse text-xs" id="chq-table">
+                            <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 1)">Inv No <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Cheque No & Bank</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 3)">Maturation Date <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Amount (Rs.)</th><th class="p-3">Status</th><th class="p-3 text-center">Update Action</th></tr></thead>
+                            <tbody id="cheques-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. SUPPLIER SERIAL LEDGER TAB -->
+        <div id="suppliers" class="tab-content">
+            <div class="flex justify-between items-center mb-4">
+                <div><h2 class="text-xl font-bold">Supplier Parts & Serial Ledger</h2></div>
+                <button onclick="openSupModal('new')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Add Supplier Part</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <input type="text" onkeyup="filterTable('sup-table', this.value)" placeholder="Filter by Part Serial, Shop..." class="p-1.5 px-3 border rounded text-xs w-64">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs" id="sup-table">
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3">Date</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 2)">Supplier Shop <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Part Name & Serial No</th><th class="p-3">Cost (Rs.)</th><th class="p-3">Supplier Warranty</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 6)">Sold To (Cust / Inv) <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Claim Status</th><th class="p-3 text-center">Actions</th></tr></thead>
+                        <tbody id="sup-tbody"></tbody>
+                        <tfoot>
+                            <tr class="bg-slate-50 font-extrabold text-slate-800 border-t"><td colspan="4" class="p-3 text-right">Total Value of Parts:</td><td id="sup-total-sum" class="p-3 text-rose-600">Rs. 0.00</td><td colspan="4"></td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. FINANCE TAB -->
+        <div id="finance" class="tab-content">
+            <div class="flex justify-between items-center mb-4">
+                <div><h2 class="text-xl font-bold">Income & Expense Statement</h2></div>
+                <button onclick="openExpModal('new')" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Add Shop Expense</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
+                    <input type="text" onkeyup="filterTable('fin-table', this.value)" placeholder="Filter transactions..." class="p-1.5 px-3 border rounded text-xs w-64">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs" id="fin-table">
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 1)">Date <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 2)">Category & Method <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Description</th><th class="p-3">Income (Rs.)</th><th class="p-3">Expense (Rs.)</th><th class="p-3 text-center">Auto</th></tr></thead>
+                        <tbody id="fin-tbody"></tbody>
+                        <tfoot>
+                            <tr class="bg-slate-50 font-bold text-slate-700 border-t"><td colspan="4" class="p-3 text-right">Totals:</td><td id="fin-total-in" class="p-3 text-emerald-600 font-extrabold">Rs. 0.00</td><td id="fin-total-out" class="p-3 text-rose-600 font-extrabold">Rs. 0.00</td><td></td></tr>
+                            <tr class="bg-blue-50 font-extrabold border-t"><td colspan="4" class="p-3 text-right text-sm">Net Shop Balance:</td><td colspan="3" id="fin-net-bal" class="p-3 text-blue-700 text-base">Rs. 0.00</td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 11. SETTINGS TAB -->
+        <div id="settings" class="tab-content">
+            <h2 class="text-xl font-bold mb-4">System Settings & Data Backups</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Shop Details -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-base mb-4 text-slate-800 flex items-center"><i class="fa-solid fa-building-columns text-blue-600 mr-2"></i> Bank Account & Shop Details</h3>
+                    <form onsubmit="saveConfig(event)" class="space-y-3 text-xs">
+                        <div><label class="font-bold text-slate-700">Shop Title (Header)</label><input type="text" id="cfg-name" required class="w-full p-2 border rounded mt-0.5 font-bold text-red-700 font-serif"></div>
+                        <div><label class="font-bold text-slate-700">Address / Location</label><input type="text" id="cfg-addr" required class="w-full p-2 border rounded mt-0.5"></div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label class="font-bold text-slate-700">Telephone / Hotlines</label><input type="text" id="cfg-phone" required class="w-full p-2 border rounded mt-0.5"></div>
+                            <div><label class="font-bold text-slate-700">Registration Number</label><input type="text" id="cfg-reg" required class="w-full p-2 border rounded mt-0.5"></div>
+                        </div>
+                        <div><label class="font-bold text-slate-700">Email Address</label><input type="text" id="cfg-email" class="w-full p-2 border rounded mt-0.5"></div>
+                        <div class="border-t pt-3 mt-3">
+                            <p class="font-extrabold text-indigo-900 mb-2"><i class="fa-solid fa-coins mr-1"></i> Pricing Configuration:</p>
+                            <div><label class="font-bold text-slate-700">Default Supplier Markup (Rs.)</label><input type="number" id="cfg-markup" placeholder="2500" class="w-full p-2 border rounded mt-0.5 font-bold text-indigo-700 bg-indigo-50"></div>
+                        </div>
+                        <div class="border-t pt-3 mt-3">
+                            <p class="font-extrabold text-blue-900 mb-2">Bank Details for Direct Transfers / Cheques:</p>
+                            <div><label class="font-bold text-slate-700">Account Holder Name</label><input type="text" id="cfg-bank-name" placeholder="H.A. BROTHERS PC HOUSE" class="w-full p-2 border rounded mt-0.5 font-bold"></div>
+                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                <div><label class="font-bold text-slate-700">Account Number</label><input type="text" id="cfg-bank-no" placeholder="81290482910" class="w-full p-2 border rounded mt-0.5 font-bold"></div>
+                                <div><label class="font-bold text-slate-700">Bank Name & Branch</label><input type="text" id="cfg-bank-branch" placeholder="BOC - Lunugama" class="w-full p-2 border rounded mt-0.5 font-bold"></div>
+                            </div>
+                        </div>
+                        <div class="pt-3"><button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg transition shadow">Save Details</button></div>
+                    </form>
+                </div>
+                <!-- Backup Control Panels -->
+                <div class="space-y-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-blue-600">
+                        <h3 class="font-bold text-base mb-1"><i class="fa-solid fa-cloud-arrow-down text-blue-600 mr-2"></i> Daily Data Backup</h3>
+                        <p class="text-xs text-slate-500 mb-3">Download your entire database (Customers, Multi-issue Invoices, Serials, Claim History) as a JSON backup file.</p>
+                        <button onclick="backupData()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow"><i class="fa-solid fa-download mr-1"></i> Download Backup File</button>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-emerald-600">
+                        <h3 class="font-bold text-base mb-1"><i class="fa-solid fa-cloud-arrow-up text-emerald-600 mr-2"></i> Restore From Backup</h3>
+                        <p class="text-xs text-slate-500 mb-3">Upload a previously downloaded JSON backup file to restore all your shop records instantly.</p>
+                        <input type="file" id="restore-file" accept=".json" class="hidden" onchange="restoreData(event)">
+                        <button onclick="document.getElementById('restore-file').click()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow"><i class="fa-solid fa-upload mr-1"></i> Select & Restore Backup</button>
+                    </div>
+                    <div class="bg-rose-50 p-5 rounded-xl shadow-sm border border-rose-200 border-l-4 border-rose-600">
+                        <h3 class="font-bold text-base mb-1 text-rose-900"><i class="fa-solid fa-triangle-exclamation text-rose-600 mr-2"></i> Factory Reset System</h3>
+                        <p class="text-xs text-rose-700 mb-3">WARNING: This will permanently delete all customers, invoices, and data.</p>
+                        <button onclick="factoryReset()" type="button" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow">Factory Reset System</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SYSTEM MODALS -->
+    
+    <!-- Customer Profile Timeline Modal -->
+    <div id="cust-profile-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl max-w-2xl w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center border-b pb-3 mb-3">
+                <div>
+                    <h3 class="font-extrabold text-lg text-slate-900"><i class="fa-solid fa-user text-blue-600 mr-2"></i> Customer Profile</h3>
+                    <p id="cp-name" class="font-extrabold text-blue-800 text-sm mt-0.5"></p>
+                    <p id="cp-details" class="text-xs text-slate-500 font-bold mt-0.5"></p>
+                </div>
+                <button onclick="closeModal('cust-profile-modal')" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="overflow-y-auto flex-grow pr-1 space-y-4">
+                <div>
+                    <h4 class="font-extrabold text-sm text-slate-800 mb-2 border-b pb-1"><i class="fa-solid fa-file-invoice-dollar text-blue-600 mr-1"></i> Invoices Log</h4>
+                    <div id="cp-timeline-invoices" class="space-y-2"></div>
+                </div>
+                <div>
+                    <h4 class="font-extrabold text-sm text-slate-800 mb-2 border-b pb-1"><i class="fa-solid fa-file-lines text-amber-600 mr-1"></i> Quotations (Estimates)</h4>
+                    <div id="cp-timeline-quotes" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Registration Modal -->
+    <div id="cust-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 id="c-modal-title" class="font-extrabold text-lg mb-4 text-slate-900">Register New Customer</h3>
+            <form id="cust-form" onsubmit="saveCustomer(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="c-id">
+                <div><label class="font-bold">Customer Full Name *</label><input type="text" id="c-name" required class="w-full p-2.5 border rounded mt-0.5"></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="font-bold">Phone (TP) *</label><input type="text" id="c-phone" required class="w-full p-2.5 border rounded mt-0.5"></div>
+                    <div><label class="font-bold text-emerald-700"><i class="fa-brands fa-whatsapp mr-1"></i> WhatsApp No *</label><input type="text" id="c-whatsapp" required class="w-full p-2.5 border rounded mt-0.5 border-emerald-300 bg-emerald-50/30"></div>
+                </div>
+                <div><label class="font-bold">Email Address</label><input type="email" id="c-email" class="w-full p-2.5 border rounded mt-0.5"></div>
+                <div><label class="font-bold">Address / Town</label><input type="text" id="c-addr" class="w-full p-2.5 border rounded mt-0.5"></div>
+                <div><label class="font-bold">Notes / Description</label><textarea id="c-notes" class="w-full p-2.5 border rounded mt-0.5 h-16"></textarea></div>
+                <div class="flex justify-end space-x-2 pt-3">
+                    <button type="button" onclick="closeModal('cust-modal')" class="px-4 py-2 bg-slate-200 font-bold rounded">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-bold rounded shadow">Save Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Supplier Warranty / Stock Modal -->
+    <div id="sup-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl text-xs">
+            <div class="flex justify-between items-center border-b pb-3 mb-3">
+                <h3 id="s-modal-title" class="font-extrabold text-lg text-slate-900"><i class="fa-solid fa-truck-fast text-emerald-600 mr-2"></i> Supplier / Part Entry</h3>
+                <button onclick="closeModal('sup-modal')" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="sup-form" onsubmit="saveSupplierPart(event)" class="space-y-3">
+                <input type="hidden" id="s-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Supplier / Shop Name *</label>
+                        <input type="text" id="s-shop" required class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-emerald-500 bg-slate-50 font-bold">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Part / Item Name *</label>
+                        <input type="text" id="s-part" required class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-emerald-500 font-bold">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Serial Number (S/N) *</label>
+                        <input type="text" id="s-serial" required class="w-full p-2 border border-slate-300 rounded font-bold text-indigo-700">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Buying Cost (Rs.) *</label>
+                        <input type="number" id="s-cost" step="0.01" required class="w-full p-2 border border-slate-300 rounded font-extrabold text-rose-700 bg-rose-50">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Payment Status</label>
+                        <select id="s-paid" class="w-full p-2 border border-slate-300 rounded font-bold">
+                            <option value="Paid in Full">Paid in Full</option>
+                            <option value="Credit / Pending">Credit / Pending</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700 block mb-1">Supplier Warranty</label>
+                        <select id="s-war" class="w-full p-2 border border-slate-300 rounded font-bold">
+                            <option value="No Warranty">No Warranty</option>
+                            <option value="1 Month">1 Month</option>
+                            <option value="3 Months">3 Months</option>
+                            <option value="6 Months">6 Months</option>
+                            <option value="1 Year">1 Year</option>
+                            <option value="2 Years">2 Years</option>
+                            <option value="3 Years">3 Years</option>
+                            <option value="Lifetime">Lifetime</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Warranty Claim Status (If any)</label>
+                    <select id="s-claim" class="w-full p-2 border border-slate-300 rounded font-bold text-amber-700 bg-amber-50">
+                        <option value="No Claim (Active)">No Claim (Active)</option>
+                        <option value="Claim Processing (Sent to Sup)">Claim Processing (Sent to Sup)</option>
+                        <option value="Claim Resolved (Replaced)">Claim Resolved (Replaced)</option>
+                        <option value="Claim Rejected">Claim Rejected</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2 pt-3 border-t mt-4">
+                    <button type="button" onclick="closeModal('sup-modal')" class="px-5 py-2 bg-slate-200 text-slate-700 font-bold rounded">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 text-white font-bold rounded shadow">Save Supplier Log</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Shop Expense Modal -->
+    <div id="exp-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-2xl text-xs">
+            <div class="flex justify-between items-center border-b pb-3 mb-3">
+                <h3 class="font-extrabold text-lg text-slate-900"><i class="fa-solid fa-money-bill-transfer text-rose-600 mr-2"></i> Log Daily Expense</h3>
+                <button onclick="closeModal('exp-modal')" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="exp-form" onsubmit="saveExpense(event)" class="space-y-3">
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Expense Category *</label>
+                    <select id="e-cat" required class="w-full p-2 border border-slate-300 rounded font-bold">
+                        <option value="Shop Rent & Utility Bills">Shop Rent & Utility Bills</option>
+                        <option value="Staff Meals / Tea">Staff Meals / Tea</option>
+                        <option value="Transport / Delivery Fee">Transport / Delivery Fee</option>
+                        <option value="Shop Consumables (Tape/Tools)">Shop Consumables (Tape/Tools)</option>
+                        <option value="Other Misc Expense">Other Misc Expense</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Description (Optional)</label>
+                    <input type="text" id="e-desc" class="w-full p-2 border border-slate-300 rounded font-bold">
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Amount (Rs.) *</label>
+                    <input type="number" id="e-amt" step="0.01" required class="w-full p-2 border border-slate-300 rounded font-extrabold text-rose-700 bg-rose-50 text-lg text-center">
+                </div>
+                <div class="flex justify-end space-x-2 pt-3 border-t mt-4">
+                    <button type="button" onclick="closeModal('exp-modal')" class="px-5 py-2 bg-slate-200 text-slate-700 font-bold rounded">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-rose-600 text-white font-bold rounded shadow">Log Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Payment History Modal (Invoice Click View) -->
+    <div id="pay-history-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl text-xs flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center border-b pb-3 mb-3">
+                <div>
+                    <h3 class="font-extrabold text-base text-slate-900"><i class="fa-solid fa-receipt mr-1.5 text-blue-600"></i> Detailed Payment Ledger & Collections</h3>
+                    <p id="ph-title" class="text-xs text-slate-500 font-bold mt-0.5"></p>
+                </div>
+                <button onclick="closeModal('pay-history-modal')" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="overflow-y-auto flex-grow pr-1 space-y-3">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 font-bold border-b text-slate-600">
+                            <th class="p-2">Date</th>
+                            <th class="p-2">Method / Description</th>
+                            <th class="p-2 text-right">Amount (Rs.)</th>
+                            <th class="p-2 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ph-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- Add new transaction under this invoice history directly -->
+            <form id="ph-add-form" onsubmit="addHistoryPayment(event)" class="border-t pt-3 mt-3 space-y-2">
+                <input type="hidden" id="ph-inv-no">
+                <p class="font-bold text-blue-900">Add New Payment / Collection Installment:</p>
+                <div class="grid grid-cols-4 gap-2">
+                    <div><label class="font-bold text-[10px]">Date</label><input type="date" required id="ph-date" class="w-full p-1.5 border rounded font-bold"></div>
+                    <div><label class="font-bold text-[10px]">Amount (Rs.)</label><input type="number" step="0.01" required id="ph-amount" class="w-full p-1.5 border rounded"></div>
+                    <div>
+                        <label class="font-bold text-[10px]">Method</label>
+                        <select id="ph-method" class="w-full p-1.5 border rounded font-bold">
+                            <option value="Cash">Cash</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Card">Card</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end"><button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded shadow">Add Pay</button></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Quotation & Invoice Creator Form Modal (With Tax & Discount) -->
+    <div id="doc-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl max-w-5xl w-full p-6 shadow-2xl max-h-[95vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 id="d-modal-title" class="font-extrabold text-lg text-slate-900">Document Setup</h3>
+                <button onclick="closeModal('doc-modal')" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="doc-form" onsubmit="saveDocument(event)" class="space-y-4 text-xs overflow-y-auto flex-grow pr-1">
+                <input type="hidden" id="d-no">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-slate-50 p-3 rounded-lg border">
+                    <div>
+                        <label class="font-bold text-slate-700">Document Date *</label>
+                        <input type="date" id="d-date" required class="w-full p-2 border rounded mt-0.5 font-bold bg-white text-slate-700">
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700">Document Type *</label>
+                        <select id="d-type" onchange="toggleQuoteValidity()" class="w-full p-2 border rounded mt-0.5 font-bold text-blue-600 bg-white">
+                            <option value="Invoice">Invoice (Formal Bill)</option>
+                            <option value="Quotation">Quotation (Estimate)</option>
+                            <option value="Estimate">Lab Estimate</option>
+                            <option value="Bulk Estimate">Bulk Estimate</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="font-bold text-slate-700">Select Customer CRM *</label>
+                        <select id="d-cust" required class="w-full p-2 border rounded mt-0.5 font-medium bg-white"></select>
+                    </div>
+                    <div id="d-validity-div" class="hidden">
+                        <label class="font-bold text-amber-700">Quote Validity Period *</label>
+                        <select id="d-validity" class="w-full p-2 border border-amber-300 rounded mt-0.5 font-bold bg-amber-50 text-amber-900">
+                            <option value="1 Week (7 Days)">1 Week (7 Days)</option>
+                            <option value="2 Weeks (14 Days)">2 Weeks (14 Days)</option>
+                            <option value="3 Weeks (21 Days)">3 Weeks (21 Days)</option>
+                            <option value="4 Weeks (1 Month)">4 Weeks (1 Month)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center pt-5">
+                        <label class="flex items-center space-x-2 font-bold text-blue-900 bg-blue-50/80 p-2 rounded border border-blue-200 w-full cursor-pointer">
+                            <input type="checkbox" id="d-inc-bank" checked class="w-4 h-4 text-blue-600 rounded">
+                            <span>Print Bank Info on Document</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC TASK BUILDER -->
+                <div class="border rounded-lg p-3 bg-slate-50/50">
+                    <div class="flex justify-between items-center mb-2">
+                        <div>
+                            <span class="font-extrabold text-slate-800 text-sm"><i class="fa-solid fa-screwdrivers-wrench text-red-600 mr-1.5"></i> Repair Items & Services Ledger</span>
+                            <p class="text-[11px] text-slate-500">Macho, ekama computer ekata repairs godak add karanna nam, <strong>a rows okkotama ekama PC Serial number eka entered karanna</strong>.</p>
+                        </div>
+                        <button type="button" onclick="addDocItemRow()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded font-bold transition shadow flex items-center shrink-0"><i class="fa-solid fa-plus mr-1"></i> Add Service Row</button>
+                    </div>
+                    <div id="doc-items-container" class="space-y-2"></div>
+                </div>
+
+                <!-- Finance & Tax Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-3">
+                    <div class="grid grid-cols-3 gap-2">
+                        <div><label class="font-bold text-slate-500">Sub Total</label><input type="number" id="d-subtotal" readonly class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-sm bg-slate-100"></div>
+                    </div>
+                    <div class="flex items-center space-x-4 mt-2">
+                        <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-sn" class="cursor-pointer"> <span>Hide PC S/N on Print</span></label>
+                        <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-war" class="cursor-pointer"> <span>Hide Warranty on Print</span></label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mt-2">
+                        <div>
+                            <label class="font-bold text-emerald-600">Discount (%)</label>
+                            <input type="number" step="0.01" id="d-discount-pct" oninput="updateDocBalance()" value="0.00" placeholder="%" class="w-full p-2 border border-emerald-300 rounded mt-0.5 font-bold text-sm bg-emerald-50 mb-1">
+                            <div class="flex items-center text-emerald-800 text-xs font-bold px-1">= Rs. <input type="number" step="0.01" id="d-discount" readonly value="0.00" class="w-full bg-transparent border-0 outline-none ml-1 cursor-default pointer-events-none" tabindex="-1"></div>
+                        </div>
+                        <div>
+                            <label class="font-bold text-rose-600">Tax (%)</label>
+                            <input type="number" step="0.01" id="d-tax-pct" oninput="updateDocBalance()" value="0.00" placeholder="%" class="w-full p-2 border border-rose-300 rounded mt-0.5 font-bold text-sm bg-rose-50 mb-1">
+                            <div class="flex items-center text-rose-800 text-xs font-bold px-1">= Rs. <input type="number" step="0.01" id="d-tax" readonly value="0.00" class="w-full bg-transparent border-0 outline-none ml-1 cursor-default pointer-events-none" tabindex="-1"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><label class="font-bold text-blue-800">Grand Total</label><input type="number" id="d-total" readonly class="w-full p-2.5 border border-blue-400 rounded mt-0.5 font-extrabold text-sm bg-blue-100 text-blue-800 shadow-inner"></div>
+                        <div><label class="font-bold text-emerald-800">Advance Paid</label><input type="number" step="0.01" id="d-paid" value="0.00" class="w-full p-2.5 border border-emerald-400 rounded mt-0.5 font-extrabold text-sm text-emerald-800 bg-white"></div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-2 border-t pt-3">
+                    <button type="button" onclick="closeModal('doc-modal')" class="px-5 py-2.5 bg-slate-200 font-bold rounded">Cancel</button>
+                    <button type="submit" class="px-6 py-2.5 bg-red-700 hover:bg-red-800 text-white font-bold rounded shadow-lg text-sm">Save & Generate Document</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Warranty Lifecycle Claim Setup Modal -->
+    <div id="claim-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl text-xs space-y-3">
+            <div class="flex justify-between items-center border-b pb-2 mb-2">
+                <h3 class="font-extrabold text-base text-indigo-900 flex items-center"><i class="fa-solid fa-shield-halved mr-2 text-indigo-600"></i> Initiate Part Replacement Claim</h3>
+                <button onclick="closeModal('claim-modal')" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p id="claim-item-info" class="bg-indigo-50 p-3 rounded font-bold text-indigo-950"></p>
+            <form onsubmit="saveWarrantyClaim(event)" class="space-y-3">
+                <input type="hidden" id="cl-doc-no"><input type="hidden" id="cl-item-idx">
+                <div><label class="font-bold text-slate-700">Log Date *</label><input type="date" id="cl-date" required class="w-full p-2 border rounded mt-0.5 font-bold"></div>
+                <div><label class="font-bold text-slate-700">Fault / Issue Logged *</label><input type="text" id="cl-issue" required placeholder="e.g., No Display, Burn damage detected" class="w-full p-2 border rounded mt-0.5"></div>
+                <div>
+                    <label class="font-bold text-slate-700">Resolution Status *</label>
+                    <select id="cl-res" class="w-full p-2 border rounded mt-0.5 font-bold text-blue-600">
+                        <option value="Replaced with New Part (New Serial)">Replaced with New Part (Enter New Serial Below)</option>
+                        <option value="Repaired & Returned (Same Serial)">Repaired & Returned (Same Serial)</option>
+                        <option value="Sent to Supplier (Pending Claim)">Sent to Supplier for Claim (Pending)</option>
+                        <option value="Refund Issued to Customer">Refund Issued to Customer</option>
+                    </select>
+                </div>
+                <div><label class="font-bold text-indigo-700">New Replacement Part Serial Number / IMEI</label><input type="text" id="cl-new-serial" placeholder="Type new serial number if part is swapped..." class="w-full p-2 border border-indigo-300 rounded mt-0.5 font-bold bg-indigo-50/40"></div>
+                <div class="flex justify-end space-x-2 pt-3 border-t">
+                    <button type="button" onclick="closeModal('claim-modal')" class="px-4 py-2 bg-slate-200 font-bold rounded">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 text-white font-bold rounded shadow">Submit Claim</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- STRICT A4 SINGLE-PAGE PREVIEW LAYOUT WITH BRANDING & SVG WATERMARK -->
+    <div id="print-modal" class="fixed inset-0 bg-black/75 hidden flex justify-center items-center p-4 z-50 backdrop-blur-md">
+        <div class="bg-white rounded-xl max-w-3xl w-full p-4 shadow-2xl max-h-[98vh] flex flex-col">
+            <div class="flex justify-between items-center pb-2 mb-2 border-b">
+                <span class="font-bold text-xs text-slate-500"><i class="fa-solid fa-print text-red-600 mr-1.5"></i> Single Page A4 Realtime Print View Engine</span>
+                <div class="space-x-2">
+                    <button onclick="closeModal('print-modal')" class="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 font-bold rounded text-xs">Close</button>
+                    <button onclick="printDocument()" class="px-5 py-1.5 bg-red-700 hover:bg-red-800 text-white font-bold rounded text-xs shadow inline-flex items-center"><i class="fa-solid fa-file-pdf mr-1.5"></i> Download PDF</button>
+                    <button onclick="emailDocument()" class="px-5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded text-xs shadow inline-flex items-center"><i class="fa-solid fa-envelope mr-1.5"></i> Email PDF</button>
+                </div>
+            </div>
+            
+            <!-- A4 Document Target Area Box -->
+            <div class="flex-grow overflow-y-auto overflow-x-hidden rounded-lg border border-slate-300 shadow-inner">
+                <div id="print-area" class="p-8 text-[11px] bg-white relative min-h-full">
+                <!-- Exact SVG Computer Outline Image Watermark matching user letterhead shape -->
+                <div class="watermark-box opacity-[0.08] absolute inset-0 z-0 flex items-center justify-center pointer-events-none text-slate-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" class="w-3/5 h-3/5">
+                        <path d="M0 64C0 28.7 28.7 0 64 0H384c35.3 0 64 28.7 64 64V352c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zm64 0V288H384V64H64zm288 384v32H160V448H352zM96 448H64c-17.7 0-32 14.3-32 32s14.3 32 32 32H448c17.7 0 32-14.3 32-32s-14.3-32-32-32H416V448h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H64c-8.8 0-16 7.2-16 16s7.2 16 16 16H96z"/>
+                    </svg>
+                </div>
+                
+                <div class="print-content relative z-10">
+                    <!-- EXACT STYLED BRANDING HEADER -->
+                    <div class="text-center pb-2 border-b-2 border-slate-900 mb-3">
+                        <h2 id="p-shop-name" class="text-4xl font-black tracking-widest text-red-700 uppercase shop-header-title" style="font-family: Arial, Helvetica, sans-serif; text-shadow: 1px 1px 0px rgba(0,0,0,0.2);">H.A. BROTHERS PC HOUSE</h2>
+                        <p class="text-[10px] font-extrabold text-slate-600 tracking-[0.2em] uppercase mt-0.5 mb-1.5">Sales & Repairs</p>
+                        <p id="p-shop-addr-tel" class="text-xs font-bold text-slate-800 mt-0.5">379, Devala place, Lunugama. T. P. 071 70 96 503</p>
+                        <div class="flex justify-between items-center text-[10px] font-bold text-slate-700 mt-0.5 px-4">
+                            <span id="p-shop-email">E-mail – h.a.brothrspchouse@gmail.com</span>
+                            <span id="p-shop-reg" class="text-right">Reg. Num. W/N 9758</span>
+                        </div>
+                    </div>
+
+                    <!-- Invoice metadata section -->
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="w-3/5 bg-slate-50 p-2.5 rounded border border-slate-200">
+                            <p class="text-[9px] text-slate-400 uppercase font-extrabold tracking-wider">Client Account Details:</p>
+                            <p id="p-cust-name" class="font-extrabold text-sm text-slate-900">Customer Name</p>
+                            <p id="p-cust-phone" class="font-bold text-slate-700">TP: 071-0000000 | WA: 077-0000000</p>
+                            <p id="p-cust-addr" class="text-slate-600 font-medium">Address: Lunugama, Sri Lanka</p>
+                        </div>
+                        <div class="text-right w-2/5">
+                            <h3 id="p-doc-type" class="text-xl font-extrabold text-blue-700 uppercase tracking-widest">INVOICE</h3>
+                            <p id="p-doc-no" class="font-extrabold text-slate-900 text-sm">INV-1001</p>
+                            <p id="p-date" class="text-slate-500 font-bold">Date: 2026-07-12</p>
+                            <div id="p-validity-box" class="hidden mt-1 inline-block bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded border border-amber-300 text-right text-[10px]">
+                                Valid For Period: <span id="p-validity-text">2 Weeks</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MULTI-REPAIR SERIAL COMPACT GROUPED VIEW TABLE -->
+                    <table id="p-items-table" class="w-full text-left mb-3 border-collapse bg-white">
+                        <thead>
+                            <tr class="bg-slate-900 text-white text-[10px] uppercase font-bold">
+                                <th class="p-2 w-1/4 border border-slate-700">PC Identification / Serial</th>
+                                <th class="p-2 w-2/4 border border-slate-700">Service Operations & Tasks Executed</th>
+                                <th class="p-2 w-1/4 border border-slate-700">Warranty Term & Part S/N</th>
+                                <th class="p-2 text-right border border-slate-700">Price (Rs.)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="p-items-tbody"></tbody>
+                    </table>
+
+                    <!-- Financial Balances & Account Info Summary -->
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="w-7/12 space-y-2">
+                            <div id="p-bank-info" class="hidden bg-blue-50/70 p-2 rounded border border-blue-200 text-blue-950 text-[10px]">
+                                <p class="font-bold text-blue-900 mb-0.5 uppercase"><i class="fa-solid fa-building-columns mr-1"></i> Direct Bank Transfer Settlement Details:</p>
+                                <p id="p-bank-text" class="font-semibold"></p>
+                            </div>
+                        </div>
+                        <div class="w-5/12 space-y-1 text-right font-medium pl-6">
+                            <div id="p-subtotal-row" class="flex justify-between text-xs text-slate-500 hidden"><span>Sub Total:</span><span id="p-subtotal">Rs. 0.00</span></div>
+                            <div id="p-disc-row" class="flex justify-between text-xs text-emerald-600 hidden"><span>Discount:</span><span id="p-disc">- Rs. 0.00</span></div>
+                            <div id="p-tax-row" class="flex justify-between text-xs text-rose-600 hidden"><span>Tax/Other:</span><span id="p-tax">+ Rs. 0.00</span></div>
+                            
+                            <div class="flex justify-between border-t border-slate-300 pt-1 font-bold text-xs"><span>Grand Balance Total:</span><span id="p-total" class="text-blue-700 font-extrabold">Rs. 0.00</span></div>
+                            <div class="flex justify-between text-emerald-600 font-bold"><span>Total Cash Settled:</span><span id="p-paid">Rs. 0.00</span></div>
+                            <div class="flex justify-between border-t border-double border-slate-400 pt-1 font-extrabold text-rose-600 text-xs"><span>Remaining Net Balance:</span><span id="p-bal">Rs. 0.00</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Warranty policy documentation footer block -->
+                    <div class="border border-dashed border-slate-300 bg-slate-50/50 p-2.5 rounded mb-4 text-[10px] text-slate-600 leading-normal">
+                        <p class="font-extrabold text-slate-800 mb-0.5 flex items-center"><i class="fa-solid fa-shield-virus text-red-600 mr-1.5"></i> Strict Warranty Clauses & Policy Notes:</p>
+                        <p>1. Warranty applies exclusively to structural hardware production defects. Burn marks, physical breakage, electrical short circuits, moisture ingress, and operating system virus failures immediately void coverage.<br>
+                        2. Identification serial numbers must remain untampered. Presentation of this original print out is mandatory for tracking claims.</p>
+                    </div>
+
+                    <!-- Sign-off metadata fields -->
+                    <div class="flex justify-between items-end pt-5 border-t border-slate-200 text-[10px] text-slate-400 font-medium">
+                        <div><p>Computer Generated Document System - H.A. BROTHERS</p><p class="text-slate-600 font-bold">Thank you for your business!</p></div>
+                        <div class="text-center border-t border-slate-400 pt-1 px-8"><p class="font-bold text-slate-700">Authorized Signature</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CORE ERP SYSTEM ENGINE CONTROLS -->
+    <script>
+        // CLEAN ERROR-FREE JS ENGINE
+        
+        // --- FIREBASE CONFIGURATION ---
+        let db = null;
+        try {
+            if (typeof firebase !== 'undefined') {
+                const firebaseConfig = {
+                    apiKey: "AIzaSyA-mES7YmbNfQW_7-0mMqJ0BGR6PHniM2U",
+                    authDomain: "pc-house-39068.firebaseapp.com",
+                    projectId: "pc-house-39068",
+                    storageBucket: "pc-house-39068.firebasestorage.app",
+                    messagingSenderId: "999549926709",
+                    appId: "1:999549926709:web:42610fafc11d4a9ef5207c"
+                };
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+            } else {
+                console.warn("Firebase SDK blocked or offline. Running purely local.");
+            }
+        } catch(e) {
+            console.error("Firebase Init Error:", e);
+        }
+        
+        let customers = JSON.parse(localStorage.getItem('hab_cust_v43')) || [];
+        let documents = JSON.parse(localStorage.getItem('hab_docs_v43')) || [];
+        let suppliers = JSON.parse(localStorage.getItem('hab_sup_v43')) || [];
+        let expenses = JSON.parse(localStorage.getItem('hab_exp_v43')) || [];
+        let cheques = JSON.parse(localStorage.getItem('hab_chq_v43')) || [];
+        let docCounter = parseInt(localStorage.getItem('hab_cnt_v43')) || 1001;
+        
+        async function syncFromCloud() {
+            // Guarantee app loads locally immediately even if Firebase fails
+            renderAll();
+            
+            if (typeof db === 'undefined' || !db) {
+                document.getElementById('cloud-loader')?.remove();
+                return;
+            }
+            
+            try {
+                const docSnap = await db.collection('backup').doc('system_data').get();
+                if (docSnap.exists) {
+                    const data = docSnap.data();
+                    let updated = false;
+                    if (data.documents && data.documents !== '[]') { documents = JSON.parse(data.documents); originalSetItem.call(localStorage, 'hab_docs_v43', data.documents); updated = true; }
+                    if (data.customers && data.customers !== '[]') { customers = JSON.parse(data.customers); originalSetItem.call(localStorage, 'hab_cust_v43', data.customers); updated = true; }
+                    if (data.suppliers && data.suppliers !== '[]') { suppliers = JSON.parse(data.suppliers); originalSetItem.call(localStorage, 'hab_sup_v43', data.suppliers); updated = true; }
+                    if (data.expenses && data.expenses !== '[]') { expenses = JSON.parse(data.expenses); originalSetItem.call(localStorage, 'hab_exp_v43', data.expenses); updated = true; }
+                    if (data.cheques && data.cheques !== '[]') { cheques = JSON.parse(data.cheques); originalSetItem.call(localStorage, 'hab_chq_v43', data.cheques); updated = true; }
+                    if (data.docCounter) { docCounter = parseInt(data.docCounter); originalSetItem.call(localStorage, 'hab_cnt_v43', data.docCounter.toString()); updated = true; }
+                    if (data.shopConfig && data.shopConfig !== '{}') { shopConfig = JSON.parse(data.shopConfig); originalSetItem.call(localStorage, 'hab_cfg_v43', data.shopConfig); updated = true; }
+                    
+                    if (updated) renderAll();
+                } else {
+                    // Firebase is empty, initialize cloud with existing local data
+                    let initData = {
+                        documents: localStorage.getItem('hab_docs_v43') || '[]',
+                        customers: localStorage.getItem('hab_cust_v43') || '[]',
+                        suppliers: localStorage.getItem('hab_sup_v43') || '[]',
+                        expenses: localStorage.getItem('hab_exp_v43') || '[]',
+                        cheques: localStorage.getItem('hab_chq_v43') || '[]',
+                        docCounter: localStorage.getItem('hab_cnt_v43') || '1001',
+                        shopConfig: localStorage.getItem('hab_cfg_v43') || '{}'
+                    };
+                    await db.collection('backup').doc('system_data').set(initData).catch(e => console.log('Init sync err:', e));
+                }
+            } catch (error) {
+                console.error("Firebase Sync Failed:", error);
+            } finally {
+                document.getElementById('cloud-loader')?.remove();
+            }
+        }
+        
+        // Proxy localStorage to automatically push to cloud
+        const originalSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, value) {
+            originalSetItem.apply(this, arguments);
+            if (typeof db === 'undefined' || !db) return;
+            try {
+                let update = {};
+                if (key === 'hab_docs_v43') update.documents = value;
+                if (key === 'hab_cust_v43') update.customers = value;
+                if (key === 'hab_sup_v43') update.suppliers = value;
+                if (key === 'hab_exp_v43') update.expenses = value;
+                if (key === 'hab_chq_v43') update.cheques = value;
+                if (key === 'hab_cnt_v43') update.docCounter = value.toString();
+                if (key === 'hab_cfg_v43') update.shopConfig = value;
+                
+                if (Object.keys(update).length > 0) {
+                    db.collection('backup').doc('system_data').set(update, { merge: true }).catch(err => console.log('Sync Error:', err));
+                }
+            } catch(e) { console.error("Cloud Sync Error", e); }
+        };
+        
+        // Sync silently in background on load
+        window.addEventListener('load', syncFromCloud);
+        
+        let sortCol = -1;
+        let sortAsc = true;
+        function sortTable(thEl, colIdx, isNumeric = false) {
+            const table = thEl.closest('table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            if (sortCol === colIdx) sortAsc = !sortAsc;
+            else { sortCol = colIdx; sortAsc = true; }
+            
+            rows.sort((a, b) => {
+                const aText = a.cells[colIdx].innerText.trim();
+                const bText = b.cells[colIdx].innerText.trim();
+                if (isNumeric) {
+                    const aNum = parseFloat(aText.replace(/[^0-9.-]+/g,"")) || 0;
+                    const bNum = parseFloat(bText.replace(/[^0-9.-]+/g,"")) || 0;
+                    return sortAsc ? (aNum - bNum) : (bNum - aNum);
+                }
+                return sortAsc ? aText.localeCompare(bText) : bText.localeCompare(aText);
+            });
+            
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        let shopConfig = JSON.parse(localStorage.getItem('hab_cfg_v43')) || {
+            name: "H.A. BROTHERS PC HOUSE",
+            addr: "379, Devala place, Lunugama",
+            phone: "071 70 96 503",
+            email: "h.a.brothrspchouse@gmail.com",
+            reg: "W/N 9758",
+            bankName: "H.A. BROTHERS PC HOUSE",
+            bankNo: "81290482910",
+            bankBranch: "BOC - Lunugama Branch",
+            markup: 2500
+        };
+
+        window.onload = () => {
+            try {
+                renderAll();
+                loadConfigForm();
+                checkChequeMaturationAlerts();
+            } catch (error) {
+                console.error("System Boot Error: ", error);
+            }
+        };
+
+        function renderAll() {
+            renderCustomers();
+            renderEstimates();
+            renderBulkEstimates();
+            renderQuotes();
+            renderInvoices();
+            renderPending();
+            renderCompleted();
+            renderSuppliers();
+            renderFinance();
+            renderChequesTable();
+            updateDashboard();
+            populateCustomerDropdown();
+        }
+
+        // TABS
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('border-red-500', 'text-red-400');
+                btn.classList.add('border-transparent', 'text-slate-300');
+            });
+            document.getElementById(tabId).classList.add('active');
+            const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-slate-300');
+                activeBtn.classList.add('border-red-500', 'text-red-400');
+            }
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function filterTable(tableId, query) {
+            query = query.toLowerCase();
+            const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+            rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; });
+        }
+
+        // AUTO-FILL CATEGORY & DESCRIPTION LOGIC
+        // ONLY DECLARED ONCE IN THIS SCRIPT BLOCK
+        const categoryMap = {
+            "PC Hardware Repair & Troubleshooting": ["No power repair / PSU replacement", "Motherboard chip-level servicing", "RAM / VGA expansion & testing", "PC assembling & neat wiring"],
+            "Custom PC Sale / Build": ["Core i3 Budget Office System Build", "Core i5 Corporate Workstation Setup", "Ryzen Gaming Rig Custom Build"],
+            "Spare Parts Replacement": ["Crucial 512GB NVMe M.2 SSD Installation", "Kingston 8GB DDR4 3200MHz RAM Stick Upgrade", "FSP 550W 80+ Rated Power Supply Replacement"],
+            "OS & Software Installation": ["Windows 11 Pro 64-Bit Clean Install & Activation", "Microsoft Office Pro 2021 Setup", "AutoCAD / Adobe Creative Suite Installation"],
+            "Full PC Clean & Service": ["Thermal paste re-application (Arctic MX-4) & clean", "Heatsink dust blowing & high-speed fan oiling", "Complete hardware casing deep cleaning"],
+            "Drivers Update & Install": ["Full Device Driver Pack Offline Update", "Graphics Driver Clean Installation (DDU Tool)", "Motherboard BIOS Firmware Safe Flash"],
+            "Virus & Malware Removal": ["Deep System Scan & Trojan Spyware Clean", "Malwarebytes Premium Security Activation", "Windows Defender Security Firewall Optimization"]
+        };
+
+        function handleCategoryChange(selectElement) {
+            const row = selectElement.closest('.doc-item-row');
+            const category = selectElement.value;
+            const descContainer = row.querySelector('.doc-item-desc-container');
+            
+            let optionsHtml = '<option value="">-- Select Description --</option>';
+            if (categoryMap[category]) {
+                categoryMap[category].forEach(opt => { 
+                    optionsHtml += `<option value="${opt}">${opt}</option>`; 
+                });
+            }
+            optionsHtml += '<option value="_custom">-- Type Custom Description --</option>';
+            
+            descContainer.innerHTML = `
+                <select class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-slate-800 desc-select" onchange="toggleCustomDesc(this)">
+                    ${optionsHtml}
+                </select>
+                <input type="text" placeholder="Type custom description..." class="w-full p-2 border border-slate-300 rounded mt-1 font-bold text-slate-800 doc-item-desc hidden">
+            `;
+            
+            if (categoryMap[category] && categoryMap[category].length > 0) {
+                const sel = descContainer.querySelector('.desc-select');
+                sel.value = categoryMap[category][0];
+                toggleCustomDesc(sel);
+            }
+        }
+
+        function toggleCustomDesc(selectEl) {
+            const inputEl = selectEl.nextElementSibling;
+            if (selectEl.value === '_custom') {
+                inputEl.classList.remove('hidden');
+                inputEl.value = '';
+                inputEl.required = true;
+            } else {
+                inputEl.classList.add('hidden');
+                inputEl.value = selectEl.value;
+                inputEl.required = false;
+            }
+        }
+
+        function getWarrantyExpiry(invoiceDate, warPeriod) {
+            if (!warPeriod || warPeriod === 'No Warranty' || warPeriod === 'None' || warPeriod === '-') return { status: 'No Warranty', color: 'text-slate-500' };
+            if (warPeriod === 'Lifetime') return { status: 'Lifetime Active', color: 'text-emerald-600' };
+            let months = 0;
+            if (warPeriod.includes('Month')) months = parseInt(warPeriod);
+            else if (warPeriod.includes('Year')) months = parseInt(warPeriod) * 12;
+            else return { status: warPeriod, color: 'text-indigo-600' };
+            const expDate = new Date(invoiceDate);
+            expDate.setMonth(expDate.getMonth() + months);
+            const today = new Date();
+            const diffTime = expDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays < 0) return { status: `EXPIRED (${expDate.toISOString().split('T')[0]})`, color: 'text-rose-600' };
+            else if (diffDays <= 30) return { status: `${diffDays} Days Left (Ends ${expDate.toISOString().split('T')[0]})`, color: 'text-amber-600' };
+            else return { status: `Active (Ends ${expDate.toISOString().split('T')[0]})`, color: 'text-emerald-600' };
+        }
+
+        function autoFillSupplierCost(inputEl) {
+            const serial = inputEl.value;
+            const sup = suppliers.find(s => s.serialNo === serial);
+            if (sup) {
+                const row = inputEl.closest('.doc-item-row');
+                const priceInput = row.querySelector('.doc-item-price');
+                if (priceInput.value === '' || priceInput.value == 0) {
+                    const defaultMarkup = shopConfig.markup !== undefined ? parseFloat(shopConfig.markup) : 2500;
+                    priceInput.value = (parseFloat(sup.cost) + defaultMarkup).toFixed(2);
+                }
+                updateDocBalance();
+                const warSelect = row.querySelector('.doc-item-war');
+                if (warSelect && sup.warPeriod) warSelect.value = sup.warPeriod;
+            }
+        }
+
+        // CHEQUES ALERT
+        function checkChequeMaturationAlerts() {
+            const today = new Date().toISOString().split('T')[0];
+            const activeAlerts = cheques.filter(c => c.dueDate === today && c.status === 'Pending');
+            const banner = document.getElementById('cheque-alert-banner');
+            
+            if (activeAlerts.length > 0) {
+                document.getElementById('cheque-alert-text').innerText = `Ada dawase (${today}) maru kirimata Cheques ${activeAlerts.length} pramanayak thiyanawa! Karunakara pariksha karanna.`;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+
+        // DOCUMENT MODAL CONTROLLER
+        function openDocModal(mode, forceType = null, docNo = null) {
+            document.getElementById('doc-form').reset();
+            document.getElementById('doc-items-container').innerHTML = '';
+            document.getElementById('d-discount-pct').value = '0.00';
+            document.getElementById('d-tax-pct').value = '0.00';
+            document.getElementById('d-discount').value = '0.00';
+            document.getElementById('d-tax').value = '0.00';
+            document.getElementById('d-hide-sn').checked = (mode === 'new' && forceType === 'Bulk Estimate');
+            document.getElementById('d-hide-war').checked = (mode === 'new' && forceType === 'Bulk Estimate');
+            
+            let supDatalist = document.getElementById('sup-stock-list');
+            if (!supDatalist) { supDatalist = document.createElement('datalist'); supDatalist.id = 'sup-stock-list'; document.body.appendChild(supDatalist); }
+            supDatalist.innerHTML = '';
+            suppliers.forEach(s => { if (s.paid === 'Paid in Full' || s.paid === 'Credit / Pending') supDatalist.innerHTML += `<option value="${s.serialNo}">${s.partName}</option>`; });
+            
+            if (mode === 'new') {
+                document.getElementById('d-modal-title').innerText = `Generate New ${forceType || 'Invoice'}`;
+                document.getElementById('d-no').value = '';
+                document.getElementById('d-date').value = new Date().toISOString().split('T')[0];
+                if (forceType) { document.getElementById('d-type').value = forceType; document.getElementById('d-type').disabled = true; }
+                addDocItemRow();
+            } else if (mode === 'edit' && docNo) {
+                const d = documents.find(x => x.no === docNo);
+                if (!d) return;
+                document.getElementById('d-no').value = d.no;
+                document.getElementById('d-date').value = d.date || new Date().toISOString().split('T')[0];
+                document.getElementById('d-type').value = d.type;
+                document.getElementById('d-cust').value = d.custId;
+                if (d.validPeriod) document.getElementById('d-validity').value = d.validPeriod;
+                document.getElementById('d-inc-bank').checked = d.incBank !== false;
+                document.getElementById('d-hide-sn').checked = d.hideSn === true;
+                document.getElementById('d-hide-war').checked = d.hideWar === true;
+                
+                let subtotal = (d.items || []).reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
+                document.getElementById('d-subtotal').value = subtotal.toFixed(2);
+                document.getElementById('d-discount-pct').value = (subtotal > 0 && d.discount) ? ((d.discount / subtotal) * 100).toFixed(2) : '0.00';
+                let afterDisc = subtotal - (d.discount || 0);
+                document.getElementById('d-tax-pct').value = (afterDisc > 0 && d.tax) ? ((d.tax / afterDisc) * 100).toFixed(2) : '0.00';
+                
+                document.getElementById('d-discount').value = d.discount || 0;
+                document.getElementById('d-tax').value = d.tax || 0;
+                document.getElementById('d-paid').value = d.paid;
+                
+                // Clear the default generated row
+                document.getElementById('doc-items-container').innerHTML = '';
+                
+                (d.items || []).forEach(item => addDocItemRow(item));
+                updateDocBalance();
+            }
+            toggleQuoteValidity(); 
+            openModal('doc-modal');
+        }
+
+        function toggleQuoteValidity() {
+            const type = document.getElementById('d-type').value;
+            const div = document.getElementById('d-validity-div');
+            if (type === 'Quotation') div.classList.remove('hidden'); else div.classList.add('hidden');
+        }
+
+        function addDocItemRow(data = {}) {
+            const container = document.getElementById('doc-items-container');
+            const rowId = 'row-' + Math.random().toString(36).substr(2, 9);
+            
+            let catOptionsHtml = '';
+            Object.keys(categoryMap).forEach(cat => { 
+                catOptionsHtml += `<option value="${cat}" ${data.cat === cat ? 'selected' : ''}>${cat}</option>`; 
+            });
+
+            const html = `
+                <div id="${rowId}" class="doc-item-row p-4 odd:bg-slate-50 even:bg-blue-100 border-2 border-slate-300 rounded-xl flex flex-col gap-3 shadow-md mb-3 transition-colors relative">
+                    <div class="flex justify-between items-center border-b border-slate-300 pb-2">
+                        <div class="flex items-center space-x-2 w-2/3 md:w-1/2">
+                            <i class="fa-solid fa-grip-vertical text-slate-400 hover:text-blue-600 mr-2 text-xl cursor-grab drag-handle p-1 transition" title="Drag to reorder"></i>
+                            <div class="bg-blue-600 text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider whitespace-nowrap">PC S/N</div>
+                            <input type="text" placeholder="e.g., PC-8821" value="${data.pcSerial || ''}" class="w-full p-1.5 border border-blue-300 bg-white rounded font-bold text-blue-800 doc-item-pc focus:ring-2 focus:ring-blue-500">
+                            <button type="button" onclick="copyAboveSerial(this)" class="bg-blue-100 text-blue-700 border border-blue-300 px-2.5 py-1.5 rounded hover:bg-blue-200 shrink-0 shadow-sm" title="Copy S/N from above"><i class="fa-solid fa-copy"></i></button>
+                        </div>
+                        <div class="flex space-x-1 items-center">
+                            <button type="button" onclick="moveRowUp(this)" class="text-slate-400 hover:text-blue-600 p-1 font-bold text-lg transition" title="Move Up"><i class="fa-solid fa-circle-up"></i></button>
+                            <button type="button" onclick="moveRowDown(this)" class="text-slate-400 hover:text-blue-600 p-1 font-bold text-lg transition" title="Move Down"><i class="fa-solid fa-circle-down"></i></button>
+                            <button type="button" onclick="document.getElementById('${rowId}').remove(); updateDocBalance();" class="text-rose-500 hover:text-rose-700 p-1 font-bold text-lg transition" title="Delete"><i class="fa-solid fa-circle-xmark"></i></button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-10 gap-3 items-end text-xs">
+                        <div class="md:col-span-2">
+                            <label class="font-bold text-slate-700">Service Category *</label>
+                            <select onchange="handleCategoryChange(this)" class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold bg-white text-slate-800 doc-item-cat">
+                                <option value="">-- Select Category --</option>
+                                ${catOptionsHtml}
+                            </select>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="font-bold text-slate-700">Work Description *</label>
+                            <div class="doc-item-desc-container w-full">
+                                <input type="text" required placeholder="Select category first..." value="${data.desc || ''}" class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-slate-800 doc-item-desc">
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="font-bold text-slate-700">Part Serial</label>
+                            <input type="text" list="sup-stock-list" onchange="autoFillSupplierCost(this)" placeholder="S/N..." value="${data.partSerial || ''}" class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-indigo-700 doc-item-serial">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="font-bold text-slate-700">Warranty</label>
+                            <select class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold doc-item-war">
+                                <option value="No Warranty" ${data.war === 'No Warranty' ? 'selected' : ''}>None</option>
+                                <option value="1 Month" ${data.war === '1 Month' ? 'selected' : ''}>1 Mo</option>
+                                <option value="3 Months" ${data.war === '3 Months' ? 'selected' : ''}>3 Mo</option>
+                                <option value="6 Months" ${data.war === '6 Months' ? 'selected' : ''}>6 Mo</option>
+                                <option value="1 Year" ${data.war === '1 Year' ? 'selected' : ''}>1 Yr</option>
+                                <option value="3 Years" ${data.war === '3 Years' ? 'selected' : ''}>3 Yr</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="font-bold text-slate-700">Qty</label>
+                            <input type="number" required step="1" min="1" value="${data.qty || 1}" oninput="updateDocBalance()" class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold doc-item-qty text-center">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="font-bold text-slate-700">Price</label>
+                            <input type="number" required step="0.01" value="${data.price || ''}" oninput="updateDocBalance()" class="w-full p-2 border border-slate-400 rounded mt-0.5 font-extrabold text-slate-900 bg-white doc-item-price shadow-inner text-right placeholder-slate-400">
+                        </div>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            
+            makeRowDraggable(document.getElementById(rowId));
+            
+            // If data is provided, hook up custom select immediately
+            if (data.cat) {
+                const newRow = document.getElementById(rowId);
+                const selectEl = newRow.querySelector('.doc-item-cat');
+                handleCategoryChange(selectEl);
+                
+                const descSelect = newRow.querySelector('.desc-select');
+                let optionExists = false;
+                if (descSelect) {
+                    Array.from(descSelect.options).forEach(opt => {
+                        if (opt.value === data.desc) optionExists = true;
+                    });
+                    
+                    if (optionExists) {
+                        descSelect.value = data.desc;
+                        toggleCustomDesc(descSelect);
+                    } else {
+                        descSelect.value = '_custom';
+                        toggleCustomDesc(descSelect);
+                        newRow.querySelector('.doc-item-desc').value = data.desc;
+                    }
+                } else {
+                    const descInput = newRow.querySelector('.doc-item-desc');
+                    if (descInput) descInput.value = data.desc;
+                }
+            }
+        }
+
+        function copyAboveSerial(btn) {
+            const rows = document.querySelectorAll('.doc-item-row');
+            const currentRow = btn.closest('.doc-item-row');
+            let prevSerial = '';
+            for (let i = 0; i < rows.length; i++) {
+                if (rows[i] === currentRow) break;
+                prevSerial = rows[i].querySelector('.doc-item-pc').value;
+            }
+            if (prevSerial) currentRow.querySelector('.doc-item-pc').value = prevSerial;
+        }
+
+        function moveRowUp(btn) {
+            const row = btn.closest('.doc-item-row');
+            if (row.previousElementSibling && row.previousElementSibling.classList.contains('doc-item-row')) {
+                row.parentNode.insertBefore(row, row.previousElementSibling);
+            }
+        }
+
+        function moveRowDown(btn) {
+            const row = btn.closest('.doc-item-row');
+            if (row.nextElementSibling && row.nextElementSibling.classList.contains('doc-item-row')) {
+                row.parentNode.insertBefore(row.nextElementSibling, row);
+            }
+        }
+
+        let draggedRow = null;
+        function makeRowDraggable(row) {
+            const handle = row.querySelector('.drag-handle');
+            if (!handle) return;
+            handle.addEventListener('mousedown', () => row.setAttribute('draggable', 'true'));
+            handle.addEventListener('mouseup', () => row.removeAttribute('draggable'));
+            handle.addEventListener('mouseleave', () => row.removeAttribute('draggable'));
+
+            row.addEventListener('dragstart', function(e) {
+                draggedRow = this;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', this.id);
+                setTimeout(() => this.classList.add('opacity-50', 'border-dashed', 'border-blue-500', 'bg-blue-50'), 0);
+            });
+            row.addEventListener('dragover', function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; });
+            row.addEventListener('dragenter', function(e) { if (this !== draggedRow) this.classList.add('ring-4', 'ring-blue-400', 'ring-inset'); });
+            row.addEventListener('dragleave', function(e) { this.classList.remove('ring-4', 'ring-blue-400', 'ring-inset'); });
+            row.addEventListener('drop', function(e) {
+                e.stopPropagation();
+                if (draggedRow !== this && draggedRow) {
+                    const rect = this.getBoundingClientRect();
+                    const offset = e.clientY - rect.top;
+                    if (offset > rect.height / 2) this.parentNode.insertBefore(draggedRow, this.nextSibling);
+                    else this.parentNode.insertBefore(draggedRow, this);
+                }
+                return false;
+            });
+            row.addEventListener('dragend', function(e) {
+                this.removeAttribute('draggable');
+                this.classList.remove('opacity-50', 'border-dashed', 'border-blue-500', 'bg-blue-50');
+                document.querySelectorAll('.doc-item-row').forEach(r => r.classList.remove('ring-4', 'ring-blue-400', 'ring-inset'));
+            });
+        }
+
+        function updateDocBalance() {
+            let subtotal = 0;
+            document.querySelectorAll('.doc-item-row').forEach(row => { 
+                const price = parseFloat(row.querySelector('.doc-item-price').value || 0); 
+                const qty = parseFloat(row.querySelector('.doc-item-qty').value || 1);
+                subtotal += (price * qty); 
+            });
+            document.getElementById('d-subtotal').value = subtotal.toFixed(2);
+            
+            const discPct = parseFloat(document.getElementById('d-discount-pct').value || 0);
+            const taxPct = parseFloat(document.getElementById('d-tax-pct').value || 0);
+            
+            const discAbs = subtotal * (discPct / 100);
+            const taxAbs = (subtotal - discAbs) * (taxPct / 100);
+            
+            document.getElementById('d-discount').value = discAbs.toFixed(2);
+            document.getElementById('d-tax').value = taxAbs.toFixed(2);
+            
+            const total = subtotal - discAbs + taxAbs;
+            document.getElementById('d-total').value = total.toFixed(2);
+        }
+
+        function saveDocument(e) {
+            e.preventDefault();
+            if (customers.length === 0) { alert("Please register a customer first!"); return; }
+            
+            const docNoInput = document.getElementById('d-no').value;
+            const type = document.getElementById('d-type').value;
+            let docNo = docNoInput;
+            
+            // Generate Strict UNIQUE Invoice Number
+            if (!docNo) {
+                if (type === 'Invoice') docNo = `INV-${docCounter}`;
+                else if (type === 'Estimate' || type === 'Bulk Estimate') docNo = `EST-${Math.floor(1000 + Math.random() * 9000)}`;
+                else docNo = `QUO-${Math.floor(1000 + Math.random() * 9000)}`;
+                
+                while(documents.some(d => d.no === docNo)) {
+                    if(type === 'Invoice') { 
+                        docCounter++; 
+                        docNo = `INV-${docCounter}`; 
+                    } else if (type === 'Estimate' || type === 'Bulk Estimate') { 
+                        docNo = `EST-${Math.floor(1000 + Math.random() * 9000)}`; 
+                    } else { 
+                        docNo = `QUO-${Math.floor(1000 + Math.random() * 9000)}`; 
+                    }
+                }
+                if (type === 'Invoice') { 
+                    docCounter++; 
+                    localStorage.setItem('hab_cnt_v43', docCounter); 
+                }
+            }
+            
+            const custId = document.getElementById('d-cust').value;
+            const custObj = customers.find(c => c.id === custId);
+            const items = [];
+            const rows = document.querySelectorAll('#doc-items-container > .doc-item-row');
+            
+            if (rows.length === 0) { alert("Please add at least one repair item!"); return; }
+
+            rows.forEach(row => {
+                items.push({
+                    pcSerial: row.querySelector('.doc-item-pc').value.trim() || 'General PC',
+                    cat: row.querySelector('.doc-item-cat').value,
+                    desc: row.querySelector('.doc-item-desc').value,
+                    partSerial: row.querySelector('.doc-item-serial').value.trim() || '',
+                    war: row.querySelector('.doc-item-war').value,
+                    qty: parseFloat(row.querySelector('.doc-item-qty').value || 1),
+                    price: parseFloat(row.querySelector('.doc-item-price').value || 0),
+                    claims: []
+                });
+            });
+
+            const discount = parseFloat(document.getElementById('d-discount').value || 0);
+            const tax = parseFloat(document.getElementById('d-tax').value || 0);
+            const total = parseFloat(document.getElementById('d-total').value || 0);
+            const paid = parseFloat(document.getElementById('d-paid').value || 0);
+
+            const payments = docNoInput ? (documents.find(d => d.no === docNoInput)?.payments || []) : [];
+            if (payments.length === 0 && paid > 0) {
+                payments.push({ id: 'PAY-INIT', date: new Date().toISOString().split('T')[0], amount: paid, method: 'Cash' });
+            }
+
+            const newDoc = {
+                no: docNo, 
+                type, 
+                date: document.getElementById('d-date').value || new Date().toISOString().split('T')[0],
+                validPeriod: type === 'Quotation' || type === 'Bulk Estimate' || type === 'Estimate' ? document.getElementById('d-validity').value : null,
+                incBank: document.getElementById('d-inc-bank').checked,
+                hideSn: document.getElementById('d-hide-sn').checked,
+                hideWar: document.getElementById('d-hide-war').checked,
+                custId,
+                custName: custObj ? custObj.name : 'Client', 
+                custPhone: custObj ? custObj.phone : '', 
+                custWhatsapp: custObj ? custObj.whatsapp : '',
+                custAddr: custObj ? custObj.addr : '', 
+                items, 
+                discount, 
+                tax, 
+                total, 
+                paid: payments.reduce((s,p)=>s+p.amount, 0), 
+                payMethod: 'Cash', 
+                payments
+            };
+
+            if (docNoInput) {
+                const idx = documents.findIndex(d => d.no === docNoInput);
+                if (idx !== -1) documents[idx] = newDoc;
+            } else {
+                documents.push(newDoc);
+            }
+
+            localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
+            closeModal('doc-modal'); 
+            renderAll();
+        }
+
+        // FULL QUOTATION TO INVOICE COPY
+        function convertToInvoice(quoteNo) {
+            const q = documents.find(x => x.no === quoteNo);
+            if (!q) return;
+            if (q.validPeriod) {
+                const match = q.validPeriod.match(/\d+/);
+                if (match) {
+                    const days = parseInt(match[0]);
+                    const expDate = new Date(q.date);
+                    expDate.setDate(expDate.getDate() + (q.validPeriod.includes('Week') ? days * 7 : days));
+                    if (new Date() > expDate) {
+                        if (!confirm(`WARNING: Quotation ${quoteNo} has EXPIRED on ${expDate.toISOString().split('T')[0]}!\nDo you still want to convert it to an invoice?`)) return;
+                    }
+                }
+            }
+            if (confirm(`Convert Estimate ${quoteNo} to final billing invoice? All items will be copied.`)) {
+                openDocModal('new', 'Invoice');
+                document.getElementById('d-cust').value = q.custId;
+                let qSubtotal = (q.items || []).reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
+                document.getElementById('d-discount-pct').value = (qSubtotal > 0 && q.discount) ? ((q.discount / qSubtotal) * 100).toFixed(2) : '0.00';
+                let qAfterDisc = qSubtotal - (q.discount || 0);
+                document.getElementById('d-tax-pct').value = (qAfterDisc > 0 && q.tax) ? ((q.tax / qAfterDisc) * 100).toFixed(2) : '0.00';
+                document.getElementById('d-discount').value = q.discount || 0;
+                document.getElementById('d-tax').value = q.tax || 0;
+                
+                document.getElementById('doc-items-container').innerHTML = ''; // Clear default
+                (q.items || []).forEach(item => addDocItemRow(item)); // Add all quote items!
+                updateDocBalance();
+                q.status = 'Converted';
+                localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
+                renderAll();
+            }
+        }
+
+        function deleteDocument(no) {
+            if (confirm("Delete document permanently?")) {
+                documents = documents.filter(d => d.no !== no);
+                localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
+                renderAll();
+            }
+        }
+
+        // PAYMENT HISTORY MODAL
+        function openPaymentHistoryModal(docNo) {
+            const doc = documents.find(d => d.no === docNo);
+            if (!doc) return;
+            
+            document.getElementById('ph-inv-no').value = docNo;
+            document.getElementById('ph-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('ph-title').innerText = `Invoice: ${doc.no} | Customer: ${doc.custName} | Billed Total: Rs. ${doc.total.toFixed(2)}`;
+            
+            const tbody = document.getElementById('ph-tbody');
+            tbody.innerHTML = '';
+            
+            if (!doc.payments || doc.payments.length === 0) {
+                doc.payments = [{ id: 'PAY-INIT', date: doc.date, amount: doc.paid, method: doc.payMethod || 'Cash' }];
+            }
+            
+            doc.payments.forEach((p, index) => {
+                tbody.innerHTML += `
+                    <tr class="border-b text-xs font-medium text-slate-700">
+                        <td class="p-2">${p.date}</td>
+                        <td class="p-2 font-bold">${p.method}</td>
+                        <td class="p-2 text-right text-emerald-600 font-extrabold">Rs. ${p.amount.toFixed(2)}</td>
+                        <td class="p-2 text-center space-x-1">
+                            <button onclick="editPaymentEntry('${docNo}', ${index})" class="bg-amber-500 text-white px-1.5 py-0.5 rounded text-[10px]"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deletePaymentEntry('${docNo}', ${index})" class="bg-rose-500 text-white px-1.5 py-0.5 rounded text-[10px]"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+            openModal('pay-history-modal');
+        }
+
+        function addHistoryPayment(e) {
+            e.preventDefault();
+            const docNo = document.getElementById('ph-inv-no').value;
+            const date = document.getElementById('ph-date').value || new Date().toISOString().split('T')[0];
+            const amount = parseFloat(document.getElementById('ph-amount').value);
+            const method = document.getElementById('ph-method').value;
+            const docIdx = documents.findIndex(d => d.no === docNo);
+            if (docIdx === -1) return;
+            
+            const doc = documents[docIdx];
+            if (!doc.payments) doc.payments = [];
+            
+            doc.payments.push({ id: 'PAY-' + Math.floor(1000 + Math.random() * 9000), date, amount, method });
+            doc.paid = doc.payments.reduce((sum, p) => sum + p.amount, 0);
+            
+            if (method === 'Cheque') {
+                cheques.push({ 
+                    id: 'CHQ-' + Math.floor(1000+Math.random()*9000), 
+                    invoiceNo: docNo, 
+                    chequeNo: prompt("Cheque No:") || 'UNKNOWN', 
+                    bank: prompt("Bank:") || 'UNKNOWN', 
+                    dueDate: prompt("Date (YYYY-MM-DD):", new Date().toISOString().split('T')[0]), 
+                    amount: amount, 
+                    status: 'Pending' 
+                });
+                localStorage.setItem('hab_chq_v43', JSON.stringify(cheques));
+            }
+            
+            localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
+            document.getElementById('ph-add-form').reset();
+            openPaymentHistoryModal(docNo); 
+            renderAll(); 
+            checkChequeMaturationAlerts();
+        }
+
+        function editPaymentEntry(docNo, idx) {
+            const docIdx = documents.findIndex(d => d.no === docNo);
+            if (docIdx === -1) return;
+            const newAmt = prompt(`Update Payment Amount:`, documents[docIdx].payments[idx].amount);
+            if (newAmt === null || isNaN(newAmt)) return;
+            documents[docIdx].payments[idx].amount = parseFloat(newAmt);
+            documents[docIdx].paid = documents[docIdx].payments.reduce((sum, pay) => sum + pay.amount, 0);
+            localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
+            openPaymentHistoryModal(docNo); renderAll();
+        }
+
+        function deletePaymentEntry(docNo, idx) {
+            const docIdx = documents.findIndex(d => d.no === docNo);
+            if (docIdx === -1) return;
+            if (confirm("Delete this payment entry permanently?")) {
+                documents[docIdx].payments.splice(idx, 1);
+                documents[docIdx].paid = documents[docIdx].payments.reduce((sum, pay) => sum + pay.amount, 0);
+                localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
+                openPaymentHistoryModal(docNo); renderAll();
+            }
+        }
+
+        // WARRANTY LIFECYCLE & NEW REPAIR LINKING
+        function checkWarranty() {
+            const query = document.getElementById('war-search-input').value.trim().toLowerCase();
+            const area = document.getElementById('war-result-area');
+            if (!query) { alert("Please type an Invoice Number or Serial!"); return; }
+
+            let resultsHTML = ''; let count = 0;
+            documents.filter(d => d.type === 'Invoice').forEach(doc => {
+                if (doc.no.toLowerCase().includes(query) || (doc.items || []).some(it => (it.pcSerial && it.pcSerial.toLowerCase().includes(query)) || (it.partSerial && it.partSerial.toLowerCase().includes(query)))) {
+                    count++;
+                    let itemsHtml = '';
+                    (doc.items || []).forEach((it, idx) => {
+                        let claimsListHtml = '';
+                        if (it.claims && it.claims.length > 0) {
+                            it.claims.forEach(cl => { claimsListHtml += `<div class="bg-amber-100 text-amber-950 p-2 rounded mt-1 border border-amber-300 text-[11px] font-bold"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Claimed ${cl.date}: ${cl.issue} &rarr; <span class="text-blue-800">${cl.res}</span> ${cl.newSerial ? `(New S/N: ${cl.newSerial})` : ''}</div>`; });
+                        }
+                        const wStatus = getWarrantyExpiry(doc.date, it.war);
+                        itemsHtml += `
+                            <div class="bg-slate-50 p-3 rounded border mt-2 flex justify-between items-start text-xs">
+                                <div>
+                                    <span class="bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded text-[10px]">[PC S/N: ${it.pcSerial}]</span>
+                                    <strong class="text-slate-800 ml-1 font-bold">${it.cat}</strong> - ${it.desc}
+                                    <p class="text-indigo-700 font-bold mt-0.5">Part Component Serial: ${it.partSerial || 'None'} | Warranty: <span class="${wStatus.color} font-extrabold">${it.war} - ${wStatus.status}</span></p>
+                                    ${claimsListHtml}
+                                </div>
+                                <div class="space-y-1 flex flex-col items-end shrink-0">
+                                    <button onclick="openClaimModal('${doc.no}', ${idx})" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded font-bold text-[10px] shadow"><i class="fa-solid fa-wrench mr-1"></i> Log Claim</button>
+                                    <button onclick="startLinkedRepair('${doc.custId}', '${it.pcSerial}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded font-bold text-[10px] shadow mt-1"><i class="fa-solid fa-link mr-1"></i> New Repair Link</button>
+                                </div>
+                            </div>`;
+                    });
+                    resultsHTML += `
+                        <div class="bg-white p-5 rounded-xl shadow border-l-4 border-indigo-600 text-xs">
+                            <div class="flex justify-between items-center border-b pb-2 mb-2">
+                                <div><span class="bg-indigo-100 text-indigo-900 font-extrabold px-2 py-0.5 rounded uppercase">${doc.type} Log</span><h4 class="font-bold text-base text-slate-800 mt-1">Doc Code: <span class="text-indigo-600">${doc.no}</span> (${doc.date})</h4></div>
+                                <div class="text-right"><p class="font-extrabold text-slate-800">${doc.custName}</p><p class="text-slate-500">TP: ${doc.custPhone}</p></div>
+                            </div>
+                            ${itemsHtml}
+                        </div>`;
+                }
+            });
+            if (count === 0) area.innerHTML = `<div class="bg-amber-50 border border-amber-200 text-amber-900 p-6 rounded-xl text-center font-bold">No records matched query "${query}".</div>`;
+            else area.innerHTML = `<h3 class="font-bold text-slate-700 mb-2">PC Lifecycle Timeline (${count} Records):</h3>` + resultsHTML;
+            area.classList.remove('hidden');
+        }
+
+        // NEW REPAIR AUTO-LINK FUNCTION
+        function startLinkedRepair(custId, pcSerial) {
+            closeModal('claim-modal');
+            switchTab('invoices');
+            openDocModal('new', 'Invoice');
+            
+            // Allow DOM to load the new modal
+            setTimeout(() => {
+                document.getElementById('d-cust').value = custId;
+                const serialInputs = document.querySelectorAll('.doc-item-pc');
+                if(serialInputs.length > 0) {
+                    serialInputs[0].value = pcSerial;
+                }
+                alert("Linked Repair Mode: Customer CRM & PC Serial auto-loaded! History will remain chained.");
+            }, 50);
+        }
+
+        function openClaimModal(docNo, itemIdx) {
+            const doc = documents.find(d => d.no === docNo);
+            if (!doc) return;
+            document.getElementById('cl-doc-no').value = docNo;
+            document.getElementById('cl-item-idx').value = itemIdx;
+            document.getElementById('cl-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('claim-item-info').innerHTML = `Claim Context: <strong class="text-blue-900">${doc.items[itemIdx].cat}</strong><br>PC Serial: ${doc.items[itemIdx].pcSerial}`;
+            openModal('claim-modal');
+        }
+
+        function saveWarrantyClaim(e) {
+            e.preventDefault();
+            const docNo = document.getElementById('cl-doc-no').value;
+            const idx = parseInt(document.getElementById('cl-item-idx').value);
+            const docIdx = documents.findIndex(d => d.no === docNo);
+            if (docIdx === -1) return;
+
+            const newSerial = document.getElementById('cl-new-serial').value.trim();
+            if (!documents[docIdx].items[idx].claims) documents[docIdx].items[idx].claims = [];
+            documents[docIdx].items[idx].claims.push({ date: document.getElementById('cl-date').value, issue: document.getElementById('cl-issue').value, res: document.getElementById('cl-res').value, newSerial: newSerial || null });
+            
+            if (newSerial) documents[docIdx].items[idx].partSerial = newSerial;
+            
+            localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
+            closeModal('claim-modal'); 
+            checkWarranty(); 
+            alert("Warranty claim logged inside PC serial history successfully.");
+        }
+
+        // --- CUSTOMER, SUPPLIER & EXPENSE CONTROLLERS ---
+        function saveCustomer(e) {
+            e.preventDefault();
+            const id = document.getElementById('c-id').value;
+            const obj = {
+                name: document.getElementById('c-name').value, phone: document.getElementById('c-phone').value,
+                whatsapp: document.getElementById('c-whatsapp').value, email: document.getElementById('c-email').value || '-',
+                addr: document.getElementById('c-addr').value || '-', notes: document.getElementById('c-notes').value || '-'
+            };
+            if (id) {
+                const idx = customers.findIndex(c => c.id === id);
+                if (idx !== -1) customers[idx] = { ...customers[idx], ...obj };
+            } else {
+                customers.push({ id: 'CUST-' + (customers.length + 101), created: new Date().toISOString().split('T')[0], ...obj });
+            }
+            localStorage.setItem('hab_cust_v43', JSON.stringify(customers));
+            document.getElementById('cust-form').reset();
+            closeModal('cust-modal');
+            renderAll();
+        }
+
+        function editCustomer(id) {
+            const c = customers.find(x => x.id === id);
+            if (!c) return;
+            document.getElementById('c-id').value = c.id; document.getElementById('c-name').value = c.name;
+            document.getElementById('c-phone').value = c.phone; document.getElementById('c-whatsapp').value = c.whatsapp;
+            document.getElementById('c-email').value = c.email !== '-' ? c.email : '';
+            document.getElementById('c-addr').value = c.addr !== '-' ? c.addr : '';
+            document.getElementById('c-notes').value = c.notes !== '-' ? c.notes : '';
+            document.getElementById('c-modal-title').innerText = "Edit Customer Contact";
+            openModal('cust-modal');
+        }
+
+        function deleteCustomer(id) {
+            if (confirm("Delete this customer context record?")) {
+                customers = customers.filter(c => c.id !== id);
+                localStorage.setItem('hab_cust_v43', JSON.stringify(customers));
+                renderAll();
+            }
+        }
+
+        function renderCustomers() {
+            const tbody = document.getElementById('cust-tbody');
+            tbody.innerHTML = '';
+            customers.forEach((c, index) => {
+                const mapBtn = c.addr !== '-' && c.addr.trim() !== '' ? `<a href="https://maps.google.com/?q=${encodeURIComponent(c.addr)}" target="_blank" title="View Location" class="text-slate-400 hover:text-red-500 ml-1"><i class="fa-solid fa-map-location-dot"></i></a>` : '';
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50 font-medium">
+                        <td class="p-3 text-slate-500 font-bold">${index + 1}</td>
+                        <td class="p-3"><button onclick="viewCustomerProfile('${c.id}')" class="font-extrabold text-blue-600 hover:underline">${c.id}</button></td>
+                        <td class="p-3 font-bold text-slate-800">${c.name}<br><span class="text-[11px] font-normal text-slate-500">${c.addr} ${mapBtn}</span></td>
+                        <td class="p-3 text-slate-700">${c.phone} <a href="tel:${c.phone}" class="ml-1 text-slate-400 hover:text-blue-500"><i class="fa-solid fa-phone"></i></a></td>
+                        <td class="p-3 text-emerald-700 font-bold"><i class="fa-brands fa-whatsapp mr-1"></i> ${c.whatsapp} <a href="https://wa.me/${c.whatsapp.replace(/[^0-9]/g, '')}" target="_blank" class="ml-1 text-slate-400 hover:text-emerald-500"><i class="fa-solid fa-comment-dots"></i></a></td>
+                        <td class="p-3 text-slate-500">${c.notes}</td>
+                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                            <button onclick="editCustomer('${c.id}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteCustomer('${c.id}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function populateCustomerDropdown() {
+            const select = document.getElementById('d-cust');
+            select.innerHTML = '';
+            customers.forEach(c => { select.innerHTML += `<option value="${c.id}">${c.name} (${c.whatsapp || c.phone})</option>`; });
+        }
+
+        function viewCustomerProfile(custId) {
+            const c = customers.find(x => x.id === custId);
+            if (!c) return;
+            document.getElementById('cp-name').innerText = `${c.name} (${c.id})`;
+            
+            const mapLink = c.addr !== '-' && c.addr.trim() !== '' ? `<a href="https://maps.google.com/?q=${encodeURIComponent(c.addr)}" target="_blank" class="text-blue-500 hover:underline ml-2"><i class="fa-solid fa-location-dot"></i> Map</a>` : '';
+            const telLink = c.phone !== '-' ? `<a href="tel:${c.phone}" class="text-blue-500 hover:underline ml-2"><i class="fa-solid fa-phone"></i> Call</a>` : '';
+            const waLink = c.whatsapp !== '-' ? `<a href="https://wa.me/${c.whatsapp.replace(/[^0-9]/g, '')}" target="_blank" class="text-emerald-500 hover:underline ml-2"><i class="fa-brands fa-whatsapp"></i> WA</a>` : '';
+
+            document.getElementById('cp-details').innerHTML = `TP: ${c.phone} ${telLink} | WA: ${c.whatsapp} ${waLink} <br> Email: ${c.email} | Addr: ${c.addr} ${mapLink}`;
+            
+            const invContainer = document.getElementById('cp-timeline-invoices');
+            const quoContainer = document.getElementById('cp-timeline-quotes');
+            invContainer.innerHTML = ''; quoContainer.innerHTML = '';
+            
+            const custDocs = documents.filter(d => d.custId === custId);
+            const invoices = custDocs.filter(d => d.type === 'Invoice');
+            const quotes = custDocs.filter(d => d.type === 'Quotation' || d.type === 'Estimate');
+            
+            if (invoices.length === 0) invContainer.innerHTML = `<p class="text-slate-400 italic py-2 text-xs">No invoices logged.</p>`;
+            else invoices.forEach(d => {
+                invContainer.innerHTML += `
+                    <div onclick="openPaymentHistoryModal('${d.no}')" class="p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg cursor-pointer flex justify-between items-center text-xs transition">
+                        <div><span class="px-2 py-0.5 rounded font-extrabold bg-blue-100 text-blue-800 border border-blue-200">${d.type}</span><strong class="text-slate-800 ml-2">${d.no}</strong> (${d.date})</div>
+                        <div class="text-right"><p class="font-extrabold text-slate-800">Rs. ${d.total.toFixed(2)}</p></div>
+                    </div>`;
+            });
+            
+            if (quotes.length === 0) quoContainer.innerHTML = `<p class="text-slate-400 italic py-2 text-xs">No quotations logged.</p>`;
+            else quotes.forEach(d => {
+                quoContainer.innerHTML += `
+                    <div onclick="openDocModal('edit', null, '${d.no}')" class="p-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg cursor-pointer flex justify-between items-center text-xs transition">
+                        <div><span class="px-2 py-0.5 rounded font-extrabold bg-amber-100 text-amber-800 border border-amber-200">${d.type}</span><strong class="text-slate-800 ml-2">${d.no}</strong> (${d.date})</div>
+                        <div class="text-right"><p class="font-extrabold text-slate-800">Rs. ${d.total.toFixed(2)}</p></div>
+                    </div>`;
+            });
+            
+            openModal('cust-profile-modal');
+        }
+
+        function saveSupplierPart(e) {
+            e.preventDefault();
+            const id = document.getElementById('s-id').value;
+            const obj = { shop: document.getElementById('s-shop').value, partName: document.getElementById('s-part').value, serialNo: document.getElementById('s-serial').value, cost: parseFloat(document.getElementById('s-cost').value), paid: document.getElementById('s-paid').value, warPeriod: document.getElementById('s-war').value, claimStatus: document.getElementById('s-claim').value };
+            if (id) {
+                const idx = suppliers.findIndex(s => s.id === id);
+                if (idx !== -1) suppliers[idx] = { ...suppliers[idx], ...obj };
+            } else {
+                suppliers.push({ id: 'SUP-' + Math.floor(1000+Math.random()*9000), date: new Date().toISOString().split('T')[0], ...obj, soldDocNo: null });
+            }
+            localStorage.setItem('hab_sup_v43', JSON.stringify(suppliers));
+            closeModal('sup-modal'); renderAll();
+        }
+
+        function openSupModal(mode, id = null) {
+            document.getElementById('sup-form').reset();
+            if (mode === 'new') { document.getElementById('s-id').value = ''; }
+            else if (mode === 'edit' && id) {
+                const s = suppliers.find(x => x.id === id);
+                if (!s) return;
+                document.getElementById('s-id').value = s.id; document.getElementById('s-shop').value = s.shop; document.getElementById('s-part').value = s.partName; document.getElementById('s-serial').value = s.serialNo; document.getElementById('s-cost').value = s.cost; document.getElementById('s-paid').value = s.paid; document.getElementById('s-war').value = s.warPeriod; document.getElementById('s-claim').value = s.claimStatus;
+            }
+            openModal('sup-modal');
+        }
+
+        function saveExpense(e) {
+            e.preventDefault();
+            expenses.push({ id: 'EXP-' + Math.floor(1000+Math.random()*9000), date: new Date().toISOString().split('T')[0], cat: document.getElementById('e-cat').value, desc: document.getElementById('e-desc').value, amt: parseFloat(document.getElementById('e-amt').value) });
+            localStorage.setItem('hab_exp_v43', JSON.stringify(expenses));
+            closeModal('exp-modal'); renderAll();
+        }
+
+        function openExpModal(mode) {
+            document.getElementById('exp-form').reset(); openModal('exp-modal');
+        }
+
+        // --- RENDER TABLES ---
+        function renderEstimates() {
+            const tbody = document.getElementById('estimates-tbody'); tbody.innerHTML = '';
+            let totalSum = 0;
+            const ests = documents.filter(d => d.type === 'Estimate');
+            ests.forEach((d, index) => {
+                totalSum += d.total;
+                let validitySpan = '';
+                if (d.validPeriod) {
+                    const match = d.validPeriod.match(/\d+/);
+                    if (match) {
+                        const days = parseInt(match[0]);
+                        const expDate = new Date(d.date);
+                        expDate.setDate(expDate.getDate() + (d.validPeriod.includes('Week') ? days * 7 : days));
+                        const today = new Date();
+                        const diffTime = expDate - today;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                        if (diffDays < 0) validitySpan = `<br><span class="text-[10px] font-bold text-rose-600"><i class="fa-solid fa-triangle-exclamation"></i> Expired</span>`;
+                        else validitySpan = `<br><span class="text-[10px] font-bold text-emerald-600"><i class="fa-solid fa-clock"></i> ${diffDays} Days Left</span>`;
+                    }
+                    if (d.status === 'Converted') validitySpan = `<br><span class="bg-emerald-100 text-emerald-800 text-[9px] px-1 rounded font-bold uppercase"><i class="fa-solid fa-check-circle"></i> Converted (OK)</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50 font-medium">
+                        <td class="p-3 text-slate-500 font-bold">${index + 1}</td>
+                        <td class="p-3 font-extrabold text-pink-800 cursor-pointer hover:underline" onclick="openDocModal('edit', null, '${d.no}')">${d.no}</td>
+                        <td class="p-3 font-bold text-slate-600">${d.date}${validitySpan}</td>
+                        <td class="p-3"><button onclick="viewCustomerProfile('${d.custId}')" class="font-bold text-blue-600 hover:underline">${d.custName}</button></td>
+                        <td class="p-3 text-[11px] text-slate-500">${(d.items || []).length} tasks itemized.</td>
+                        <td class="p-3 font-extrabold text-slate-900">Rs. ${d.total.toFixed(2)}</td>
+                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                            <button onclick="convertToInvoice('${d.no}')" class="bg-indigo-600 text-white px-2 py-1 rounded text-[11px] font-bold shadow"><i class="fa-solid fa-right-left"></i> Convert to Invoice</button>
+                            <button onclick="viewPrintable('${d.no}')" class="bg-slate-800 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="openDocModal('edit', null, '${d.no}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteDocument('${d.no}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+            document.getElementById('estimates-total-sum').innerText = 'Rs. ' + totalSum.toFixed(2);
+        }
+
+        function renderBulkEstimates() {
+            const tbody = document.getElementById('bulk-estimates-tbody'); tbody.innerHTML = '';
+            let totalSum = 0;
+            const ests = documents.filter(d => d.type === 'Bulk Estimate');
+            ests.forEach((d, index) => {
+                totalSum += d.total;
+                let validitySpan = '';
+                if (d.validPeriod) {
+                    const match = d.validPeriod.match(/\d+/);
+                    if (match) {
+                        const days = parseInt(match[0]);
+                        const expDate = new Date(d.date);
+                        expDate.setDate(expDate.getDate() + (d.validPeriod.includes('Week') ? days * 7 : days));
+                        const today = new Date();
+                        const diffTime = expDate - today;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                        if (diffDays < 0) validitySpan = `<br><span class="text-[10px] font-bold text-rose-600"><i class="fa-solid fa-triangle-exclamation"></i> Expired</span>`;
+                        else validitySpan = `<br><span class="text-[10px] font-bold text-emerald-600"><i class="fa-solid fa-clock"></i> ${diffDays} Days Left</span>`;
+                    }
+                    if (d.status === 'Converted') validitySpan = `<br><span class="bg-emerald-100 text-emerald-800 text-[9px] px-1 rounded font-bold uppercase"><i class="fa-solid fa-check-circle"></i> Converted (OK)</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50 font-medium">
+                        <td class="p-3 text-slate-500 font-bold">${index + 1}</td>
+                        <td class="p-3 font-extrabold text-orange-800 cursor-pointer hover:underline" onclick="openDocModal('edit', null, '${d.no}')">${d.no}</td>
+                        <td class="p-3 font-bold text-slate-600">${d.date}${validitySpan}</td>
+                        <td class="p-3"><button onclick="viewCustomerProfile('${d.custId}')" class="font-bold text-blue-600 hover:underline">${d.custName}</button></td>
+                        <td class="p-3 text-[11px] text-slate-500">${(d.items || []).length} tasks itemized.</td>
+                        <td class="p-3 font-extrabold text-slate-900">Rs. ${d.total.toFixed(2)}</td>
+                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                            <button onclick="convertToInvoice('${d.no}')" class="bg-indigo-600 text-white px-2 py-1 rounded text-[11px] font-bold shadow"><i class="fa-solid fa-right-left"></i> Convert to Invoice</button>
+                            <button onclick="viewPrintable('${d.no}')" class="bg-slate-800 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="openDocModal('edit', null, '${d.no}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteDocument('${d.no}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+            document.getElementById('bulk-estimates-total-sum').innerText = 'Rs. ' + totalSum.toFixed(2);
+        }
+
+        function renderQuotes() {
+            const tbody = document.getElementById('quotes-tbody'); tbody.innerHTML = '';
+            let totalSum = 0;
+            const quotes = documents.filter(d => d.type === 'Quotation');
+            quotes.forEach((d, index) => {
+                totalSum += d.total;
+                let validitySpan = '';
+                if (d.validPeriod) {
+                    const match = d.validPeriod.match(/\d+/);
+                    if (match) {
+                        const days = parseInt(match[0]);
+                        const expDate = new Date(d.date);
+                        expDate.setDate(expDate.getDate() + (d.validPeriod.includes('Week') ? days * 7 : days));
+                        const today = new Date();
+                        const diffTime = expDate - today;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                        if (diffDays < 0) validitySpan = `<br><span class="text-[10px] font-bold text-rose-600"><i class="fa-solid fa-triangle-exclamation"></i> Expired</span>`;
+                        else validitySpan = `<br><span class="text-[10px] font-bold text-emerald-600"><i class="fa-solid fa-clock"></i> ${diffDays} Days Left</span>`;
+                    }
+                    if (d.status === 'Converted') validitySpan = `<br><span class="bg-emerald-100 text-emerald-800 text-[9px] px-1 rounded font-bold uppercase"><i class="fa-solid fa-check-circle"></i> Converted (OK)</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50 font-medium">
+                        <td class="p-3 text-slate-500 font-bold">${index + 1}</td>
+                        <td class="p-3 font-extrabold text-amber-800 cursor-pointer hover:underline" onclick="openDocModal('edit', null, '${d.no}')">${d.no}</td>
+                        <td class="p-3 font-bold text-slate-600">${d.date}${validitySpan}</td>
+                        <td class="p-3"><button onclick="viewCustomerProfile('${d.custId}')" class="font-bold text-blue-600 hover:underline">${d.custName}</button></td>
+                        <td class="p-3 text-[11px] text-slate-500">${(d.items || []).length} tasks itemized.</td>
+                        <td class="p-3 font-extrabold text-slate-900">Rs. ${d.total.toFixed(2)}</td>
+                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                            <button onclick="convertToInvoice('${d.no}')" class="bg-indigo-600 text-white px-2 py-1 rounded text-[11px] font-bold shadow"><i class="fa-solid fa-right-left"></i> Convert to Invoice</button>
+                            <button onclick="viewPrintable('${d.no}')" class="bg-slate-800 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="openDocModal('edit', null, '${d.no}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteDocument('${d.no}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function renderInvoices() {
+            const tbody = document.getElementById('invoices-tbody'); tbody.innerHTML = '';
+            let totalSum = 0;
+            const invs = documents.filter(d => d.type === 'Invoice');
+            invs.forEach((d, index) => {
+                totalSum += d.total;
+                const bal = d.total - d.paid;
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50 font-medium">
+                        <td class="p-3 text-slate-500 font-bold">${index + 1}</td>
+                        <td class="p-3 font-extrabold text-blue-800 cursor-pointer hover:underline" onclick="openPaymentHistoryModal('${d.no}')">${d.no}</td>
+                        <td class="p-3 text-slate-500">${d.date}</td><td class="p-3"><button onclick="viewCustomerProfile('${d.custId}')" class="font-bold text-blue-600 hover:underline">${d.custName}</button></td>
+                        <td class="p-3 text-slate-500">${(d.items || []).length} repairs grouped.</td>
+                        <td class="p-3 font-extrabold text-slate-900">Rs. ${d.total.toFixed(2)}</td>
+                        <td class="p-3 font-bold ${bal<=0?'text-emerald-600':'text-rose-600'}">Rs. ${d.paid.toFixed(2)}</td>
+                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                            <button onclick="viewPrintable('${d.no}')" class="bg-slate-800 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="openDocModal('edit', null, '${d.no}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteDocument('${d.no}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+            document.getElementById('inv-total-sum').innerText = 'Rs. ' + totalSum.toFixed(2);
+        }
+
+        function renderPending() {
+            const tbody = document.getElementById('pend-tbody'); tbody.innerHTML = ''; let total = 0;
+            documents.filter(d => d.type === 'Invoice' && d.total > d.paid).forEach((d, index) => {
+                const bal = d.total - d.paid; total += bal;
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50 font-medium">
+                        <td class="p-3 text-slate-500 font-bold">${index + 1}</td>
+                        <td class="p-3 font-extrabold text-blue-700 cursor-pointer hover:underline" onclick="openPaymentHistoryModal('${d.no}')">${d.no}</td>
+                        <td class="p-3"><strong>${d.custName}</strong></td><td class="p-3">Rs. ${d.total.toFixed(2)}</td><td class="p-3 text-emerald-600">Rs. ${d.paid.toFixed(2)}</td>
+                        <td class="p-3 text-rose-600 font-extrabold text-sm">Rs. ${bal.toFixed(2)}</td>
+                        <td class="p-3 text-center"><button onclick="openPaymentHistoryModal('${d.no}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg font-bold shadow text-xs"><i class="fa-solid fa-money-bill-wave"></i> Pay Balance</button></td>
+                    </tr>`;
+            });
+            document.getElementById('pend-total-amt').innerText = `Outstanding Total: Rs. ${total.toFixed(2)}`;
+            document.getElementById('dash-pending').innerText = `Rs. ${total.toFixed(2)}`;
+        }
+        
+        function renderCompleted() {
+            const tbody = document.getElementById('comp-tbody'); tbody.innerHTML = ''; let total = 0;
+            documents.filter(d => d.type === 'Invoice' && d.paid >= d.total).forEach((d, index) => {
+                total += d.paid;
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50 font-medium text-slate-700">
+                        <td class="p-3 text-slate-500 font-bold">${index + 1}</td>
+                        <td class="p-3 font-extrabold text-emerald-700 cursor-pointer hover:underline" onclick="openPaymentHistoryModal('${d.no}')">${d.no}</td>
+                        <td class="p-3 text-slate-500">${d.date}</td><td class="p-3 font-bold">${d.custName}</td>
+                        <td class="p-3 font-extrabold text-emerald-600">Rs. ${d.paid.toFixed(2)}</td>
+                        <td class="p-3 text-center"><button onclick="viewPrintable('${d.no}')" class="bg-slate-800 text-white px-2.5 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-print"></i> Print</button></td>
+                    </tr>`;
+            });
+            document.getElementById('comp-total-amt').innerText = `Total Collected: Rs. ${total.toFixed(2)}`;
+        }
+
+        function renderChequesTable() {
+            const tbody = document.getElementById('cheques-tbody'); tbody.innerHTML = '';
+            cheques.forEach((c, index) => {
+                let badge = 'bg-amber-100 text-amber-800';
+                if (c.status === 'Finished') badge = 'bg-emerald-100 text-emerald-800';
+                if (c.status === 'Rejected') badge = 'bg-rose-100 text-red-800';
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-slate-50 font-medium">
+                        <td class="p-3 text-slate-500 font-bold">${index + 1}</td>
+                        <td class="p-3 font-extrabold text-blue-700 cursor-pointer hover:underline" onclick="openPaymentHistoryModal('${c.invoiceNo}')">${c.invoiceNo}</td>
+                        <td class="p-3">No: <strong>${c.chequeNo}</strong><br><span class="text-slate-500 text-[10px]">${c.bank}</span></td>
+                        <td class="p-3 font-bold text-slate-700">${c.dueDate}</td><td class="p-3 font-extrabold text-slate-800">Rs. ${c.amount.toFixed(2)}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badge}">${c.status}</span></td>
+                        <td class="p-3 text-center">
+                            <select onchange="updateChequeStatus('${c.id}', this.value)" class="p-1 border rounded text-[11px] font-bold bg-white">
+                                <option value="Pending" ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Finished" ${c.status === 'Finished' ? 'selected' : ''}>Finished</option>
+                                <option value="Rejected" ${c.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                            </select>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function convertInvoiceToCheque(e) {
+            e.preventDefault();
+            const invNo = document.getElementById('conv-inv-no').value.trim().toUpperCase();
+            const docIdx = documents.findIndex(d => d.no === invNo);
+            if (docIdx === -1) { alert("Invoice not found!"); return; }
+            cheques.push({ id: 'CHQ-' + Math.floor(1000+Math.random()*9000), invoiceNo: invNo, chequeNo: document.getElementById('conv-chq-no').value.trim(), bank: document.getElementById('conv-chq-bank').value.trim(), dueDate: document.getElementById('conv-chq-date').value, amount: documents[docIdx].total, status: 'Pending' });
+            localStorage.setItem('hab_chq_v43', JSON.stringify(cheques));
+            document.getElementById('conv-inv-no').value = ''; document.getElementById('conv-chq-no').value = ''; document.getElementById('conv-chq-bank').value = '';
+            renderAll(); checkChequeMaturationAlerts(); alert("Converted to Cheque!");
+        }
+
+        function updateChequeStatus(chqId, newStatus) {
+            const idx = cheques.findIndex(c => c.id === chqId);
+            if (idx === -1) return;
+            cheques[idx].status = newStatus; localStorage.setItem('hab_chq_v43', JSON.stringify(cheques));
+            renderAll(); checkChequeMaturationAlerts();
+        }
+
+        function renderSuppliers() {
+            const tbody = document.getElementById('sup-tbody'); tbody.innerHTML = '';
+            let totalSum = 0;
+            suppliers.forEach((s, index) => {
+                totalSum += s.cost;
+                tbody.innerHTML += `<tr class="border-b text-xs hover:bg-slate-50"><td class="p-3 text-slate-500 font-bold">${index + 1}</td><td class="p-3">${s.date}</td><td class="p-3 font-bold">${s.shop}</td><td class="p-3"><strong>${s.partName}</strong><br><span class="text-indigo-600 font-bold">S/N: ${s.serialNo}</span></td><td class="p-3 text-rose-600 font-extrabold">Rs. ${s.cost.toFixed(2)}</td><td class="p-3 text-slate-700">${s.warPeriod}</td><td class="p-3 font-bold text-blue-700">${s.soldDocNo || 'In Casing Stock'}</td><td class="p-3">${s.claimStatus}</td><td class="p-3 text-center"><button onclick="openSupModal('edit', '${s.id}')" class="bg-amber-500 text-white px-2 py-1 rounded"><i class="fa-solid fa-pen"></i></button></td></tr>`;
+            });
+            document.getElementById('sup-total-sum').innerText = 'Rs. ' + totalSum.toFixed(2);
+        }
+
+        function renderFinance() {
+            const tbody = document.getElementById('fin-tbody'); tbody.innerHTML = ''; const ledger = [];
+            documents.forEach(d => {
+                if (d.payments && d.payments.length > 0) {
+                    d.payments.forEach(p => {
+                        if (p.amount > 0) {
+                            ledger.push({ date: p.date, cat: 'Customer Remittance', desc: `${d.no} log (${p.method})`, in: p.amount, out: 0 });
+                        }
+                    });
+                } else if (d.paid > 0) {
+                    ledger.push({ date: d.date, cat: 'Customer Remittance', desc: `${d.no} log`, in: d.paid, out: 0 });
+                }
+            });
+            suppliers.forEach(s => { if (s.paid === 'Paid in Full') ledger.push({ date: s.date, cat: 'Spares Purchase', desc: `${s.partName} buy cost`, in: 0, out: s.cost }); });
+            expenses.forEach(e => { ledger.push({ date: e.date, cat: e.cat, desc: e.desc, in: 0, out: e.amt }); });
+            ledger.sort((a, b) => new Date(b.date) - new Date(a.date));
+            let totIn = 0, totOut = 0;
+            ledger.forEach((l, index) => { totIn += l.in; totOut += l.out;
+                tbody.innerHTML += `<tr class="border-b text-xs"><td class="p-2 text-slate-500 font-bold">${index + 1}</td><td class="p-2">${l.date}</td><td class="p-2 font-bold">${l.cat}</td><td class="p-2">${l.desc}</td><td class="p-2 text-emerald-600 font-extrabold">${l.in>0?'Rs. '+l.in.toFixed(2):'-'}</td><td class="p-2 text-rose-600 font-extrabold">${l.out>0?'Rs. '+l.out.toFixed(2):'-'}</td><td class="p-2 text-center text-slate-400 italic">Auto</td></tr>`;
+            });
+            document.getElementById('fin-total-in').innerText = `Rs. ${totIn.toFixed(2)}`; document.getElementById('fin-total-out').innerText = `Rs. ${totOut.toFixed(2)}`;
+            const net = totIn - totOut; document.getElementById('fin-net-bal').innerText = `Rs. ${net.toFixed(2)}`; document.getElementById('fin-net-bal').className = `p-3 font-extrabold text-base ${net>=0?'text-emerald-700':'text-rose-700'}`;
+        }
+
+        function updateDashboard() {
+            let totIn = 0, totOut = 0;
+            documents.forEach(d => totIn += d.paid); suppliers.forEach(s => { if (s.paid === 'Paid in Full') totOut += s.cost; }); expenses.forEach(e => totOut += e.amt);
+            document.getElementById('dash-income').innerText = `Rs. ${totIn.toFixed(2)}`; document.getElementById('dash-expense').innerText = `Rs. ${totOut.toFixed(2)}`;
+            const net = totIn - totOut; document.getElementById('dash-profit').innerText = `Rs. ${net.toFixed(2)}`; document.getElementById('dash-profit').className = `text-2xl font-extrabold mt-1 ${net>=0?'text-blue-600':'text-rose-600'}`;
+        }
+
+        // --- HIERARCHICAL PRINT COMPILER WITH DISCOUNT & TAX ---
+        function viewPrintable(docNo) {
+            const d = documents.find(x => x.no === docNo);
+            if (!d) return;
+
+            document.getElementById('p-shop-name').innerText = shopConfig.name;
+            document.getElementById('p-shop-addr-tel').innerText = `${shopConfig.addr}. T. P. ${shopConfig.phone}`;
+            document.getElementById('p-shop-email').innerText = `E-mail - ${shopConfig.email}`;
+            document.getElementById('p-shop-reg').innerText = `Reg. Num. ${shopConfig.reg}`;
+
+            document.getElementById('p-doc-type').innerText = d.type === 'Bulk Estimate' ? 'ESTIMATE' : d.type;
+            document.getElementById('p-doc-no').innerText = d.no;
+            document.getElementById('p-date').innerText = `Date: ${d.date}`;
+            
+            if (d.type === 'Quotation') { document.getElementById('p-validity-box').classList.remove('hidden'); document.getElementById('p-validity-text').innerText = d.validPeriod || '1 Week'; }
+            else document.getElementById('p-validity-box').classList.add('hidden');
+
+            document.getElementById('p-cust-name').innerText = d.custName;
+            document.getElementById('p-cust-phone').innerText = `TP: ${d.custPhone || 'N/A'} | WA: ${d.custWhatsapp || 'N/A'}`;
+            document.getElementById('p-cust-addr').innerText = `Address: ${d.custAddr || 'Lunugama'}`;
+
+            const printTable = document.getElementById('p-items-table');
+            printTable.querySelectorAll('tbody').forEach(tb => tb.remove());
+            const hideSn = d.hideSn === true;
+            const hideWar = d.hideWar === true;
+
+            if (hideSn && hideWar) {
+                printTable.querySelector('thead').innerHTML = `<tr class="bg-slate-900 text-white text-[10px] uppercase font-bold"><th class="p-2 w-1/2 border border-slate-700">Service Operations & Tasks Executed</th><th class="p-2 w-16 text-center border border-slate-700">Qty</th><th class="p-2 w-1/4 text-right border border-slate-700">Unit Price (Rs.)</th><th class="p-2 w-1/4 text-right border border-slate-700">Total (Rs.)</th></tr>`;
+            } else if (!hideSn && !hideWar) {
+                printTable.querySelector('thead').innerHTML = `<tr class="bg-slate-900 text-white text-[10px] uppercase font-bold"><th class="p-2 w-[20%] border border-slate-700">PC Identification / Serial</th><th class="p-2 w-[35%] border border-slate-700">Service Operations & Tasks Executed</th><th class="p-2 w-[15%] border border-slate-700">Warranty & Part S/N</th><th class="p-2 w-10 text-center border border-slate-700">Qty</th><th class="p-2 w-[15%] text-right border border-slate-700">Unit Price (Rs.)</th><th class="p-2 w-[15%] text-right border border-slate-700">Total (Rs.)</th></tr>`;
+            } else if (hideSn && !hideWar) {
+                printTable.querySelector('thead').innerHTML = `<tr class="bg-slate-900 text-white text-[10px] uppercase font-bold"><th class="p-2 w-[40%] border border-slate-700">Service Operations & Tasks Executed</th><th class="p-2 w-[20%] border border-slate-700">Warranty & Part S/N</th><th class="p-2 w-12 text-center border border-slate-700">Qty</th><th class="p-2 w-[20%] text-right border border-slate-700">Unit Price (Rs.)</th><th class="p-2 w-[20%] text-right border border-slate-700">Total (Rs.)</th></tr>`;
+            } else if (!hideSn && hideWar) {
+                printTable.querySelector('thead').innerHTML = `<tr class="bg-slate-900 text-white text-[10px] uppercase font-bold"><th class="p-2 w-[25%] border border-slate-700">PC Identification / Serial</th><th class="p-2 w-[35%] border border-slate-700">Service Operations & Tasks Executed</th><th class="p-2 w-12 text-center border border-slate-700">Qty</th><th class="p-2 w-[20%] text-right border border-slate-700">Unit Price (Rs.)</th><th class="p-2 w-[20%] text-right border border-slate-700">Total (Rs.)</th></tr>`;
+            }
+
+            let groupedItems = {};
+            (d.items || []).forEach(it => { if (!groupedItems[it.pcSerial]) groupedItems[it.pcSerial] = []; groupedItems[it.pcSerial].push(it); });
+
+            Object.keys(groupedItems).forEach(serial => {
+                const rowCount = groupedItems[serial].length;
+                let tbodyHtml = '<tbody style="page-break-inside: avoid;">';
+                groupedItems[serial].forEach((it, index) => {
+                    const qty = parseFloat(it.qty || 1);
+                    const price = parseFloat(it.price || 0);
+                    const totalStr = `Rs. ${(price * qty).toFixed(2)}`;
+                    const priceCols = `<td class="p-2 border border-slate-700 text-center font-bold">${qty}</td><td class="p-2 border border-slate-700 text-right text-slate-600">Rs. ${price.toFixed(2)}</td><td class="p-2 text-right font-extrabold text-slate-900 border border-slate-700">${totalStr}</td>`;
+                    
+                    if (hideSn && hideWar) {
+                        tbodyHtml += `<tr class="text-slate-800 font-medium"><td class="p-2 border border-slate-700"><strong class="text-slate-900">${it.cat}</strong><br><span class="text-slate-600">${it.desc}</span></td>${priceCols}</tr>`;
+                    } else if (!hideSn && !hideWar) {
+                        let serialCell = '';
+                        if (index === 0) serialCell = `<td class="p-2 font-extrabold text-blue-800 border border-slate-700" rowspan="${rowCount}">[PC S/N: ${serial}]</td>`;
+                        const wStatus = getWarrantyExpiry(d.date, it.war);
+                        tbodyHtml += `<tr class="text-slate-800 font-medium">${serialCell}<td class="p-2 border border-slate-700"><strong class="text-slate-900">${it.cat}</strong><br><span class="text-slate-600">${it.desc}</span></td><td class="p-2 border border-slate-700"><span class="font-bold text-indigo-700">${it.war}</span><br><span class="text-[9px] font-extrabold ${wStatus.color}">${wStatus.status}</span><br><span class="text-[9px] text-slate-400 font-bold">${it.partSerial?'S/N: '+it.partSerial:''}</span></td>${priceCols}</tr>`;
+                    } else if (hideSn && !hideWar) {
+                        const wStatus = getWarrantyExpiry(d.date, it.war);
+                        tbodyHtml += `<tr class="text-slate-800 font-medium"><td class="p-2 border border-slate-700"><strong class="text-slate-900">${it.cat}</strong><br><span class="text-slate-600">${it.desc}</span></td><td class="p-2 border border-slate-700"><span class="font-bold text-indigo-700">${it.war}</span><br><span class="text-[9px] font-extrabold ${wStatus.color}">${wStatus.status}</span><br><span class="text-[9px] text-slate-400 font-bold">${it.partSerial?'S/N: '+it.partSerial:''}</span></td>${priceCols}</tr>`;
+                    } else if (!hideSn && hideWar) {
+                        let serialCell = '';
+                        if (index === 0) serialCell = `<td class="p-2 font-extrabold text-blue-800 border border-slate-700" rowspan="${rowCount}">[PC S/N: ${serial}]</td>`;
+                        tbodyHtml += `<tr class="text-slate-800 font-medium">${serialCell}<td class="p-2 border border-slate-700"><strong class="text-slate-900">${it.cat}</strong><br><span class="text-slate-600">${it.desc}</span></td>${priceCols}</tr>`;
+                    }
+                });
+                tbodyHtml += '</tbody>';
+                printTable.insertAdjacentHTML('beforeend', tbodyHtml);
+            });
+
+            if (d.discount > 0 || d.tax > 0) {
+                document.getElementById('p-subtotal-row').classList.remove('hidden');
+                document.getElementById('p-subtotal').innerText = `Rs. ${(d.total + (d.discount || 0) - (d.tax || 0)).toFixed(2)}`;
+                if (d.discount > 0) { document.getElementById('p-disc-row').classList.remove('hidden'); document.getElementById('p-disc').innerText = `- Rs. ${d.discount.toFixed(2)}`; } 
+                else { document.getElementById('p-disc-row').classList.add('hidden'); }
+                if (d.tax > 0) { document.getElementById('p-tax-row').classList.remove('hidden'); document.getElementById('p-tax').innerText = `+ Rs. ${d.tax.toFixed(2)}`; } 
+                else { document.getElementById('p-tax-row').classList.add('hidden'); }
+            } else {
+                document.getElementById('p-subtotal-row').classList.add('hidden'); document.getElementById('p-disc-row').classList.add('hidden'); document.getElementById('p-tax-row').classList.add('hidden');
+            }
+
+            if (d.incBank !== false && shopConfig.bankNo) { document.getElementById('p-bank-info').classList.remove('hidden'); document.getElementById('p-bank-text').innerText = `Acc Name: ${shopConfig.bankName} | Acc No: ${shopConfig.bankNo} | Bank: ${shopConfig.bankBranch}`; } 
+            else document.getElementById('p-bank-info').classList.add('hidden');
+
+            document.getElementById('p-total').innerText = `Rs. ${d.total.toFixed(2)}`;
+            document.getElementById('p-paid').innerText = `Rs. ${d.paid.toFixed(2)} (${d.payMethod || 'Cash'})`;
+            document.getElementById('p-bal').innerText = `Rs. ${(d.total - d.paid).toFixed(2)}`;
+
+            openModal('print-modal');
+        }
+
+        function printDocument() {
+            html2pdf().set({ pagebreak: { mode: ['css', 'legacy'], avoid: 'tr' }, margin: 0.3, filename: `${document.getElementById('p-doc-no').innerText}_H.A.BROTHERS.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2.5, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('print-area'))
+            .toPdf().get('pdf').then(function (pdf) {
+                var totalPages = pdf.internal.getNumberOfPages();
+                for (var i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(150);
+                    pdf.text('Page ' + i + ' of ' + totalPages, 8.27 / 2 - 0.4, 11.69 - 0.15);
+                }
+            }).save();
+        }
+
+        function emailDocument() {
+            const docNo = document.getElementById('p-doc-no').innerText;
+            const doc = documents.find(x => x.no === docNo);
+            if (!doc) return;
+            const cust = customers.find(x => x.id === doc.custId);
+            const email = cust && cust.email && cust.email !== '-' ? cust.email : '';
+            
+            // Generate PDF first
+            html2pdf().set({ pagebreak: { mode: ['css', 'legacy'], avoid: 'tr' }, margin: 0.3, filename: `${docNo}_H.A.BROTHERS.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2.5, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('print-area'))
+            .toPdf().get('pdf').then(function (pdf) {
+                var totalPages = pdf.internal.getNumberOfPages();
+                for (var i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(150);
+                    pdf.text('Page ' + i + ' of ' + totalPages, 8.27 / 2 - 0.4, 11.69 - 0.15);
+                }
+            }).save();
+            
+            setTimeout(() => {
+                alert("The PDF has been downloaded. Your default email client will now open. Please MANUALLY attach the downloaded PDF to the email.");
+                const subject = encodeURIComponent(`${doc.type} ${docNo} from H.A. BROTHERS PC HOUSE`);
+                const body = encodeURIComponent(`Dear ${doc.custName},\n\nPlease find attached your ${doc.type} (${docNo}).\n\nThank you for your business!\n\nBest Regards,\nH.A. BROTHERS PC HOUSE`);
+                window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+            }, 1000);
+        }
+
+        function exportCSV(tableId, filename) {
+            const table = document.getElementById(tableId); let csv = []; const rows = table.querySelectorAll('tr');
+            for (let i = 0; i < rows.length; i++) {
+                const row = [], cols = rows[i].querySelectorAll('td, th');
+                for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText.replace(/(\r\n|\n|\r)/gm, ' ').replace(/,/g, '') + '"');
+                csv.push(row.join(','));
+            }
+            const blob = new Blob([csv.join('\n')], { type: 'text/csv' }); const a = document.createElement('a'); a.href = window.URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+
+        function exportPDF(tableId, filename) {
+            html2pdf().set({ margin: 0.3, filename: filename, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } }).from(document.getElementById(tableId)).save();
+        }
+
+        function loadConfigForm() {
+            document.getElementById('cfg-name').value = shopConfig.name; document.getElementById('cfg-addr').value = shopConfig.addr; document.getElementById('cfg-phone').value = shopConfig.phone; document.getElementById('cfg-email').value = shopConfig.email; document.getElementById('cfg-reg').value = shopConfig.reg; document.getElementById('cfg-bank-name').value = shopConfig.bankName || ''; document.getElementById('cfg-bank-no').value = shopConfig.bankNo || ''; document.getElementById('cfg-bank-branch').value = shopConfig.bankBranch || ''; document.getElementById('cfg-markup').value = shopConfig.markup !== undefined ? shopConfig.markup : 2500;
+        }
+
+        function saveConfig(e) {
+            e.preventDefault();
+            shopConfig = { name: document.getElementById('cfg-name').value, addr: document.getElementById('cfg-addr').value, phone: document.getElementById('cfg-phone').value, email: document.getElementById('cfg-email').value, reg: document.getElementById('cfg-reg').value, bankName: document.getElementById('cfg-bank-name').value, bankNo: document.getElementById('cfg-bank-no').value, bankBranch: document.getElementById('cfg-bank-branch').value, markup: document.getElementById('cfg-markup').value };
+            localStorage.setItem('hab_cfg_v43', JSON.stringify(shopConfig)); alert("Settings saved.");
+        }
+
+        function backupData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ customers, documents, suppliers, expenses, cheques, docCounter, shopConfig }, null, 2));
+            const dlAnchor = document.createElement('a'); dlAnchor.href = dataStr; dlAnchor.download = `HABrothers_ERP_v43_Backup.json`; dlAnchor.click();
+        }        
+        
+        function restoreData(event) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    customers = data.customers || []; documents = data.documents || []; suppliers = data.suppliers || []; expenses = data.expenses || []; cheques = data.cheques || []; docCounter = data.docCounter || 1001;
+                    if (data.shopConfig) shopConfig = data.shopConfig;
+                    localStorage.setItem('hab_cust_v43', JSON.stringify(customers)); localStorage.setItem('hab_docs_v43', JSON.stringify(documents)); localStorage.setItem('hab_sup_v43', JSON.stringify(suppliers)); localStorage.setItem('hab_exp_v43', JSON.stringify(expenses)); localStorage.setItem('hab_chq_v43', JSON.stringify(cheques)); localStorage.setItem('hab_cnt_v43', docCounter.toString()); localStorage.setItem('hab_cfg_v43', JSON.stringify(shopConfig));
+                    renderAll(); loadConfigForm(); alert("Data restored successfully!");
+                } catch(err) { alert("Invalid Backup File"); }
+            };
+            reader.readAsText(event.target.files[0]);
+        }
+
+        function factoryReset() {
+            const pwd = prompt("WARNING: This will permanently delete ALL data! Enter reset password (0000) to confirm:");
+            if (pwd === "0000") {
+                localStorage.clear();
+                alert("System has been factory reset. Reloading...");
+                window.location.reload();
+            } else if (pwd !== null) {
+                alert("Incorrect password. Reset cancelled.");
+            }
+        }
+
+        function logoutSystem() {
+            document.body.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-slate-900 text-white"><button onclick="location.reload()" class="bg-red-700 font-bold px-6 py-2.5 rounded-lg">Log Back In</button></div>`;
+        }
+    </script>
+</body>
+</html>

@@ -41,7 +41,7 @@
             }
         }
     </style>
-    <!-- Firebase SDK Compat (Required for inline scripts) -->
+    <!-- Firebase SDK Compat -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
@@ -162,9 +162,9 @@
         <div id="warranty" class="tab-content">
             <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 rounded-xl shadow-lg mb-6 border border-indigo-900/50">
                 <h2 class="text-2xl font-bold mb-1 flex items-center"><i class="fa-solid fa-magnifying-glass-chart text-indigo-400 mr-2.5"></i> Warranty Tracker & PC Lifecycle History</h2>
-                <p class="text-xs text-indigo-200 mb-4">Search by PC Serial Number to view its entire repair history. You can link new repairs to the same serial number from here.</p>
+                <p class="text-xs text-indigo-200 mb-4">Search by PC Serial Number, Invoice No, Customer Name, Item Name, or New Replaced S/N to view entire repair history.</p>
                 <div class="flex space-x-2 max-w-2xl">
-                    <input type="text" id="war-search-input" placeholder="Type Invoice No or PC/Part Serial Number..." class="flex-grow p-3 rounded-lg text-slate-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner">
+                    <input type="text" id="war-search-input" placeholder="Type anything to search lifecycle..." class="flex-grow p-3 rounded-lg text-slate-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-inner">
                     <button onclick="checkWarranty()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg font-bold text-sm transition shadow flex items-center shrink-0"><i class="fa-solid fa-search mr-2"></i> Track Lifecycle</button>
                 </div>
             </div>
@@ -361,7 +361,7 @@
         <div id="suppliers" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <div><h2 class="text-xl font-bold">Supplier Parts & Serial Ledger</h2></div>
-                <button onclick="openSupModal('new')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Add Supplier Part</button>
+                <button onclick="openSupModal('new')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Add Bulk Supplier Stock</button>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
@@ -372,7 +372,10 @@
                         <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3">Date</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 2)">Supplier Shop <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Part Name & Serial No</th><th class="p-3">Cost (Rs.)</th><th class="p-3">Supplier Warranty</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 6)">Sold To (Cust / Inv) <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Claim Status</th><th class="p-3 text-center">Actions</th></tr></thead>
                         <tbody id="sup-tbody"></tbody>
                         <tfoot>
-                            <tr class="bg-slate-50 font-extrabold text-slate-800 border-t"><td colspan="4" class="p-3 text-right">Total Value of Parts:</td><td id="sup-total-sum" class="p-3 text-rose-600">Rs. 0.00</td><td colspan="4"></td></tr>
+                            <tr class="bg-slate-50 font-extrabold text-slate-800 border-t">
+                                <td colspan="4" class="p-3 text-right">Stock Details & Valuation:</td>
+                                <td id="sup-total-sum" colspan="5" class="p-3"></td>
+                            </tr>
                         </tfoot>
                     </table>
                 </div>
@@ -391,7 +394,7 @@
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs" id="fin-table">
-                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 1)">Date <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 2)">Category & Method <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Description</th><th class="p-3">Income (Rs.)</th><th class="p-3">Expense (Rs.)</th><th class="p-3 text-center">Auto</th></tr></thead>
+                        <thead><tr class="bg-slate-100 text-slate-600 uppercase font-bold border-b"><th class="p-3 w-10">#</th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 1)">Date <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3 cursor-pointer hover:bg-slate-200" onclick="sortTable(this, 2)">Category & Method <i class="fa-solid fa-sort ml-1"></i></th><th class="p-3">Description</th><th class="p-3">Income (Rs.)</th><th class="p-3">Expense (Rs.)</th><th class="p-3 text-center">Action</th></tr></thead>
                         <tbody id="fin-tbody"></tbody>
                         <tfoot>
                             <tr class="bg-slate-50 font-bold text-slate-700 border-t"><td colspan="4" class="p-3 text-right">Totals:</td><td id="fin-total-in" class="p-3 text-emerald-600 font-extrabold">Rs. 0.00</td><td id="fin-total-out" class="p-3 text-rose-600 font-extrabold">Rs. 0.00</td><td></td></tr>
@@ -502,75 +505,45 @@
             </form>
         </div>
     </div>
-    <!-- Supplier Warranty / Stock Modal -->
+    
+    <!-- BULK Supplier Warranty / Stock Modal -->
     <div id="sup-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl text-xs">
+        <div class="bg-white rounded-xl max-w-5xl w-full p-6 shadow-2xl text-xs flex flex-col max-h-[95vh]">
             <div class="flex justify-between items-center border-b pb-3 mb-3">
-                <h3 id="s-modal-title" class="font-extrabold text-lg text-slate-900"><i class="fa-solid fa-truck-fast text-emerald-600 mr-2"></i> Supplier / Part Entry</h3>
+                <h3 id="s-modal-title" class="font-extrabold text-lg text-slate-900"><i class="fa-solid fa-truck-fast text-emerald-600 mr-2"></i> Bulk Supplier & Stock Entry</h3>
                 <button onclick="closeModal('sup-modal')" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form id="sup-form" onsubmit="saveSupplierPart(event)" class="space-y-3">
-                <input type="hidden" id="s-id">
-                <div class="grid grid-cols-2 gap-3">
+            <form id="sup-form" onsubmit="saveSupplierPart(event)" class="flex flex-col flex-grow overflow-hidden">
+                <input type="hidden" id="s-edit-id">
+                
+                <div class="grid grid-cols-2 gap-4 mb-3 shrink-0 bg-slate-50 p-3 rounded border">
                     <div>
                         <label class="font-bold text-slate-700 block mb-1">Supplier / Shop Name *</label>
-                        <input type="text" id="s-shop" required class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-emerald-500 bg-slate-50 font-bold">
+                        <input type="text" id="s-shop" required class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-emerald-500 font-bold text-sm">
                     </div>
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Part / Item Name *</label>
-                        <input type="text" id="s-part" required class="w-full p-2 border border-slate-300 rounded focus:ring-2 focus:ring-emerald-500 font-bold">
+                        <label class="font-bold text-slate-700 block mb-1">Stock Received Date *</label>
+                        <input type="date" id="s-date" required class="w-full p-2 border border-slate-300 rounded font-bold text-sm">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Serial Number (S/N) *</label>
-                        <input type="text" id="s-serial" required class="w-full p-2 border border-slate-300 rounded font-bold text-indigo-700">
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Buying Cost (Rs.) *</label>
-                        <input type="number" id="s-cost" step="0.01" required class="w-full p-2 border border-slate-300 rounded font-extrabold text-rose-700 bg-rose-50">
-                    </div>
+                
+                <div class="flex justify-between items-center mb-2 shrink-0">
+                    <span class="font-extrabold text-slate-800">Add Parts & Serial Numbers:</span>
+                    <button type="button" onclick="addSupRow()" id="btn-add-sup-row" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded font-bold shadow transition"><i class="fa-solid fa-plus mr-1"></i> Add Another Row</button>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Payment Status</label>
-                        <select id="s-paid" class="w-full p-2 border border-slate-300 rounded font-bold">
-                            <option value="Paid in Full">Paid in Full</option>
-                            <option value="Credit / Pending">Credit / Pending</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 block mb-1">Supplier Warranty</label>
-                        <select id="s-war" class="w-full p-2 border border-slate-300 rounded font-bold">
-                            <option value="No Warranty">No Warranty</option>
-                            <option value="1 Month">1 Month</option>
-                            <option value="3 Months">3 Months</option>
-                            <option value="6 Months">6 Months</option>
-                            <option value="1 Year">1 Year</option>
-                            <option value="2 Years">2 Years</option>
-                            <option value="3 Years">3 Years</option>
-                            <option value="Lifetime">Lifetime</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="font-bold text-slate-700 block mb-1">Warranty Claim Status (If any)</label>
-                    <select id="s-claim" class="w-full p-2 border border-slate-300 rounded font-bold text-amber-700 bg-amber-50">
-                        <option value="No Claim (Active)">No Claim (Active)</option>
-                        <option value="Claim Processing (Sent to Sup)">Claim Processing (Sent to Sup)</option>
-                        <option value="Claim Resolved (Replaced)">Claim Resolved (Replaced)</option>
-                        <option value="Claim Rejected">Claim Rejected</option>
-                    </select>
-                </div>
-                <div class="flex justify-end space-x-2 pt-3 border-t mt-4">
-                    <button type="button" onclick="closeModal('sup-modal')" class="px-5 py-2 bg-slate-200 text-slate-700 font-bold rounded">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-emerald-600 text-white font-bold rounded shadow">Save Supplier Log</button>
+
+                <!-- DYNAMIC ROW CONTAINER -->
+                <div id="sup-items-container" class="overflow-y-auto flex-grow p-1 space-y-3 pb-4 border-t pt-3"></div>
+                
+                <div class="flex justify-end space-x-2 pt-3 border-t mt-2 shrink-0">
+                    <button type="button" onclick="closeModal('sup-modal')" class="px-5 py-2.5 bg-slate-200 text-slate-700 font-bold rounded">Cancel</button>
+                    <button type="submit" class="px-6 py-2.5 bg-emerald-600 text-white font-bold rounded shadow-lg text-sm">Save All Stock Items</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Shop Expense Modal -->
+    <!-- Shop Expense Edit/Delete Modal -->
     <div id="exp-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
         <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-2xl text-xs">
             <div class="flex justify-between items-center border-b pb-3 mb-3">
@@ -578,6 +551,11 @@
                 <button onclick="closeModal('exp-modal')" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form id="exp-form" onsubmit="saveExpense(event)" class="space-y-3">
+                <input type="hidden" id="e-id">
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Expense Date *</label>
+                    <input type="date" id="e-date" required class="w-full p-2 border border-slate-300 rounded font-bold">
+                </div>
                 <div>
                     <label class="font-bold text-slate-700 block mb-1">Expense Category *</label>
                     <select id="e-cat" required class="w-full p-2 border border-slate-300 rounded font-bold">
@@ -598,11 +576,42 @@
                 </div>
                 <div class="flex justify-end space-x-2 pt-3 border-t mt-4">
                     <button type="button" onclick="closeModal('exp-modal')" class="px-5 py-2 bg-slate-200 text-slate-700 font-bold rounded">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-rose-600 text-white font-bold rounded shadow">Log Expense</button>
+                    <button type="submit" class="px-5 py-2 bg-rose-600 text-white font-bold rounded shadow">Save Expense</button>
                 </div>
             </form>
         </div>
     </div>
+    
+    <!-- Cheque Edit Modal -->
+    <div id="chq-edit-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-2xl text-xs">
+            <div class="flex justify-between items-center border-b pb-3 mb-3">
+                <h3 class="font-extrabold text-base text-slate-900"><i class="fa-solid fa-pen text-amber-600 mr-2"></i> Edit Cheque Info</h3>
+                <button onclick="closeModal('chq-edit-modal')" class="text-slate-400 hover:text-slate-700 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveChequeEdit(event)" class="space-y-3">
+                <input type="hidden" id="cq-id">
+                <div><label class="font-bold">Invoice Link</label><input type="text" id="cq-inv" readonly class="w-full p-2 border rounded font-bold bg-slate-100 text-slate-500"></div>
+                <div><label class="font-bold">Cheque No *</label><input type="text" id="cq-no" required class="w-full p-2 border rounded font-bold"></div>
+                <div><label class="font-bold">Bank Name *</label><input type="text" id="cq-bank" required class="w-full p-2 border rounded font-bold"></div>
+                <div><label class="font-bold">Maturation Date *</label><input type="date" id="cq-date" required class="w-full p-2 border rounded font-bold text-amber-700"></div>
+                <div><label class="font-bold">Amount (Rs.) *</label><input type="number" step="0.01" id="cq-amt" required class="w-full p-2 border rounded font-bold bg-slate-50"></div>
+                <div>
+                    <label class="font-bold">Status *</label>
+                    <select id="cq-status" required class="w-full p-2 border rounded font-bold">
+                        <option value="Pending">Pending</option>
+                        <option value="Finished">Finished</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2 pt-3 border-t mt-4">
+                    <button type="button" onclick="closeModal('chq-edit-modal')" class="px-4 py-2 bg-slate-200 text-slate-700 font-bold rounded">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-600 text-white font-bold rounded shadow">Update Cheque</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Payment History Modal (Invoice Click View) -->
     <div id="pay-history-modal" class="fixed inset-0 bg-black/60 hidden flex justify-center items-center p-4 z-50 backdrop-blur-sm">
         <div class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl text-xs flex flex-col max-h-[90vh]">
@@ -684,6 +693,7 @@
                             <option value="2 Weeks (14 Days)">2 Weeks (14 Days)</option>
                             <option value="3 Weeks (21 Days)">3 Weeks (21 Days)</option>
                             <option value="4 Weeks (1 Month)">4 Weeks (1 Month)</option>
+                            <option value="">No Validity Date (Don't Print)</option>
                         </select>
                     </div>
                     <div class="flex items-center pt-5">
@@ -699,7 +709,7 @@
                     <div class="flex justify-between items-center mb-2">
                         <div>
                             <span class="font-extrabold text-slate-800 text-sm"><i class="fa-solid fa-screwdrivers-wrench text-red-600 mr-1.5"></i> Repair Items & Services Ledger</span>
-                            <p class="text-[11px] text-slate-500">Macho, ekama computer ekata repairs godak add karanna nam, <strong>a rows okkotama ekama PC Serial number eka entered karanna</strong>.</p>
+                            <p class="text-[11px] text-slate-500">Macho, ekama computer ekata repairs godak add karanna nam, <strong>a rows okkotama ekama PC Serial number eka entered karanna</strong>. 'Add Another Service' eken ekama row ekata cats godak danna puluwan.</p>
                         </div>
                         <button type="button" onclick="addDocItemRow()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded font-bold transition shadow flex items-center shrink-0"><i class="fa-solid fa-plus mr-1"></i> Add Service Row</button>
                     </div>
@@ -762,7 +772,7 @@
                         <option value="Refund Issued to Customer">Refund Issued to Customer</option>
                     </select>
                 </div>
-                <div><label class="font-bold text-indigo-700">New Replacement Part Serial Number / IMEI</label><input type="text" id="cl-new-serial" placeholder="Type new serial number if part is swapped..." class="w-full p-2 border border-indigo-300 rounded mt-0.5 font-bold bg-indigo-50/40"></div>
+                <div><label class="font-bold text-emerald-700"><i class="fa-solid fa-barcode mr-1"></i> New Replacement Part Serial Number</label><input type="text" id="cl-new-serial" placeholder="Type new serial number if part is swapped..." class="w-full p-2.5 border border-emerald-400 rounded mt-0.5 font-bold bg-emerald-50 text-emerald-900"></div>
                 <div class="flex justify-end space-x-2 pt-3 border-t">
                     <button type="button" onclick="closeModal('claim-modal')" class="px-4 py-2 bg-slate-200 font-bold rounded">Cancel</button>
                     <button type="submit" class="px-5 py-2 bg-indigo-600 text-white font-bold rounded shadow">Submit Claim</button>
@@ -817,9 +827,6 @@
                             <h3 id="p-doc-type" class="text-xl font-extrabold text-blue-700 uppercase tracking-widest">INVOICE</h3>
                             <p id="p-doc-no" class="font-extrabold text-slate-900 text-sm">INV-1001</p>
                             <p id="p-date" class="text-slate-500 font-bold">Date: 2026-07-12</p>
-                            <div id="p-validity-box" class="hidden mt-1 inline-block bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded border border-amber-300 text-right text-[10px]">
-                                Valid For Period: <span id="p-validity-text">2 Weeks</span>
-                            </div>
                         </div>
                     </div>
 
@@ -856,10 +863,15 @@
                     </div>
 
                     <!-- Warranty policy documentation footer block -->
-                    <div class="border border-dashed border-slate-300 bg-slate-50/50 p-2.5 rounded mb-4 text-[10px] text-slate-600 leading-normal">
+                    <div class="border border-dashed border-slate-300 bg-slate-50/50 p-2.5 rounded mb-1 text-[10px] text-slate-600 leading-normal relative">
                         <p class="font-extrabold text-slate-800 mb-0.5 flex items-center"><i class="fa-solid fa-shield-virus text-red-600 mr-1.5"></i> Strict Warranty Clauses & Policy Notes:</p>
                         <p>1. Warranty applies exclusively to structural hardware production defects. Burn marks, physical breakage, electrical short circuits, moisture ingress, and operating system virus failures immediately void coverage.<br>
                         2. Identification serial numbers must remain untampered. Presentation of this original print out is mandatory for tracking claims.</p>
+                        
+                        <!-- VALIDITY BOX -->
+                        <div id="p-validity-box" class="hidden absolute top-2 right-2 bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded border border-amber-300 text-right text-[10px]">
+                            Valid For Period: <span id="p-validity-text"></span>
+                        </div>
                     </div>
 
                     <!-- Sign-off metadata fields -->
@@ -874,8 +886,6 @@
 
     <!-- CORE ERP SYSTEM ENGINE CONTROLS -->
     <script>
-        // CLEAN ERROR-FREE JS ENGINE
-        
         // --- FIREBASE CONFIGURATION ---
         let db = null;
         try {
@@ -893,9 +903,7 @@
             } else {
                 console.warn("Firebase SDK blocked or offline. Running purely local.");
             }
-        } catch(e) {
-            console.error("Firebase Init Error:", e);
-        }
+        } catch(e) { console.error("Firebase Init Error:", e); }
         
         let customers = JSON.parse(localStorage.getItem('hab_cust_v43')) || [];
         let documents = JSON.parse(localStorage.getItem('hab_docs_v43')) || [];
@@ -905,14 +913,8 @@
         let docCounter = parseInt(localStorage.getItem('hab_cnt_v43')) || 1001;
         
         async function syncFromCloud() {
-            // Guarantee app loads locally immediately even if Firebase fails
             renderAll();
-            
-            if (typeof db === 'undefined' || !db) {
-                document.getElementById('cloud-loader')?.remove();
-                return;
-            }
-            
+            if (typeof db === 'undefined' || !db) { document.getElementById('cloud-loader')?.remove(); return; }
             try {
                 const docSnap = await db.collection('backup').doc('system_data').get();
                 if (docSnap.exists) {
@@ -925,29 +927,14 @@
                     if (data.cheques && data.cheques !== '[]') { cheques = JSON.parse(data.cheques); originalSetItem.call(localStorage, 'hab_chq_v43', data.cheques); updated = true; }
                     if (data.docCounter) { docCounter = parseInt(data.docCounter); originalSetItem.call(localStorage, 'hab_cnt_v43', data.docCounter.toString()); updated = true; }
                     if (data.shopConfig && data.shopConfig !== '{}') { shopConfig = JSON.parse(data.shopConfig); originalSetItem.call(localStorage, 'hab_cfg_v43', data.shopConfig); updated = true; }
-                    
                     if (updated) renderAll();
                 } else {
-                    // Firebase is empty, initialize cloud with existing local data
-                    let initData = {
-                        documents: localStorage.getItem('hab_docs_v43') || '[]',
-                        customers: localStorage.getItem('hab_cust_v43') || '[]',
-                        suppliers: localStorage.getItem('hab_sup_v43') || '[]',
-                        expenses: localStorage.getItem('hab_exp_v43') || '[]',
-                        cheques: localStorage.getItem('hab_chq_v43') || '[]',
-                        docCounter: localStorage.getItem('hab_cnt_v43') || '1001',
-                        shopConfig: localStorage.getItem('hab_cfg_v43') || '{}'
-                    };
+                    let initData = { documents: localStorage.getItem('hab_docs_v43') || '[]', customers: localStorage.getItem('hab_cust_v43') || '[]', suppliers: localStorage.getItem('hab_sup_v43') || '[]', expenses: localStorage.getItem('hab_exp_v43') || '[]', cheques: localStorage.getItem('hab_chq_v43') || '[]', docCounter: localStorage.getItem('hab_cnt_v43') || '1001', shopConfig: localStorage.getItem('hab_cfg_v43') || '{}' };
                     await db.collection('backup').doc('system_data').set(initData).catch(e => console.log('Init sync err:', e));
                 }
-            } catch (error) {
-                console.error("Firebase Sync Failed:", error);
-            } finally {
-                document.getElementById('cloud-loader')?.remove();
-            }
+            } catch (error) { console.error("Firebase Sync Failed:", error); } finally { document.getElementById('cloud-loader')?.remove(); }
         }
         
-        // Proxy localStorage to automatically push to cloud
         const originalSetItem = localStorage.setItem;
         localStorage.setItem = function(key, value) {
             originalSetItem.apply(this, arguments);
@@ -961,104 +948,62 @@
                 if (key === 'hab_chq_v43') update.cheques = value;
                 if (key === 'hab_cnt_v43') update.docCounter = value.toString();
                 if (key === 'hab_cfg_v43') update.shopConfig = value;
-                
-                if (Object.keys(update).length > 0) {
-                    db.collection('backup').doc('system_data').set(update, { merge: true }).catch(err => console.log('Sync Error:', err));
-                }
+                if (Object.keys(update).length > 0) db.collection('backup').doc('system_data').set(update, { merge: true }).catch(err => console.log('Sync Error:', err));
             } catch(e) { console.error("Cloud Sync Error", e); }
         };
         
-        // Sync silently in background on load
         window.addEventListener('load', syncFromCloud);
         
-        let sortCol = -1;
-        let sortAsc = true;
+        let sortCol = -1; let sortAsc = true;
         function sortTable(thEl, colIdx, isNumeric = false) {
-            const table = thEl.closest('table');
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            
-            if (sortCol === colIdx) sortAsc = !sortAsc;
-            else { sortCol = colIdx; sortAsc = true; }
-            
+            const table = thEl.closest('table'); const tbody = table.querySelector('tbody'); const rows = Array.from(tbody.querySelectorAll('tr'));
+            if (sortCol === colIdx) sortAsc = !sortAsc; else { sortCol = colIdx; sortAsc = true; }
             rows.sort((a, b) => {
-                const aText = a.cells[colIdx].innerText.trim();
-                const bText = b.cells[colIdx].innerText.trim();
-                if (isNumeric) {
-                    const aNum = parseFloat(aText.replace(/[^0-9.-]+/g,"")) || 0;
-                    const bNum = parseFloat(bText.replace(/[^0-9.-]+/g,"")) || 0;
-                    return sortAsc ? (aNum - bNum) : (bNum - aNum);
-                }
+                const aText = a.cells[colIdx].innerText.trim(); const bText = b.cells[colIdx].innerText.trim();
+                if (isNumeric) { const aNum = parseFloat(aText.replace(/[^0-9.-]+/g,"")) || 0; const bNum = parseFloat(bText.replace(/[^0-9.-]+/g,"")) || 0; return sortAsc ? (aNum - bNum) : (bNum - aNum); }
                 return sortAsc ? aText.localeCompare(bText) : bText.localeCompare(aText);
             });
-            
-            tbody.innerHTML = '';
-            rows.forEach(row => tbody.appendChild(row));
+            tbody.innerHTML = ''; rows.forEach(row => tbody.appendChild(row));
         }
 
-        let shopConfig = JSON.parse(localStorage.getItem('hab_cfg_v43')) || {
-            name: "H.A. BROTHERS PC HOUSE",
-            addr: "379, Devala place, Lunugama",
-            phone: "071 70 96 503",
-            email: "h.a.brothrspchouse@gmail.com",
-            reg: "W/N 9758",
-            bankName: "H.A. BROTHERS PC HOUSE",
-            bankNo: "81290482910",
-            bankBranch: "BOC - Lunugama Branch",
-            markup: 2500
-        };
+        let shopConfig = JSON.parse(localStorage.getItem('hab_cfg_v43')) || { name: "H.A. BROTHERS PC HOUSE", addr: "379, Devala place, Lunugama", phone: "071 70 96 503", email: "h.a.brothrspchouse@gmail.com", reg: "W/N 9758", bankName: "H.A. BROTHERS PC HOUSE", bankNo: "81290482910", bankBranch: "BOC - Lunugama Branch", markup: 2500 };
 
-        window.onload = () => {
-            try {
-                renderAll();
-                loadConfigForm();
-                checkChequeMaturationAlerts();
-            } catch (error) {
-                console.error("System Boot Error: ", error);
-            }
-        };
+        window.onload = () => { try { renderAll(); loadConfigForm(); checkChequeMaturationAlerts(); } catch (error) { console.error("System Boot Error: ", error); } };
+
+        function updateSupplierStockStatus() {
+            suppliers.forEach(s => s.soldDocNo = null);
+            documents.filter(d => d.type === 'Invoice').forEach(doc => {
+                (doc.items || []).forEach(it => {
+                    if (it.partSerial) {
+                        const s = suppliers.find(sup => sup.serialNo === it.partSerial);
+                        if (s) s.soldDocNo = `${doc.no} (${doc.custName})`;
+                    }
+                });
+            });
+            localStorage.setItem('hab_sup_v43', JSON.stringify(suppliers));
+        }
 
         function renderAll() {
-            renderCustomers();
-            renderEstimates();
-            renderBulkEstimates();
-            renderQuotes();
-            renderInvoices();
-            renderPending();
-            renderCompleted();
-            renderSuppliers();
-            renderFinance();
-            renderChequesTable();
-            updateDashboard();
-            populateCustomerDropdown();
+            updateSupplierStockStatus();
+            renderCustomers(); renderEstimates(); renderBulkEstimates(); renderQuotes(); renderInvoices(); renderPending(); renderCompleted(); renderSuppliers(); renderFinance(); renderChequesTable(); updateDashboard(); populateCustomerDropdown();
         }
 
-        // TABS
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-red-500', 'text-red-400');
-                btn.classList.add('border-transparent', 'text-slate-300');
-            });
+            document.querySelectorAll('.tab-btn').forEach(btn => { btn.classList.remove('border-red-500', 'text-red-400'); btn.classList.add('border-transparent', 'text-slate-300'); });
             document.getElementById(tabId).classList.add('active');
             const activeBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-            if (activeBtn) {
-                activeBtn.classList.remove('border-transparent', 'text-slate-300');
-                activeBtn.classList.add('border-red-500', 'text-red-400');
-            }
+            if (activeBtn) { activeBtn.classList.remove('border-transparent', 'text-slate-300'); activeBtn.classList.add('border-red-500', 'text-red-400'); }
         }
 
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
         function filterTable(tableId, query) {
-            query = query.toLowerCase();
-            const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+            query = query.toLowerCase(); const rows = document.querySelectorAll(`#${tableId} tbody tr`);
             rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none'; });
         }
 
-        // AUTO-FILL CATEGORY & DESCRIPTION LOGIC
-        // ONLY DECLARED ONCE IN THIS SCRIPT BLOCK
         const categoryMap = {
             "PC Hardware Repair & Troubleshooting": ["No power repair / PSU replacement", "Motherboard chip-level servicing", "RAM / VGA expansion & testing", "PC assembling & neat wiring"],
             "Custom PC Sale / Build": ["Core i3 Budget Office System Build", "Core i5 Corporate Workstation Setup", "Ryzen Gaming Rig Custom Build"],
@@ -1069,162 +1014,133 @@
             "Virus & Malware Removal": ["Deep System Scan & Trojan Spyware Clean", "Malwarebytes Premium Security Activation", "Windows Defender Security Firewall Optimization"]
         };
 
-        function handleCategoryChange(selectElement) {
-            const row = selectElement.closest('.doc-item-row');
-            const category = selectElement.value;
-            const descContainer = row.querySelector('.doc-item-desc-container');
-            
+        function handleCategoryChange(inputElement) {
+            const row = inputElement.closest('.cat-desc-group') || inputElement.closest('.doc-item-row'); 
+            const category = inputElement.value; const descContainer = row.querySelector('.doc-item-desc-container');
+            const existingDescInput = descContainer.querySelector('.doc-item-desc'); const existingDescSelect = descContainer.querySelector('.desc-select');
+            let currentDescValue = '';
+            if (existingDescInput && !existingDescInput.classList.contains('hidden')) currentDescValue = existingDescInput.value;
+            else if (existingDescSelect && existingDescSelect.value !== '_custom') currentDescValue = existingDescSelect.value;
+            else if (existingDescInput) currentDescValue = existingDescInput.value;
+
             let optionsHtml = '<option value="">-- Select Description --</option>';
-            if (categoryMap[category]) {
-                categoryMap[category].forEach(opt => { 
-                    optionsHtml += `<option value="${opt}">${opt}</option>`; 
-                });
-            }
+            let matchedCat = category;
+            if (!categoryMap[category]) { const baseCat = Object.keys(categoryMap).find(c => category.startsWith(c)); if (baseCat) matchedCat = baseCat; }
+            if (categoryMap[matchedCat]) { categoryMap[matchedCat].forEach(opt => { optionsHtml += `<option value="${opt}">${opt}</option>`; }); }
             optionsHtml += '<option value="_custom">-- Type Custom Description --</option>';
-            
-            descContainer.innerHTML = `
-                <select class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-slate-800 desc-select" onchange="toggleCustomDesc(this)">
-                    ${optionsHtml}
-                </select>
-                <input type="text" placeholder="Type custom description..." class="w-full p-2 border border-slate-300 rounded mt-1 font-bold text-slate-800 doc-item-desc hidden">
-            `;
-            
-            if (categoryMap[category] && categoryMap[category].length > 0) {
-                const sel = descContainer.querySelector('.desc-select');
-                sel.value = categoryMap[category][0];
-                toggleCustomDesc(sel);
+
+            descContainer.innerHTML = `<select class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-slate-800 desc-select" onchange="toggleCustomDesc(this)">${optionsHtml}</select><textarea placeholder="Type custom description (You can use Enter for bullet points)..." class="w-full p-2 border border-slate-300 rounded mt-1 font-bold text-slate-800 doc-item-desc hidden min-h-[80px] whitespace-pre-wrap"></textarea>`;
+            const sel = descContainer.querySelector('.desc-select'); const textInput = descContainer.querySelector('.doc-item-desc');
+
+            if (currentDescValue) {
+                let optionExists = Array.from(sel.options).some(opt => opt.value === currentDescValue);
+                if (optionExists && currentDescValue !== '_custom' && currentDescValue !== '') { sel.value = currentDescValue; toggleCustomDesc(sel); } 
+                else { sel.value = '_custom'; toggleCustomDesc(sel); textInput.value = currentDescValue; }
+            } else {
+                if (categoryMap[matchedCat] && categoryMap[matchedCat].length > 0 && category === matchedCat) { sel.value = categoryMap[matchedCat][0]; toggleCustomDesc(sel); } 
+                else if (category) { sel.value = '_custom'; toggleCustomDesc(sel); }
             }
         }
 
         function toggleCustomDesc(selectEl) {
             const inputEl = selectEl.nextElementSibling;
-            if (selectEl.value === '_custom') {
-                inputEl.classList.remove('hidden');
-                inputEl.value = '';
-                inputEl.required = true;
-            } else {
-                inputEl.classList.add('hidden');
-                inputEl.value = selectEl.value;
-                inputEl.required = false;
-            }
+            if (selectEl.value === '_custom') { inputEl.classList.remove('hidden'); inputEl.value = ''; inputEl.required = true; } 
+            else { inputEl.classList.add('hidden'); inputEl.value = selectEl.value; inputEl.required = false; }
         }
 
         function getWarrantyExpiry(invoiceDate, warPeriod) {
             if (!warPeriod || warPeriod === 'No Warranty' || warPeriod === 'None' || warPeriod === '-') return { status: 'No Warranty', color: 'text-slate-500' };
             if (warPeriod === 'Lifetime') return { status: 'Lifetime Active', color: 'text-emerald-600' };
             let months = 0;
-            if (warPeriod.includes('Month')) months = parseInt(warPeriod);
-            else if (warPeriod.includes('Year')) months = parseInt(warPeriod) * 12;
-            else return { status: warPeriod, color: 'text-indigo-600' };
-            const expDate = new Date(invoiceDate);
-            expDate.setMonth(expDate.getMonth() + months);
-            const today = new Date();
-            const diffTime = expDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (warPeriod.includes('Month')) months = parseInt(warPeriod); else if (warPeriod.includes('Year')) months = parseInt(warPeriod) * 12; else return { status: warPeriod, color: 'text-indigo-600' };
+            const expDate = new Date(invoiceDate); expDate.setMonth(expDate.getMonth() + months);
+            const diffDays = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
             if (diffDays < 0) return { status: `EXPIRED (${expDate.toISOString().split('T')[0]})`, color: 'text-rose-600' };
             else if (diffDays <= 30) return { status: `${diffDays} Days Left (Ends ${expDate.toISOString().split('T')[0]})`, color: 'text-amber-600' };
             else return { status: `Active (Ends ${expDate.toISOString().split('T')[0]})`, color: 'text-emerald-600' };
         }
 
         function autoFillSupplierCost(inputEl) {
-            const serial = inputEl.value;
-            const sup = suppliers.find(s => s.serialNo === serial);
+            const serial = inputEl.value; const sup = suppliers.find(s => s.serialNo === serial);
             if (sup) {
-                const row = inputEl.closest('.doc-item-row');
-                const priceInput = row.querySelector('.doc-item-price');
-                if (priceInput.value === '' || priceInput.value == 0) {
-                    const defaultMarkup = shopConfig.markup !== undefined ? parseFloat(shopConfig.markup) : 2500;
-                    priceInput.value = (parseFloat(sup.cost) + defaultMarkup).toFixed(2);
-                }
+                const row = inputEl.closest('.doc-item-row'); const priceInput = row.querySelector('.doc-item-price');
+                if (priceInput.value === '' || priceInput.value == 0) { const defaultMarkup = shopConfig.markup !== undefined ? parseFloat(shopConfig.markup) : 2500; priceInput.value = (parseFloat(sup.cost) + defaultMarkup).toFixed(2); }
                 updateDocBalance();
-                const warSelect = row.querySelector('.doc-item-war');
-                if (warSelect && sup.warPeriod) warSelect.value = sup.warPeriod;
+                const warSelect = row.querySelector('.doc-item-war'); if (warSelect && sup.warPeriod) warSelect.value = sup.warPeriod;
+                const descInput = row.querySelector('.doc-item-desc'); const descSelect = row.querySelector('.desc-select');
+                if (descInput && sup.partName) {
+                    let current = descInput.value || '';
+                    if (descSelect && descSelect.value !== '_custom' && descSelect.value !== '') current = descSelect.value;
+                    if (current && !current.includes(sup.partName)) descInput.value = current + ' - ' + sup.partName; else if (!current) descInput.value = sup.partName;
+                    descInput.classList.remove('hidden'); descInput.required = true; if (descSelect) descSelect.value = '_custom';
+                }
             }
         }
 
-        // CHEQUES ALERT
         function checkChequeMaturationAlerts() {
-            const today = new Date().toISOString().split('T')[0];
-            const activeAlerts = cheques.filter(c => c.dueDate === today && c.status === 'Pending');
+            const today = new Date().toISOString().split('T')[0]; const activeAlerts = cheques.filter(c => c.dueDate === today && c.status === 'Pending');
             const banner = document.getElementById('cheque-alert-banner');
-            
-            if (activeAlerts.length > 0) {
-                document.getElementById('cheque-alert-text').innerText = `Ada dawase (${today}) maru kirimata Cheques ${activeAlerts.length} pramanayak thiyanawa! Karunakara pariksha karanna.`;
-                banner.classList.remove('hidden');
-            } else {
-                banner.classList.add('hidden');
-            }
+            if (activeAlerts.length > 0) { document.getElementById('cheque-alert-text').innerText = `Ada dawase (${today}) maru kirimata Cheques ${activeAlerts.length} pramanayak thiyanawa!`; banner.classList.remove('hidden'); } 
+            else { banner.classList.add('hidden'); }
         }
 
-        // DOCUMENT MODAL CONTROLLER
         function openDocModal(mode, forceType = null, docNo = null) {
-            document.getElementById('doc-form').reset();
-            document.getElementById('doc-items-container').innerHTML = '';
-            document.getElementById('d-discount-pct').value = '0.00';
-            document.getElementById('d-tax-pct').value = '0.00';
-            document.getElementById('d-discount').value = '0.00';
-            document.getElementById('d-tax').value = '0.00';
-            document.getElementById('d-hide-sn').checked = (mode === 'new' && forceType === 'Bulk Estimate');
-            document.getElementById('d-hide-war').checked = (mode === 'new' && forceType === 'Bulk Estimate');
+            document.getElementById('doc-form').reset(); document.getElementById('doc-items-container').innerHTML = '';
+            document.getElementById('d-discount-pct').value = '0.00'; document.getElementById('d-tax-pct').value = '0.00'; document.getElementById('d-discount').value = '0.00'; document.getElementById('d-tax').value = '0.00';
+            document.getElementById('d-hide-sn').checked = false; document.getElementById('d-hide-war').checked = false;
             
             let supDatalist = document.getElementById('sup-stock-list');
             if (!supDatalist) { supDatalist = document.createElement('datalist'); supDatalist.id = 'sup-stock-list'; document.body.appendChild(supDatalist); }
             supDatalist.innerHTML = '';
-            suppliers.forEach(s => { if (s.paid === 'Paid in Full' || s.paid === 'Credit / Pending') supDatalist.innerHTML += `<option value="${s.serialNo}">${s.partName}</option>`; });
+            suppliers.forEach(s => { if (!s.soldDocNo || (docNo && s.soldDocNo.includes(docNo))) { supDatalist.innerHTML += `<option value="${s.serialNo}">${s.partName} | Cost: Rs.${s.cost}</option>`; } });
             
             if (mode === 'new') {
                 document.getElementById('d-modal-title').innerText = `Generate New ${forceType || 'Invoice'}`;
-                document.getElementById('d-no').value = '';
-                document.getElementById('d-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('d-no').value = ''; document.getElementById('d-date').value = new Date().toISOString().split('T')[0];
                 if (forceType) { document.getElementById('d-type').value = forceType; document.getElementById('d-type').disabled = true; }
                 addDocItemRow();
             } else if (mode === 'edit' && docNo) {
-                const d = documents.find(x => x.no === docNo);
-                if (!d) return;
-                document.getElementById('d-no').value = d.no;
-                document.getElementById('d-date').value = d.date || new Date().toISOString().split('T')[0];
-                document.getElementById('d-type').value = d.type;
-                document.getElementById('d-cust').value = d.custId;
-                if (d.validPeriod) document.getElementById('d-validity').value = d.validPeriod;
-                document.getElementById('d-inc-bank').checked = d.incBank !== false;
-                document.getElementById('d-hide-sn').checked = d.hideSn === true;
-                document.getElementById('d-hide-war').checked = d.hideWar === true;
+                const d = documents.find(x => x.no === docNo); if (!d) return;
+                document.getElementById('d-no').value = d.no; document.getElementById('d-date').value = d.date || new Date().toISOString().split('T')[0];
+                document.getElementById('d-type').value = d.type; document.getElementById('d-cust').value = d.custId;
+                if (d.validPeriod !== undefined && d.validPeriod !== null) document.getElementById('d-validity').value = d.validPeriod;
+                document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true;
                 
                 let subtotal = (d.items || []).reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
-                document.getElementById('d-subtotal').value = subtotal.toFixed(2);
-                document.getElementById('d-discount-pct').value = (subtotal > 0 && d.discount) ? ((d.discount / subtotal) * 100).toFixed(2) : '0.00';
-                let afterDisc = subtotal - (d.discount || 0);
-                document.getElementById('d-tax-pct').value = (afterDisc > 0 && d.tax) ? ((d.tax / afterDisc) * 100).toFixed(2) : '0.00';
+                document.getElementById('d-subtotal').value = subtotal.toFixed(2); document.getElementById('d-discount-pct').value = (subtotal > 0 && d.discount) ? ((d.discount / subtotal) * 100).toFixed(2) : '0.00';
+                let afterDisc = subtotal - (d.discount || 0); document.getElementById('d-tax-pct').value = (afterDisc > 0 && d.tax) ? ((d.tax / afterDisc) * 100).toFixed(2) : '0.00';
+                document.getElementById('d-discount').value = d.discount || 0; document.getElementById('d-tax').value = d.tax || 0; document.getElementById('d-paid').value = d.paid;
                 
-                document.getElementById('d-discount').value = d.discount || 0;
-                document.getElementById('d-tax').value = d.tax || 0;
-                document.getElementById('d-paid').value = d.paid;
-                
-                // Clear the default generated row
                 document.getElementById('doc-items-container').innerHTML = '';
-                
                 (d.items || []).forEach(item => addDocItemRow(item));
                 updateDocBalance();
             }
-            toggleQuoteValidity(); 
-            openModal('doc-modal');
+            toggleQuoteValidity(); openModal('doc-modal');
         }
 
         function toggleQuoteValidity() {
-            const type = document.getElementById('d-type').value;
-            const div = document.getElementById('d-validity-div');
-            if (type === 'Quotation') div.classList.remove('hidden'); else div.classList.add('hidden');
+            const type = document.getElementById('d-type').value; const div = document.getElementById('d-validity-div');
+            if (type === 'Quotation' || type === 'Estimate' || type === 'Bulk Estimate') div.classList.remove('hidden'); else div.classList.add('hidden');
+        }
+
+        function addCatDescGroup(btn, rowId) {
+            let catOptionsHtml = ''; Object.keys(categoryMap).forEach(cat => { catOptionsHtml += `<option value="${cat}">`; });
+            const html = `
+            <div class="cat-desc-group grid grid-cols-1 md:grid-cols-5 gap-2 items-start mt-2 pt-2 border-t border-slate-300 relative">
+                <button type="button" onclick="this.closest('.cat-desc-group').remove()" class="absolute -left-2 -top-2 text-rose-500 bg-white rounded-full shadow hover:text-rose-700"><i class="fa-solid fa-circle-xmark"></i></button>
+                <div class="md:col-span-2">
+                    <input type="text" list="cat-list-${rowId}" onchange="handleCategoryChange(this)" placeholder="Service Category..." class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold bg-white text-slate-800 doc-item-cat" required>
+                </div>
+                <div class="md:col-span-3">
+                    <div class="doc-item-desc-container w-full"><textarea required placeholder="Work Description..." class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-slate-800 doc-item-desc min-h-[80px] whitespace-pre-wrap"></textarea></div>
+                </div>
+            </div>`;
+            btn.insertAdjacentHTML('beforebegin', html);
         }
 
         function addDocItemRow(data = {}) {
-            const container = document.getElementById('doc-items-container');
-            const rowId = 'row-' + Math.random().toString(36).substr(2, 9);
-            
-            let catOptionsHtml = '';
-            Object.keys(categoryMap).forEach(cat => { 
-                catOptionsHtml += `<option value="${cat}" ${data.cat === cat ? 'selected' : ''}>${cat}</option>`; 
-            });
-
+            const container = document.getElementById('doc-items-container'); const rowId = 'row-' + Math.random().toString(36).substr(2, 9);
+            let catOptionsHtml = ''; Object.keys(categoryMap).forEach(cat => { catOptionsHtml += `<option value="${cat}">`; });
             const html = `
                 <div id="${rowId}" class="doc-item-row p-4 odd:bg-slate-50 even:bg-blue-100 border-2 border-slate-300 rounded-xl flex flex-col gap-3 shadow-md mb-3 transition-colors relative">
                     <div class="flex justify-between items-center border-b border-slate-300 pb-2">
@@ -1240,23 +1156,26 @@
                             <button type="button" onclick="document.getElementById('${rowId}').remove(); updateDocBalance();" class="text-rose-500 hover:text-rose-700 p-1 font-bold text-lg transition" title="Delete"><i class="fa-solid fa-circle-xmark"></i></button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-10 gap-3 items-end text-xs">
-                        <div class="md:col-span-2">
-                            <label class="font-bold text-slate-700">Service Category *</label>
-                            <select onchange="handleCategoryChange(this)" class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold bg-white text-slate-800 doc-item-cat">
-                                <option value="">-- Select Category --</option>
-                                ${catOptionsHtml}
-                            </select>
-                        </div>
-                        <div class="md:col-span-3">
-                            <label class="font-bold text-slate-700">Work Description *</label>
-                            <div class="doc-item-desc-container w-full">
-                                <input type="text" required placeholder="Select category first..." value="${data.desc || ''}" class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-slate-800 doc-item-desc">
+                    <div class="grid grid-cols-1 md:grid-cols-10 gap-3 items-start text-xs">
+                        <div class="md:col-span-5 space-y-2">
+                            <div class="cat-desc-group grid grid-cols-1 md:grid-cols-5 gap-2">
+                                <div class="md:col-span-2">
+                                    <label class="font-bold text-slate-700">Service Category *</label>
+                                    <input type="text" list="cat-list-${rowId}" onchange="handleCategoryChange(this)" placeholder="Select or type..." value="${data.cat || ''}" class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold bg-white text-slate-800 doc-item-cat" required>
+                                    <datalist id="cat-list-${rowId}">${catOptionsHtml}</datalist>
+                                </div>
+                                <div class="md:col-span-3">
+                                    <label class="font-bold text-slate-700">Work Description *</label>
+                                    <div class="doc-item-desc-container w-full"><textarea required placeholder="Select category first..." class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-slate-800 doc-item-desc min-h-[80px] whitespace-pre-wrap">${data.desc || ''}</textarea></div>
+                                </div>
                             </div>
+                            <button type="button" onclick="addCatDescGroup(this, '${rowId}')" class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1.5 rounded font-bold hover:bg-blue-100 transition shadow-sm w-full text-left"><i class="fa-solid fa-plus mr-1"></i> Add Another Service & Description to this PC</button>
                         </div>
-                        <div class="md:col-span-2">
+                        <div class="md:col-span-2 relative">
                             <label class="font-bold text-slate-700">Part Serial</label>
+                            ${data.originalPartSerial && data.originalPartSerial !== data.partSerial ? `<span class="absolute top-0 right-0 text-[9px] bg-emerald-100 text-emerald-800 px-1 rounded font-extrabold" title="Originally: ${data.originalPartSerial}">Replaced <i class="fa-solid fa-check"></i></span>` : ''}
                             <input type="text" list="sup-stock-list" onchange="autoFillSupplierCost(this)" placeholder="S/N..." value="${data.partSerial || ''}" class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-indigo-700 doc-item-serial">
+                            <input type="hidden" class="doc-item-org-serial" value="${data.originalPartSerial || ''}">
                         </div>
                         <div class="md:col-span-1">
                             <label class="font-bold text-slate-700">Warranty</label>
@@ -1280,368 +1199,217 @@
                     </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
-            
             makeRowDraggable(document.getElementById(rowId));
-            
-            // If data is provided, hook up custom select immediately
-            if (data.cat) {
-                const newRow = document.getElementById(rowId);
-                const selectEl = newRow.querySelector('.doc-item-cat');
-                handleCategoryChange(selectEl);
-                
-                const descSelect = newRow.querySelector('.desc-select');
-                let optionExists = false;
-                if (descSelect) {
-                    Array.from(descSelect.options).forEach(opt => {
-                        if (opt.value === data.desc) optionExists = true;
-                    });
-                    
-                    if (optionExists) {
-                        descSelect.value = data.desc;
-                        toggleCustomDesc(descSelect);
-                    } else {
-                        descSelect.value = '_custom';
-                        toggleCustomDesc(descSelect);
-                        newRow.querySelector('.doc-item-desc').value = data.desc;
-                    }
-                } else {
-                    const descInput = newRow.querySelector('.doc-item-desc');
-                    if (descInput) descInput.value = data.desc;
-                }
-            }
+            if (data.cat) { const newRow = document.getElementById(rowId); handleCategoryChange(newRow.querySelector('.doc-item-cat')); }
         }
 
         function copyAboveSerial(btn) {
-            const rows = document.querySelectorAll('.doc-item-row');
-            const currentRow = btn.closest('.doc-item-row');
-            let prevSerial = '';
-            for (let i = 0; i < rows.length; i++) {
-                if (rows[i] === currentRow) break;
-                prevSerial = rows[i].querySelector('.doc-item-pc').value;
-            }
+            const rows = document.querySelectorAll('.doc-item-row'); const currentRow = btn.closest('.doc-item-row'); let prevSerial = '';
+            for (let i = 0; i < rows.length; i++) { if (rows[i] === currentRow) break; prevSerial = rows[i].querySelector('.doc-item-pc').value; }
             if (prevSerial) currentRow.querySelector('.doc-item-pc').value = prevSerial;
         }
 
-        function moveRowUp(btn) {
-            const row = btn.closest('.doc-item-row');
-            if (row.previousElementSibling && row.previousElementSibling.classList.contains('doc-item-row')) {
-                row.parentNode.insertBefore(row, row.previousElementSibling);
-            }
-        }
-
-        function moveRowDown(btn) {
-            const row = btn.closest('.doc-item-row');
-            if (row.nextElementSibling && row.nextElementSibling.classList.contains('doc-item-row')) {
-                row.parentNode.insertBefore(row.nextElementSibling, row);
-            }
-        }
+        function moveRowUp(btn) { const row = btn.closest('.doc-item-row'); if (row.previousElementSibling && row.previousElementSibling.classList.contains('doc-item-row')) row.parentNode.insertBefore(row, row.previousElementSibling); }
+        function moveRowDown(btn) { const row = btn.closest('.doc-item-row'); if (row.nextElementSibling && row.nextElementSibling.classList.contains('doc-item-row')) row.parentNode.insertBefore(row.nextElementSibling, row); }
 
         let draggedRow = null;
         function makeRowDraggable(row) {
-            const handle = row.querySelector('.drag-handle');
-            if (!handle) return;
-            handle.addEventListener('mousedown', () => row.setAttribute('draggable', 'true'));
-            handle.addEventListener('mouseup', () => row.removeAttribute('draggable'));
-            handle.addEventListener('mouseleave', () => row.removeAttribute('draggable'));
-
-            row.addEventListener('dragstart', function(e) {
-                draggedRow = this;
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', this.id);
-                setTimeout(() => this.classList.add('opacity-50', 'border-dashed', 'border-blue-500', 'bg-blue-50'), 0);
-            });
+            const handle = row.querySelector('.drag-handle'); if (!handle) return;
+            handle.addEventListener('mousedown', () => row.setAttribute('draggable', 'true')); handle.addEventListener('mouseup', () => row.removeAttribute('draggable')); handle.addEventListener('mouseleave', () => row.removeAttribute('draggable'));
+            row.addEventListener('dragstart', function(e) { draggedRow = this; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', this.id); setTimeout(() => this.classList.add('opacity-50', 'border-dashed', 'border-blue-500', 'bg-blue-50'), 0); });
             row.addEventListener('dragover', function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; return false; });
             row.addEventListener('dragenter', function(e) { if (this !== draggedRow) this.classList.add('ring-4', 'ring-blue-400', 'ring-inset'); });
             row.addEventListener('dragleave', function(e) { this.classList.remove('ring-4', 'ring-blue-400', 'ring-inset'); });
-            row.addEventListener('drop', function(e) {
-                e.stopPropagation();
-                if (draggedRow !== this && draggedRow) {
-                    const rect = this.getBoundingClientRect();
-                    const offset = e.clientY - rect.top;
-                    if (offset > rect.height / 2) this.parentNode.insertBefore(draggedRow, this.nextSibling);
-                    else this.parentNode.insertBefore(draggedRow, this);
-                }
-                return false;
-            });
-            row.addEventListener('dragend', function(e) {
-                this.removeAttribute('draggable');
-                this.classList.remove('opacity-50', 'border-dashed', 'border-blue-500', 'bg-blue-50');
-                document.querySelectorAll('.doc-item-row').forEach(r => r.classList.remove('ring-4', 'ring-blue-400', 'ring-inset'));
-            });
+            row.addEventListener('drop', function(e) { e.stopPropagation(); if (draggedRow !== this && draggedRow) { const rect = this.getBoundingClientRect(); const offset = e.clientY - rect.top; if (offset > rect.height / 2) this.parentNode.insertBefore(draggedRow, this.nextSibling); else this.parentNode.insertBefore(draggedRow, this); } return false; });
+            row.addEventListener('dragend', function(e) { this.removeAttribute('draggable'); this.classList.remove('opacity-50', 'border-dashed', 'border-blue-500', 'bg-blue-50'); document.querySelectorAll('.doc-item-row').forEach(r => r.classList.remove('ring-4', 'ring-blue-400', 'ring-inset')); });
         }
 
         function updateDocBalance() {
             let subtotal = 0;
-            document.querySelectorAll('.doc-item-row').forEach(row => { 
-                const price = parseFloat(row.querySelector('.doc-item-price').value || 0); 
-                const qty = parseFloat(row.querySelector('.doc-item-qty').value || 1);
-                subtotal += (price * qty); 
-            });
+            document.querySelectorAll('.doc-item-row').forEach(row => { const price = parseFloat(row.querySelector('.doc-item-price').value || 0); const qty = parseFloat(row.querySelector('.doc-item-qty').value || 1); subtotal += (price * qty); });
             document.getElementById('d-subtotal').value = subtotal.toFixed(2);
-            
-            const discPct = parseFloat(document.getElementById('d-discount-pct').value || 0);
-            const taxPct = parseFloat(document.getElementById('d-tax-pct').value || 0);
-            
-            const discAbs = subtotal * (discPct / 100);
-            const taxAbs = (subtotal - discAbs) * (taxPct / 100);
-            
-            document.getElementById('d-discount').value = discAbs.toFixed(2);
-            document.getElementById('d-tax').value = taxAbs.toFixed(2);
-            
-            const total = subtotal - discAbs + taxAbs;
-            document.getElementById('d-total').value = total.toFixed(2);
+            const discPct = parseFloat(document.getElementById('d-discount-pct').value || 0); const taxPct = parseFloat(document.getElementById('d-tax-pct').value || 0);
+            const discAbs = subtotal * (discPct / 100); const taxAbs = (subtotal - discAbs) * (taxPct / 100);
+            document.getElementById('d-discount').value = discAbs.toFixed(2); document.getElementById('d-tax').value = taxAbs.toFixed(2);
+            document.getElementById('d-total').value = (subtotal - discAbs + taxAbs).toFixed(2);
         }
 
         function saveDocument(e) {
             e.preventDefault();
             if (customers.length === 0) { alert("Please register a customer first!"); return; }
+            const docNoInput = document.getElementById('d-no').value; const type = document.getElementById('d-type').value; let docNo = docNoInput;
             
-            const docNoInput = document.getElementById('d-no').value;
-            const type = document.getElementById('d-type').value;
-            let docNo = docNoInput;
-            
-            // Generate Strict UNIQUE Invoice Number
             if (!docNo) {
-                if (type === 'Invoice') docNo = `INV-${docCounter}`;
-                else if (type === 'Estimate' || type === 'Bulk Estimate') docNo = `EST-${Math.floor(1000 + Math.random() * 9000)}`;
-                else docNo = `QUO-${Math.floor(1000 + Math.random() * 9000)}`;
-                
+                if (type === 'Invoice') docNo = `INV-${docCounter}`; else if (type === 'Estimate' || type === 'Bulk Estimate') docNo = `EST-${Math.floor(1000 + Math.random() * 9000)}`; else docNo = `QUO-${Math.floor(1000 + Math.random() * 9000)}`;
                 while(documents.some(d => d.no === docNo)) {
-                    if(type === 'Invoice') { 
-                        docCounter++; 
-                        docNo = `INV-${docCounter}`; 
-                    } else if (type === 'Estimate' || type === 'Bulk Estimate') { 
-                        docNo = `EST-${Math.floor(1000 + Math.random() * 9000)}`; 
-                    } else { 
-                        docNo = `QUO-${Math.floor(1000 + Math.random() * 9000)}`; 
-                    }
+                    if(type === 'Invoice') { docCounter++; docNo = `INV-${docCounter}`; } else if (type === 'Estimate' || type === 'Bulk Estimate') { docNo = `EST-${Math.floor(1000 + Math.random() * 9000)}`; } else { docNo = `QUO-${Math.floor(1000 + Math.random() * 9000)}`; }
                 }
-                if (type === 'Invoice') { 
-                    docCounter++; 
-                    localStorage.setItem('hab_cnt_v43', docCounter); 
-                }
+                if (type === 'Invoice') { docCounter++; localStorage.setItem('hab_cnt_v43', docCounter); }
             }
             
-            const custId = document.getElementById('d-cust').value;
-            const custObj = customers.find(c => c.id === custId);
-            const items = [];
+            const custId = document.getElementById('d-cust').value; const custObj = customers.find(c => c.id === custId); const items = [];
             const rows = document.querySelectorAll('#doc-items-container > .doc-item-row');
-            
             if (rows.length === 0) { alert("Please add at least one repair item!"); return; }
 
             rows.forEach(row => {
+                let cats = Array.from(row.querySelectorAll('.doc-item-cat')).map(el => el.value.trim()).filter(v=>v).join(' + ');
+                let descs = Array.from(row.querySelectorAll('.doc-item-desc')).map(el => el.value.trim()).filter(v=>v).join('\n\n');
+
                 items.push({
                     pcSerial: row.querySelector('.doc-item-pc').value.trim() || 'General PC',
-                    cat: row.querySelector('.doc-item-cat').value,
-                    desc: row.querySelector('.doc-item-desc').value,
+                    cat: cats,
+                    desc: descs,
                     partSerial: row.querySelector('.doc-item-serial').value.trim() || '',
+                    originalPartSerial: row.querySelector('.doc-item-org-serial').value.trim() || null,
                     war: row.querySelector('.doc-item-war').value,
                     qty: parseFloat(row.querySelector('.doc-item-qty').value || 1),
                     price: parseFloat(row.querySelector('.doc-item-price').value || 0),
-                    claims: []
+                    claims: docNoInput ? (documents.find(d => d.no === docNoInput)?.items.find(i=>i.pcSerial===row.querySelector('.doc-item-pc').value.trim() && i.partSerial===row.querySelector('.doc-item-serial').value.trim())?.claims || []) : []
                 });
             });
 
-            const discount = parseFloat(document.getElementById('d-discount').value || 0);
-            const tax = parseFloat(document.getElementById('d-tax').value || 0);
-            const total = parseFloat(document.getElementById('d-total').value || 0);
-            const paid = parseFloat(document.getElementById('d-paid').value || 0);
-
+            const discount = parseFloat(document.getElementById('d-discount').value || 0); const tax = parseFloat(document.getElementById('d-tax').value || 0); const total = parseFloat(document.getElementById('d-total').value || 0); const paid = parseFloat(document.getElementById('d-paid').value || 0);
             const payments = docNoInput ? (documents.find(d => d.no === docNoInput)?.payments || []) : [];
-            if (payments.length === 0 && paid > 0) {
-                payments.push({ id: 'PAY-INIT', date: new Date().toISOString().split('T')[0], amount: paid, method: 'Cash' });
-            }
+            if (payments.length === 0 && paid > 0) payments.push({ id: 'PAY-INIT', date: new Date().toISOString().split('T')[0], amount: paid, method: 'Cash' });
 
             const newDoc = {
-                no: docNo, 
-                type, 
-                date: document.getElementById('d-date').value || new Date().toISOString().split('T')[0],
+                no: docNo, type, date: document.getElementById('d-date').value || new Date().toISOString().split('T')[0],
                 validPeriod: type === 'Quotation' || type === 'Bulk Estimate' || type === 'Estimate' ? document.getElementById('d-validity').value : null,
-                incBank: document.getElementById('d-inc-bank').checked,
-                hideSn: document.getElementById('d-hide-sn').checked,
-                hideWar: document.getElementById('d-hide-war').checked,
-                custId,
-                custName: custObj ? custObj.name : 'Client', 
-                custPhone: custObj ? custObj.phone : '', 
-                custWhatsapp: custObj ? custObj.whatsapp : '',
-                custAddr: custObj ? custObj.addr : '', 
-                items, 
-                discount, 
-                tax, 
-                total, 
-                paid: payments.reduce((s,p)=>s+p.amount, 0), 
-                payMethod: 'Cash', 
-                payments
+                incBank: document.getElementById('d-inc-bank').checked, hideSn: document.getElementById('d-hide-sn').checked, hideWar: document.getElementById('d-hide-war').checked,
+                custId, custName: custObj ? custObj.name : 'Client', custPhone: custObj ? custObj.phone : '', custWhatsapp: custObj ? custObj.whatsapp : '', custAddr: custObj ? custObj.addr : '', 
+                items, discount, tax, total, paid: payments.reduce((s,p)=>s+p.amount, 0), payMethod: 'Cash', payments
             };
 
-            if (docNoInput) {
-                const idx = documents.findIndex(d => d.no === docNoInput);
-                if (idx !== -1) documents[idx] = newDoc;
-            } else {
-                documents.push(newDoc);
-            }
-
-            localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
-            closeModal('doc-modal'); 
-            renderAll();
+            if (docNoInput) { const idx = documents.findIndex(d => d.no === docNoInput); if (idx !== -1) documents[idx] = newDoc; } else { documents.push(newDoc); }
+            localStorage.setItem('hab_docs_v43', JSON.stringify(documents)); closeModal('doc-modal'); renderAll();
         }
 
-        // FULL QUOTATION TO INVOICE COPY
         function convertToInvoice(quoteNo) {
-            const q = documents.find(x => x.no === quoteNo);
-            if (!q) return;
+            const q = documents.find(x => x.no === quoteNo); if (!q) return;
             if (q.validPeriod) {
                 const match = q.validPeriod.match(/\d+/);
                 if (match) {
-                    const days = parseInt(match[0]);
-                    const expDate = new Date(q.date);
-                    expDate.setDate(expDate.getDate() + (q.validPeriod.includes('Week') ? days * 7 : days));
-                    if (new Date() > expDate) {
-                        if (!confirm(`WARNING: Quotation ${quoteNo} has EXPIRED on ${expDate.toISOString().split('T')[0]}!\nDo you still want to convert it to an invoice?`)) return;
-                    }
+                    const days = parseInt(match[0]); const expDate = new Date(q.date); expDate.setDate(expDate.getDate() + (q.validPeriod.includes('Week') ? days * 7 : days));
+                    if (new Date() > expDate) { if (!confirm(`WARNING: Quotation ${quoteNo} has EXPIRED on ${expDate.toISOString().split('T')[0]}!\nDo you still want to convert it to an invoice?`)) return; }
                 }
             }
             if (confirm(`Convert Estimate ${quoteNo} to final billing invoice? All items will be copied.`)) {
-                openDocModal('new', 'Invoice');
-                document.getElementById('d-cust').value = q.custId;
+                openDocModal('new', 'Invoice'); document.getElementById('d-cust').value = q.custId;
                 let qSubtotal = (q.items || []).reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
                 document.getElementById('d-discount-pct').value = (qSubtotal > 0 && q.discount) ? ((q.discount / qSubtotal) * 100).toFixed(2) : '0.00';
-                let qAfterDisc = qSubtotal - (q.discount || 0);
-                document.getElementById('d-tax-pct').value = (qAfterDisc > 0 && q.tax) ? ((q.tax / qAfterDisc) * 100).toFixed(2) : '0.00';
-                document.getElementById('d-discount').value = q.discount || 0;
-                document.getElementById('d-tax').value = q.tax || 0;
-                
-                document.getElementById('doc-items-container').innerHTML = ''; // Clear default
-                (q.items || []).forEach(item => addDocItemRow(item)); // Add all quote items!
-                updateDocBalance();
-                q.status = 'Converted';
-                localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
-                renderAll();
+                let qAfterDisc = qSubtotal - (q.discount || 0); document.getElementById('d-tax-pct').value = (qAfterDisc > 0 && q.tax) ? ((q.tax / qAfterDisc) * 100).toFixed(2) : '0.00';
+                document.getElementById('d-discount').value = q.discount || 0; document.getElementById('d-tax').value = q.tax || 0;
+                document.getElementById('doc-items-container').innerHTML = ''; (q.items || []).forEach(item => addDocItemRow(item)); updateDocBalance();
+                q.status = 'Converted'; localStorage.setItem('hab_docs_v43', JSON.stringify(documents)); renderAll();
             }
         }
 
         function deleteDocument(no) {
-            if (confirm("Delete document permanently?")) {
-                documents = documents.filter(d => d.no !== no);
-                localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
-                renderAll();
-            }
+            if (confirm("Delete document permanently?")) { documents = documents.filter(d => d.no !== no); localStorage.setItem('hab_docs_v43', JSON.stringify(documents)); renderAll(); }
         }
 
-        // PAYMENT HISTORY MODAL
+        function duplicateDocument(docNo) {
+            const d = documents.find(x => x.no === docNo); if (!d) return;
+            openDocModal('new', d.type);
+            document.getElementById('d-cust').value = d.custId; if (d.validPeriod !== undefined && d.validPeriod !== null) document.getElementById('d-validity').value = d.validPeriod;
+            document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true;
+            let subtotal = (d.items || []).reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
+            document.getElementById('d-subtotal').value = subtotal.toFixed(2); document.getElementById('d-discount-pct').value = (subtotal > 0 && d.discount) ? ((d.discount / subtotal) * 100).toFixed(2) : '0.00';
+            let afterDisc = subtotal - (d.discount || 0); document.getElementById('d-tax-pct').value = (afterDisc > 0 && d.tax) ? ((d.tax / afterDisc) * 100).toFixed(2) : '0.00';
+            document.getElementById('d-discount').value = d.discount || 0; document.getElementById('d-tax').value = d.tax || 0; document.getElementById('d-paid').value = "0.00";
+            document.getElementById('doc-items-container').innerHTML = ''; (d.items || []).forEach(item => addDocItemRow(item));
+            updateDocBalance(); toggleQuoteValidity();
+        }
+
         function openPaymentHistoryModal(docNo) {
-            const doc = documents.find(d => d.no === docNo);
-            if (!doc) return;
-            
-            document.getElementById('ph-inv-no').value = docNo;
-            document.getElementById('ph-date').value = new Date().toISOString().split('T')[0];
+            const doc = documents.find(d => d.no === docNo); if (!doc) return;
+            document.getElementById('ph-inv-no').value = docNo; document.getElementById('ph-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('ph-title').innerText = `Invoice: ${doc.no} | Customer: ${doc.custName} | Billed Total: Rs. ${doc.total.toFixed(2)}`;
-            
-            const tbody = document.getElementById('ph-tbody');
-            tbody.innerHTML = '';
-            
-            if (!doc.payments || doc.payments.length === 0) {
-                doc.payments = [{ id: 'PAY-INIT', date: doc.date, amount: doc.paid, method: doc.payMethod || 'Cash' }];
-            }
-            
+            const tbody = document.getElementById('ph-tbody'); tbody.innerHTML = '';
+            if (!doc.payments || doc.payments.length === 0) doc.payments = [{ id: 'PAY-INIT', date: doc.date, amount: doc.paid, method: doc.payMethod || 'Cash' }];
             doc.payments.forEach((p, index) => {
-                tbody.innerHTML += `
-                    <tr class="border-b text-xs font-medium text-slate-700">
-                        <td class="p-2">${p.date}</td>
-                        <td class="p-2 font-bold">${p.method}</td>
-                        <td class="p-2 text-right text-emerald-600 font-extrabold">Rs. ${p.amount.toFixed(2)}</td>
-                        <td class="p-2 text-center space-x-1">
-                            <button onclick="editPaymentEntry('${docNo}', ${index})" class="bg-amber-500 text-white px-1.5 py-0.5 rounded text-[10px]"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deletePaymentEntry('${docNo}', ${index})" class="bg-rose-500 text-white px-1.5 py-0.5 rounded text-[10px]"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>`;
+                tbody.innerHTML += `<tr class="border-b text-xs font-medium text-slate-700"><td class="p-2">${p.date}</td><td class="p-2 font-bold">${p.method}</td><td class="p-2 text-right text-emerald-600 font-extrabold">Rs. ${p.amount.toFixed(2)}</td><td class="p-2 text-center space-x-1"><button onclick="editPaymentEntry('${docNo}', ${index})" class="bg-amber-500 text-white px-1.5 py-0.5 rounded text-[10px]"><i class="fa-solid fa-pen"></i></button><button onclick="deletePaymentEntry('${docNo}', ${index})" class="bg-rose-500 text-white px-1.5 py-0.5 rounded text-[10px]"><i class="fa-solid fa-trash"></i></button></td></tr>`;
             });
             openModal('pay-history-modal');
         }
 
         function addHistoryPayment(e) {
             e.preventDefault();
-            const docNo = document.getElementById('ph-inv-no').value;
-            const date = document.getElementById('ph-date').value || new Date().toISOString().split('T')[0];
-            const amount = parseFloat(document.getElementById('ph-amount').value);
-            const method = document.getElementById('ph-method').value;
-            const docIdx = documents.findIndex(d => d.no === docNo);
-            if (docIdx === -1) return;
-            
-            const doc = documents[docIdx];
-            if (!doc.payments) doc.payments = [];
-            
+            const docNo = document.getElementById('ph-inv-no').value; const date = document.getElementById('ph-date').value || new Date().toISOString().split('T')[0];
+            const amount = parseFloat(document.getElementById('ph-amount').value); const method = document.getElementById('ph-method').value;
+            const docIdx = documents.findIndex(d => d.no === docNo); if (docIdx === -1) return;
+            const doc = documents[docIdx]; if (!doc.payments) doc.payments = [];
             doc.payments.push({ id: 'PAY-' + Math.floor(1000 + Math.random() * 9000), date, amount, method });
             doc.paid = doc.payments.reduce((sum, p) => sum + p.amount, 0);
-            
-            if (method === 'Cheque') {
-                cheques.push({ 
-                    id: 'CHQ-' + Math.floor(1000+Math.random()*9000), 
-                    invoiceNo: docNo, 
-                    chequeNo: prompt("Cheque No:") || 'UNKNOWN', 
-                    bank: prompt("Bank:") || 'UNKNOWN', 
-                    dueDate: prompt("Date (YYYY-MM-DD):", new Date().toISOString().split('T')[0]), 
-                    amount: amount, 
-                    status: 'Pending' 
-                });
-                localStorage.setItem('hab_chq_v43', JSON.stringify(cheques));
-            }
-            
-            localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
-            document.getElementById('ph-add-form').reset();
-            openPaymentHistoryModal(docNo); 
-            renderAll(); 
-            checkChequeMaturationAlerts();
+            if (method === 'Cheque') { cheques.push({ id: 'CHQ-' + Math.floor(1000+Math.random()*9000), invoiceNo: docNo, chequeNo: prompt("Cheque No:") || 'UNKNOWN', bank: prompt("Bank:") || 'UNKNOWN', dueDate: prompt("Date (YYYY-MM-DD):", new Date().toISOString().split('T')[0]), amount: amount, status: 'Pending' }); localStorage.setItem('hab_chq_v43', JSON.stringify(cheques)); }
+            localStorage.setItem('hab_docs_v43', JSON.stringify(documents)); document.getElementById('ph-add-form').reset(); openPaymentHistoryModal(docNo); renderAll(); checkChequeMaturationAlerts();
         }
 
         function editPaymentEntry(docNo, idx) {
-            const docIdx = documents.findIndex(d => d.no === docNo);
-            if (docIdx === -1) return;
-            const newAmt = prompt(`Update Payment Amount:`, documents[docIdx].payments[idx].amount);
-            if (newAmt === null || isNaN(newAmt)) return;
-            documents[docIdx].payments[idx].amount = parseFloat(newAmt);
-            documents[docIdx].paid = documents[docIdx].payments.reduce((sum, pay) => sum + pay.amount, 0);
-            localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
-            openPaymentHistoryModal(docNo); renderAll();
+            const docIdx = documents.findIndex(d => d.no === docNo); if (docIdx === -1) return;
+            const newAmt = prompt(`Update Payment Amount:`, documents[docIdx].payments[idx].amount); if (newAmt === null || isNaN(newAmt)) return;
+            documents[docIdx].payments[idx].amount = parseFloat(newAmt); documents[docIdx].paid = documents[docIdx].payments.reduce((sum, pay) => sum + pay.amount, 0);
+            localStorage.setItem('hab_docs_v43', JSON.stringify(documents)); openPaymentHistoryModal(docNo); renderAll();
         }
 
         function deletePaymentEntry(docNo, idx) {
-            const docIdx = documents.findIndex(d => d.no === docNo);
-            if (docIdx === -1) return;
+            const docIdx = documents.findIndex(d => d.no === docNo); if (docIdx === -1) return;
             if (confirm("Delete this payment entry permanently?")) {
-                documents[docIdx].payments.splice(idx, 1);
-                documents[docIdx].paid = documents[docIdx].payments.reduce((sum, pay) => sum + pay.amount, 0);
-                localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
-                openPaymentHistoryModal(docNo); renderAll();
+                documents[docIdx].payments.splice(idx, 1); documents[docIdx].paid = documents[docIdx].payments.reduce((sum, pay) => sum + pay.amount, 0);
+                localStorage.setItem('hab_docs_v43', JSON.stringify(documents)); openPaymentHistoryModal(docNo); renderAll();
             }
         }
 
-        // WARRANTY LIFECYCLE & NEW REPAIR LINKING
+        // --- ADVANCED WARRANTY TRACKER ---
         function checkWarranty() {
             const query = document.getElementById('war-search-input').value.trim().toLowerCase();
             const area = document.getElementById('war-result-area');
-            if (!query) { alert("Please type an Invoice Number or Serial!"); return; }
+            if (!query) { alert("Please type an Invoice Number or Serial or Customer info!"); return; }
 
             let resultsHTML = ''; let count = 0;
             documents.filter(d => d.type === 'Invoice').forEach(doc => {
-                if (doc.no.toLowerCase().includes(query) || (doc.items || []).some(it => (it.pcSerial && it.pcSerial.toLowerCase().includes(query)) || (it.partSerial && it.partSerial.toLowerCase().includes(query)))) {
+                const matchDoc = doc.no.toLowerCase().includes(query) || doc.custName.toLowerCase().includes(query) || doc.custPhone.toLowerCase().includes(query);
+                
+                const matchItems = (doc.items || []).some(it => 
+                    (it.pcSerial && it.pcSerial.toLowerCase().includes(query)) || 
+                    (it.partSerial && it.partSerial.toLowerCase().includes(query)) || 
+                    (it.originalPartSerial && it.originalPartSerial.toLowerCase().includes(query)) || 
+                    (it.claims || []).some(cl => cl.newSerial && cl.newSerial.toLowerCase().includes(query)) ||
+                    (it.cat && it.cat.toLowerCase().includes(query)) ||
+                    (it.desc && it.desc.toLowerCase().includes(query))
+                );
+
+                if (matchDoc || matchItems) {
                     count++;
                     let itemsHtml = '';
                     (doc.items || []).forEach((it, idx) => {
                         let claimsListHtml = '';
                         if (it.claims && it.claims.length > 0) {
-                            it.claims.forEach(cl => { claimsListHtml += `<div class="bg-amber-100 text-amber-950 p-2 rounded mt-1 border border-amber-300 text-[11px] font-bold"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Claimed ${cl.date}: ${cl.issue} &rarr; <span class="text-blue-800">${cl.res}</span> ${cl.newSerial ? `(New S/N: ${cl.newSerial})` : ''}</div>`; });
+                            it.claims.forEach(cl => { 
+                                let sSwap = cl.newSerial ? ` <br><span class="text-emerald-700 font-extrabold">&rarr; New Serial Issued: ${cl.newSerial}</span>` : '';
+                                claimsListHtml += `<div class="bg-amber-100 text-amber-950 p-2 rounded mt-1 border border-amber-300 text-[11px] font-bold"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Claimed ${cl.date}: ${cl.issue} &rarr; <span class="text-blue-800">${cl.res}</span>${sSwap}</div>`; 
+                            });
                         }
                         const wStatus = getWarrantyExpiry(doc.date, it.war);
+                        
+                        let serialHistoryHtml = '';
+                        if (it.originalPartSerial && it.originalPartSerial !== it.partSerial) {
+                            serialHistoryHtml = `<p class="text-[11px] mt-1 bg-rose-50 text-rose-800 p-1.5 rounded font-bold border border-rose-200 inline-block shadow-sm">
+                                <i class="fa-solid fa-arrow-right-arrow-left"></i> Replaced: <span class="line-through opacity-70">${it.originalPartSerial}</span> &rarr; <span class="text-emerald-700 font-extrabold text-xs">${it.partSerial}</span>
+                            </p><br><span class="text-[10px] text-slate-500 font-bold ml-1">Current Warranty: <span class="${wStatus.color}">${it.war} - ${wStatus.status}</span></span>`;
+                        } else {
+                            serialHistoryHtml = `<p class="text-indigo-700 font-bold mt-0.5">Part Serial: ${it.partSerial || 'None'} | Warranty: <span class="${wStatus.color} font-extrabold">${it.war} - ${wStatus.status}</span></p>`;
+                        }
+
                         itemsHtml += `
                             <div class="bg-slate-50 p-3 rounded border mt-2 flex justify-between items-start text-xs">
                                 <div>
                                     <span class="bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded text-[10px]">[PC S/N: ${it.pcSerial}]</span>
                                     <strong class="text-slate-800 ml-1 font-bold">${it.cat}</strong> - ${it.desc}
-                                    <p class="text-indigo-700 font-bold mt-0.5">Part Component Serial: ${it.partSerial || 'None'} | Warranty: <span class="${wStatus.color} font-extrabold">${it.war} - ${wStatus.status}</span></p>
+                                    ${serialHistoryHtml}
                                     ${claimsListHtml}
                                 </div>
-                                <div class="space-y-1 flex flex-col items-end shrink-0">
+                                <div class="space-y-1 flex flex-col items-end shrink-0 pl-2">
                                     <button onclick="openClaimModal('${doc.no}', ${idx})" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded font-bold text-[10px] shadow"><i class="fa-solid fa-wrench mr-1"></i> Log Claim</button>
                                     <button onclick="startLinkedRepair('${doc.custId}', '${it.pcSerial}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded font-bold text-[10px] shadow mt-1"><i class="fa-solid fa-link mr-1"></i> New Repair Link</button>
                                 </div>
@@ -1658,199 +1426,231 @@
                 }
             });
             if (count === 0) area.innerHTML = `<div class="bg-amber-50 border border-amber-200 text-amber-900 p-6 rounded-xl text-center font-bold">No records matched query "${query}".</div>`;
-            else area.innerHTML = `<h3 class="font-bold text-slate-700 mb-2">PC Lifecycle Timeline (${count} Records):</h3>` + resultsHTML;
+            else area.innerHTML = `<h3 class="font-bold text-slate-700 mb-2">PC Lifecycle Timeline (${count} Records Match):</h3>` + resultsHTML;
             area.classList.remove('hidden');
         }
 
-        // NEW REPAIR AUTO-LINK FUNCTION
         function startLinkedRepair(custId, pcSerial) {
-            closeModal('claim-modal');
-            switchTab('invoices');
-            openDocModal('new', 'Invoice');
-            
-            // Allow DOM to load the new modal
-            setTimeout(() => {
-                document.getElementById('d-cust').value = custId;
-                const serialInputs = document.querySelectorAll('.doc-item-pc');
-                if(serialInputs.length > 0) {
-                    serialInputs[0].value = pcSerial;
-                }
-                alert("Linked Repair Mode: Customer CRM & PC Serial auto-loaded! History will remain chained.");
-            }, 50);
+            closeModal('claim-modal'); switchTab('invoices'); openDocModal('new', 'Invoice');
+            setTimeout(() => { document.getElementById('d-cust').value = custId; const serialInputs = document.querySelectorAll('.doc-item-pc'); if(serialInputs.length > 0) serialInputs[0].value = pcSerial; alert("Linked Repair Mode: Customer CRM & PC Serial auto-loaded! History will remain chained."); }, 50);
         }
 
         function openClaimModal(docNo, itemIdx) {
-            const doc = documents.find(d => d.no === docNo);
-            if (!doc) return;
-            document.getElementById('cl-doc-no').value = docNo;
-            document.getElementById('cl-item-idx').value = itemIdx;
-            document.getElementById('cl-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('claim-item-info').innerHTML = `Claim Context: <strong class="text-blue-900">${doc.items[itemIdx].cat}</strong><br>PC Serial: ${doc.items[itemIdx].pcSerial}`;
+            const doc = documents.find(d => d.no === docNo); if (!doc) return;
+            document.getElementById('cl-doc-no').value = docNo; document.getElementById('cl-item-idx').value = itemIdx; document.getElementById('cl-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('claim-item-info').innerHTML = `Claim Context: <strong class="text-blue-900">${doc.items[itemIdx].cat}</strong><br>PC Serial: ${doc.items[itemIdx].pcSerial} <br> Current Part S/N: <strong class="text-rose-600">${doc.items[itemIdx].partSerial || 'N/A'}</strong>`;
             openModal('claim-modal');
         }
 
         function saveWarrantyClaim(e) {
             e.preventDefault();
-            const docNo = document.getElementById('cl-doc-no').value;
-            const idx = parseInt(document.getElementById('cl-item-idx').value);
-            const docIdx = documents.findIndex(d => d.no === docNo);
-            if (docIdx === -1) return;
+            const docNo = document.getElementById('cl-doc-no').value; const idx = parseInt(document.getElementById('cl-item-idx').value);
+            const docIdx = documents.findIndex(d => d.no === docNo); if (docIdx === -1) return;
 
             const newSerial = document.getElementById('cl-new-serial').value.trim();
+            const issue = document.getElementById('cl-issue').value;
+            const res = document.getElementById('cl-res').value;
+            const date = document.getElementById('cl-date').value;
+
             if (!documents[docIdx].items[idx].claims) documents[docIdx].items[idx].claims = [];
-            documents[docIdx].items[idx].claims.push({ date: document.getElementById('cl-date').value, issue: document.getElementById('cl-issue').value, res: document.getElementById('cl-res').value, newSerial: newSerial || null });
+
+            if (newSerial && documents[docIdx].items[idx].partSerial !== newSerial) {
+                if (!documents[docIdx].items[idx].originalPartSerial) {
+                    documents[docIdx].items[idx].originalPartSerial = documents[docIdx].items[idx].partSerial;
+                }
+                documents[docIdx].items[idx].claims.push({ date, issue, res, oldSerial: documents[docIdx].items[idx].partSerial, newSerial: newSerial });
+                documents[docIdx].items[idx].partSerial = newSerial;
+            } else {
+                documents[docIdx].items[idx].claims.push({ date, issue, res, newSerial: null });
+            }
             
-            if (newSerial) documents[docIdx].items[idx].partSerial = newSerial;
-            
-            localStorage.setItem('hab_docs_v43', JSON.stringify(documents));
-            closeModal('claim-modal'); 
-            checkWarranty(); 
-            alert("Warranty claim logged inside PC serial history successfully.");
+            localStorage.setItem('hab_docs_v43', JSON.stringify(documents)); closeModal('claim-modal'); checkWarranty(); alert("Warranty claim logged. New Serial mapped in lifecycle history.");
         }
 
-        // --- CUSTOMER, SUPPLIER & EXPENSE CONTROLLERS ---
+        // --- CUSTOMER CRM ---
         function saveCustomer(e) {
             e.preventDefault();
             const id = document.getElementById('c-id').value;
-            const obj = {
-                name: document.getElementById('c-name').value, phone: document.getElementById('c-phone').value,
-                whatsapp: document.getElementById('c-whatsapp').value, email: document.getElementById('c-email').value || '-',
-                addr: document.getElementById('c-addr').value || '-', notes: document.getElementById('c-notes').value || '-'
-            };
-            if (id) {
-                const idx = customers.findIndex(c => c.id === id);
-                if (idx !== -1) customers[idx] = { ...customers[idx], ...obj };
-            } else {
-                customers.push({ id: 'CUST-' + (customers.length + 101), created: new Date().toISOString().split('T')[0], ...obj });
-            }
-            localStorage.setItem('hab_cust_v43', JSON.stringify(customers));
-            document.getElementById('cust-form').reset();
-            closeModal('cust-modal');
-            renderAll();
+            const obj = { name: document.getElementById('c-name').value, phone: document.getElementById('c-phone').value, whatsapp: document.getElementById('c-whatsapp').value, email: document.getElementById('c-email').value || '-', addr: document.getElementById('c-addr').value || '-', notes: document.getElementById('c-notes').value || '-' };
+            if (id) { const idx = customers.findIndex(c => c.id === id); if (idx !== -1) customers[idx] = { ...customers[idx], ...obj }; } 
+            else { customers.push({ id: 'CUST-' + (customers.length + 101), created: new Date().toISOString().split('T')[0], ...obj }); }
+            localStorage.setItem('hab_cust_v43', JSON.stringify(customers)); document.getElementById('cust-form').reset(); closeModal('cust-modal'); renderAll();
         }
 
         function editCustomer(id) {
-            const c = customers.find(x => x.id === id);
-            if (!c) return;
-            document.getElementById('c-id').value = c.id; document.getElementById('c-name').value = c.name;
-            document.getElementById('c-phone').value = c.phone; document.getElementById('c-whatsapp').value = c.whatsapp;
-            document.getElementById('c-email').value = c.email !== '-' ? c.email : '';
-            document.getElementById('c-addr').value = c.addr !== '-' ? c.addr : '';
-            document.getElementById('c-notes').value = c.notes !== '-' ? c.notes : '';
-            document.getElementById('c-modal-title').innerText = "Edit Customer Contact";
-            openModal('cust-modal');
+            const c = customers.find(x => x.id === id); if (!c) return;
+            document.getElementById('c-id').value = c.id; document.getElementById('c-name').value = c.name; document.getElementById('c-phone').value = c.phone; document.getElementById('c-whatsapp').value = c.whatsapp; document.getElementById('c-email').value = c.email !== '-' ? c.email : ''; document.getElementById('c-addr').value = c.addr !== '-' ? c.addr : ''; document.getElementById('c-notes').value = c.notes !== '-' ? c.notes : '';
+            document.getElementById('c-modal-title').innerText = "Edit Customer Contact"; openModal('cust-modal');
         }
 
         function deleteCustomer(id) {
-            if (confirm("Delete this customer context record?")) {
-                customers = customers.filter(c => c.id !== id);
-                localStorage.setItem('hab_cust_v43', JSON.stringify(customers));
-                renderAll();
-            }
+            if (confirm("Delete this customer context record?")) { customers = customers.filter(c => c.id !== id); localStorage.setItem('hab_cust_v43', JSON.stringify(customers)); renderAll(); }
         }
 
         function renderCustomers() {
-            const tbody = document.getElementById('cust-tbody');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('cust-tbody'); tbody.innerHTML = '';
             customers.forEach((c, index) => {
                 const mapBtn = c.addr !== '-' && c.addr.trim() !== '' ? `<a href="https://maps.google.com/?q=${encodeURIComponent(c.addr)}" target="_blank" title="View Location" class="text-slate-400 hover:text-red-500 ml-1"><i class="fa-solid fa-map-location-dot"></i></a>` : '';
-                tbody.innerHTML += `
-                    <tr class="border-b hover:bg-slate-50 font-medium">
-                        <td class="p-3 text-slate-500 font-bold">${index + 1}</td>
-                        <td class="p-3"><button onclick="viewCustomerProfile('${c.id}')" class="font-extrabold text-blue-600 hover:underline">${c.id}</button></td>
-                        <td class="p-3 font-bold text-slate-800">${c.name}<br><span class="text-[11px] font-normal text-slate-500">${c.addr} ${mapBtn}</span></td>
-                        <td class="p-3 text-slate-700">${c.phone} <a href="tel:${c.phone}" class="ml-1 text-slate-400 hover:text-blue-500"><i class="fa-solid fa-phone"></i></a></td>
-                        <td class="p-3 text-emerald-700 font-bold"><i class="fa-brands fa-whatsapp mr-1"></i> ${c.whatsapp} <a href="https://wa.me/${c.whatsapp.replace(/[^0-9]/g, '')}" target="_blank" class="ml-1 text-slate-400 hover:text-emerald-500"><i class="fa-solid fa-comment-dots"></i></a></td>
-                        <td class="p-3 text-slate-500">${c.notes}</td>
-                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
-                            <button onclick="editCustomer('${c.id}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteCustomer('${c.id}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>`;
+                tbody.innerHTML += `<tr class="border-b hover:bg-slate-50 font-medium"><td class="p-3 text-slate-500 font-bold">${index + 1}</td><td class="p-3"><button onclick="viewCustomerProfile('${c.id}')" class="font-extrabold text-blue-600 hover:underline">${c.id}</button></td><td class="p-3 font-bold text-slate-800">${c.name}<br><span class="text-[11px] font-normal text-slate-500">${c.addr} ${mapBtn}</span></td><td class="p-3 text-slate-700">${c.phone} <a href="tel:${c.phone}" class="ml-1 text-slate-400 hover:text-blue-500"><i class="fa-solid fa-phone"></i></a></td><td class="p-3 text-emerald-700 font-bold"><i class="fa-brands fa-whatsapp mr-1"></i> ${c.whatsapp} <a href="https://wa.me/${c.whatsapp.replace(/[^0-9]/g, '')}" target="_blank" class="ml-1 text-slate-400 hover:text-emerald-500"><i class="fa-solid fa-comment-dots"></i></a></td><td class="p-3 text-slate-500">${c.notes}</td><td class="p-3 text-center space-x-1 whitespace-nowrap"><button onclick="editCustomer('${c.id}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold"><i class="fa-solid fa-pen"></i></button><button onclick="deleteCustomer('${c.id}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold"><i class="fa-solid fa-trash"></i></button></td></tr>`;
             });
         }
 
         function populateCustomerDropdown() {
-            const select = document.getElementById('d-cust');
-            select.innerHTML = '';
+            const select = document.getElementById('d-cust'); select.innerHTML = '';
             customers.forEach(c => { select.innerHTML += `<option value="${c.id}">${c.name} (${c.whatsapp || c.phone})</option>`; });
         }
 
         function viewCustomerProfile(custId) {
-            const c = customers.find(x => x.id === custId);
-            if (!c) return;
+            const c = customers.find(x => x.id === custId); if (!c) return;
             document.getElementById('cp-name').innerText = `${c.name} (${c.id})`;
-            
-            const mapLink = c.addr !== '-' && c.addr.trim() !== '' ? `<a href="https://maps.google.com/?q=${encodeURIComponent(c.addr)}" target="_blank" class="text-blue-500 hover:underline ml-2"><i class="fa-solid fa-location-dot"></i> Map</a>` : '';
-            const telLink = c.phone !== '-' ? `<a href="tel:${c.phone}" class="text-blue-500 hover:underline ml-2"><i class="fa-solid fa-phone"></i> Call</a>` : '';
-            const waLink = c.whatsapp !== '-' ? `<a href="https://wa.me/${c.whatsapp.replace(/[^0-9]/g, '')}" target="_blank" class="text-emerald-500 hover:underline ml-2"><i class="fa-brands fa-whatsapp"></i> WA</a>` : '';
-
+            const mapLink = c.addr !== '-' && c.addr.trim() !== '' ? `<a href="https://maps.google.com/?q=${encodeURIComponent(c.addr)}" target="_blank" class="text-blue-500 hover:underline ml-2"><i class="fa-solid fa-location-dot"></i> Map</a>` : ''; const telLink = c.phone !== '-' ? `<a href="tel:${c.phone}" class="text-blue-500 hover:underline ml-2"><i class="fa-solid fa-phone"></i> Call</a>` : ''; const waLink = c.whatsapp !== '-' ? `<a href="https://wa.me/${c.whatsapp.replace(/[^0-9]/g, '')}" target="_blank" class="text-emerald-500 hover:underline ml-2"><i class="fa-brands fa-whatsapp"></i> WA</a>` : '';
             document.getElementById('cp-details').innerHTML = `TP: ${c.phone} ${telLink} | WA: ${c.whatsapp} ${waLink} <br> Email: ${c.email} | Addr: ${c.addr} ${mapLink}`;
-            
-            const invContainer = document.getElementById('cp-timeline-invoices');
-            const quoContainer = document.getElementById('cp-timeline-quotes');
+            const invContainer = document.getElementById('cp-timeline-invoices'); const quoContainer = document.getElementById('cp-timeline-quotes');
             invContainer.innerHTML = ''; quoContainer.innerHTML = '';
-            
-            const custDocs = documents.filter(d => d.custId === custId);
-            const invoices = custDocs.filter(d => d.type === 'Invoice');
-            const quotes = custDocs.filter(d => d.type === 'Quotation' || d.type === 'Estimate');
-            
+            const custDocs = documents.filter(d => d.custId === custId); const invoices = custDocs.filter(d => d.type === 'Invoice'); const quotes = custDocs.filter(d => d.type === 'Quotation' || d.type === 'Estimate');
             if (invoices.length === 0) invContainer.innerHTML = `<p class="text-slate-400 italic py-2 text-xs">No invoices logged.</p>`;
-            else invoices.forEach(d => {
-                invContainer.innerHTML += `
-                    <div onclick="openPaymentHistoryModal('${d.no}')" class="p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg cursor-pointer flex justify-between items-center text-xs transition">
-                        <div><span class="px-2 py-0.5 rounded font-extrabold bg-blue-100 text-blue-800 border border-blue-200">${d.type}</span><strong class="text-slate-800 ml-2">${d.no}</strong> (${d.date})</div>
-                        <div class="text-right"><p class="font-extrabold text-slate-800">Rs. ${d.total.toFixed(2)}</p></div>
-                    </div>`;
-            });
-            
+            else invoices.forEach(d => { invContainer.innerHTML += `<div onclick="openPaymentHistoryModal('${d.no}')" class="p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg cursor-pointer flex justify-between items-center text-xs transition"><div><span class="px-2 py-0.5 rounded font-extrabold bg-blue-100 text-blue-800 border border-blue-200">${d.type}</span><strong class="text-slate-800 ml-2">${d.no}</strong> (${d.date})</div><div class="text-right"><p class="font-extrabold text-slate-800">Rs. ${d.total.toFixed(2)}</p></div></div>`; });
             if (quotes.length === 0) quoContainer.innerHTML = `<p class="text-slate-400 italic py-2 text-xs">No quotations logged.</p>`;
-            else quotes.forEach(d => {
-                quoContainer.innerHTML += `
-                    <div onclick="openDocModal('edit', null, '${d.no}')" class="p-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg cursor-pointer flex justify-between items-center text-xs transition">
-                        <div><span class="px-2 py-0.5 rounded font-extrabold bg-amber-100 text-amber-800 border border-amber-200">${d.type}</span><strong class="text-slate-800 ml-2">${d.no}</strong> (${d.date})</div>
-                        <div class="text-right"><p class="font-extrabold text-slate-800">Rs. ${d.total.toFixed(2)}</p></div>
-                    </div>`;
-            });
-            
+            else quotes.forEach(d => { quoContainer.innerHTML += `<div onclick="openDocModal('edit', null, '${d.no}')" class="p-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg cursor-pointer flex justify-between items-center text-xs transition"><div><span class="px-2 py-0.5 rounded font-extrabold bg-amber-100 text-amber-800 border border-amber-200">${d.type}</span><strong class="text-slate-800 ml-2">${d.no}</strong> (${d.date})</div><div class="text-right"><p class="font-extrabold text-slate-800">Rs. ${d.total.toFixed(2)}</p></div></div>`; });
             openModal('cust-profile-modal');
         }
 
-        function saveSupplierPart(e) {
-            e.preventDefault();
-            const id = document.getElementById('s-id').value;
-            const obj = { shop: document.getElementById('s-shop').value, partName: document.getElementById('s-part').value, serialNo: document.getElementById('s-serial').value, cost: parseFloat(document.getElementById('s-cost').value), paid: document.getElementById('s-paid').value, warPeriod: document.getElementById('s-war').value, claimStatus: document.getElementById('s-claim').value };
-            if (id) {
-                const idx = suppliers.findIndex(s => s.id === id);
-                if (idx !== -1) suppliers[idx] = { ...suppliers[idx], ...obj };
-            } else {
-                suppliers.push({ id: 'SUP-' + Math.floor(1000+Math.random()*9000), date: new Date().toISOString().split('T')[0], ...obj, soldDocNo: null });
-            }
-            localStorage.setItem('hab_sup_v43', JSON.stringify(suppliers));
-            closeModal('sup-modal'); renderAll();
+        // --- BULK SUPPLIER MODULE ---
+        function addSupRow(data = {}) {
+            const container = document.getElementById('sup-items-container');
+            const id = 'srow-' + Math.random().toString(36).substr(2,9);
+            container.insertAdjacentHTML('beforeend', `
+            <div class="sup-item-row bg-white p-3 rounded-lg border border-slate-300 shadow-sm relative grid grid-cols-1 md:grid-cols-12 gap-3 items-end text-xs" id="${id}">
+                <div class="md:col-span-3"><label class="font-bold text-slate-700 block mb-1">Part Name *</label><input type="text" required class="s-part w-full p-2 border rounded font-bold" value="${data.partName || ''}"></div>
+                <div class="md:col-span-2"><label class="font-bold text-slate-700 block mb-1">Serial (S/N) *</label><input type="text" required class="s-serial w-full p-2 border rounded font-bold text-indigo-700" value="${data.serialNo || ''}"></div>
+                <div class="md:col-span-2"><label class="font-bold text-slate-700 block mb-1">Cost (Rs.) *</label><input type="number" step="0.01" required class="s-cost w-full p-2 border rounded font-extrabold text-rose-700 bg-rose-50" value="${data.cost || ''}"></div>
+                <div class="md:col-span-2"><label class="font-bold text-slate-700 block mb-1">Pay Status</label><select class="s-paid w-full p-2 border rounded font-bold"><option ${data.paid==='Paid in Full'?'selected':''}>Paid in Full</option><option ${data.paid==='Credit / Pending'?'selected':''}>Credit / Pending</option></select></div>
+                <div class="md:col-span-2"><label class="font-bold text-slate-700 block mb-1">Warranty</label><select class="s-war w-full p-2 border rounded font-bold">
+                    <option value="No Warranty" ${data.warPeriod==='No Warranty'?'selected':''}>No Warranty</option><option value="1 Month" ${data.warPeriod==='1 Month'?'selected':''}>1 Month</option>
+                    <option value="3 Months" ${data.warPeriod==='3 Months'?'selected':''}>3 Months</option><option value="6 Months" ${data.warPeriod==='6 Months'?'selected':''}>6 Months</option>
+                    <option value="1 Year" ${data.warPeriod==='1 Year'?'selected':''}>1 Year</option><option value="2 Years" ${data.warPeriod==='2 Years'?'selected':''}>2 Years</option>
+                    <option value="3 Years" ${data.warPeriod==='3 Years'?'selected':''}>3 Years</option><option value="Lifetime" ${data.warPeriod==='Lifetime'?'selected':''}>Lifetime</option>
+                </select></div>
+                <div class="md:col-span-1 flex justify-center pb-1"><button type="button" onclick="document.getElementById('${id}').remove()" class="text-rose-500 hover:text-rose-700 font-bold text-xl" title="Remove Row"><i class="fa-solid fa-circle-xmark"></i></button></div>
+                <input type="hidden" class="s-claim" value="${data.claimStatus || 'No Claim (Active)'}">
+            </div>`);
         }
 
         function openSupModal(mode, id = null) {
             document.getElementById('sup-form').reset();
-            if (mode === 'new') { document.getElementById('s-id').value = ''; }
-            else if (mode === 'edit' && id) {
-                const s = suppliers.find(x => x.id === id);
-                if (!s) return;
-                document.getElementById('s-id').value = s.id; document.getElementById('s-shop').value = s.shop; document.getElementById('s-part').value = s.partName; document.getElementById('s-serial').value = s.serialNo; document.getElementById('s-cost').value = s.cost; document.getElementById('s-paid').value = s.paid; document.getElementById('s-war').value = s.warPeriod; document.getElementById('s-claim').value = s.claimStatus;
+            document.getElementById('sup-items-container').innerHTML = '';
+            
+            if (mode === 'new') { 
+                document.getElementById('s-edit-id').value = ''; 
+                document.getElementById('s-date').value = new Date().toISOString().split('T')[0];
+                document.getElementById('s-modal-title').innerHTML = `<i class="fa-solid fa-truck-fast text-emerald-600 mr-2"></i> Bulk Supplier & Stock Entry`;
+                document.getElementById('btn-add-sup-row').classList.remove('hidden');
+                addSupRow(); // Add one empty row to start
+            } else if (mode === 'edit' && id) {
+                const s = suppliers.find(x => x.id === id); if (!s) return;
+                document.getElementById('s-edit-id').value = s.id; 
+                document.getElementById('s-shop').value = s.shop; 
+                document.getElementById('s-date').value = s.date;
+                document.getElementById('s-modal-title').innerHTML = `<i class="fa-solid fa-pen text-amber-600 mr-2"></i> Edit Single Supplier Item`;
+                document.getElementById('btn-add-sup-row').classList.add('hidden'); // Hide bulk add when editing single
+                addSupRow(s);
             }
             openModal('sup-modal');
         }
 
-        function saveExpense(e) {
+        function saveSupplierPart(e) {
             e.preventDefault();
-            expenses.push({ id: 'EXP-' + Math.floor(1000+Math.random()*9000), date: new Date().toISOString().split('T')[0], cat: document.getElementById('e-cat').value, desc: document.getElementById('e-desc').value, amt: parseFloat(document.getElementById('e-amt').value) });
-            localStorage.setItem('hab_exp_v43', JSON.stringify(expenses));
-            closeModal('exp-modal'); renderAll();
+            const editId = document.getElementById('s-edit-id').value;
+            const shop = document.getElementById('s-shop').value;
+            const date = document.getElementById('s-date').value;
+            const rows = document.querySelectorAll('.sup-item-row');
+            
+            if (rows.length === 0) { alert("Add at least one stock item!"); return; }
+
+            if (editId) {
+                // Edit Single
+                const row = rows[0];
+                const idx = suppliers.findIndex(s => s.id === editId);
+                suppliers[idx] = { ...suppliers[idx], shop, date,
+                    partName: row.querySelector('.s-part').value, serialNo: row.querySelector('.s-serial').value,
+                    cost: parseFloat(row.querySelector('.s-cost').value), paid: row.querySelector('.s-paid').value,
+                    warPeriod: row.querySelector('.s-war').value, claimStatus: row.querySelector('.s-claim').value
+                };
+            } else {
+                // Bulk Insert
+                rows.forEach(row => {
+                    suppliers.push({ 
+                        id: 'SUP-' + Math.floor(10000+Math.random()*90000), 
+                        date, shop, 
+                        partName: row.querySelector('.s-part').value, serialNo: row.querySelector('.s-serial').value, 
+                        cost: parseFloat(row.querySelector('.s-cost').value), paid: row.querySelector('.s-paid').value, 
+                        warPeriod: row.querySelector('.s-war').value, claimStatus: row.querySelector('.s-claim').value,
+                        soldDocNo: null 
+                    });
+                });
+            }
+            localStorage.setItem('hab_sup_v43', JSON.stringify(suppliers)); closeModal('sup-modal'); renderAll();
         }
 
-        function openExpModal(mode) {
-            document.getElementById('exp-form').reset(); openModal('exp-modal');
+        function deleteSupplierPart(id) {
+            if (confirm("Delete this supplier part permanently?")) {
+                suppliers = suppliers.filter(s => s.id !== id);
+                localStorage.setItem('hab_sup_v43', JSON.stringify(suppliers)); renderAll();
+            }
         }
+
+        // --- EXPENSES (Finance) ---
+        function saveExpense(e) {
+            e.preventDefault();
+            const id = document.getElementById('e-id').value;
+            const obj = { date: document.getElementById('e-date').value, cat: document.getElementById('e-cat').value, desc: document.getElementById('e-desc').value, amt: parseFloat(document.getElementById('e-amt').value) };
+            if(id) {
+                const idx = expenses.findIndex(x => x.id === id);
+                if(idx !== -1) expenses[idx] = { ...expenses[idx], ...obj };
+            } else {
+                expenses.push({ id: 'EXP-' + Math.floor(1000+Math.random()*9000), ...obj });
+            }
+            localStorage.setItem('hab_exp_v43', JSON.stringify(expenses)); closeModal('exp-modal'); renderAll();
+        }
+
+        function openExpModal(mode, id=null) {
+            document.getElementById('exp-form').reset();
+            if(mode === 'new') {
+                document.getElementById('e-id').value = '';
+                document.getElementById('e-date').value = new Date().toISOString().split('T')[0];
+            } else {
+                const ex = expenses.find(e => e.id === id); if(!ex) return;
+                document.getElementById('e-id').value = id; document.getElementById('e-date').value = ex.date;
+                document.getElementById('e-cat').value = ex.cat; document.getElementById('e-desc').value = ex.desc; document.getElementById('e-amt').value = ex.amt;
+            }
+            openModal('exp-modal');
+        }
+
+        function deleteExpense(id) {
+            if(confirm("Delete this expense record?")) { expenses = expenses.filter(e => e.id !== id); localStorage.setItem('hab_exp_v43', JSON.stringify(expenses)); renderAll(); }
+        }
+
+        // --- CHEQUE EDIT ---
+        function editChequeModal(id) {
+            const cq = cheques.find(c => c.id === id); if(!cq) return;
+            document.getElementById('cq-id').value = cq.id; document.getElementById('cq-inv').value = cq.invoiceNo;
+            document.getElementById('cq-no').value = cq.chequeNo; document.getElementById('cq-bank').value = cq.bank;
+            document.getElementById('cq-date').value = cq.dueDate; document.getElementById('cq-amt').value = cq.amount;
+            document.getElementById('cq-status').value = cq.status;
+            openModal('chq-edit-modal');
+        }
+        function saveChequeEdit(e) {
+            e.preventDefault();
+            const id = document.getElementById('cq-id').value; const idx = cheques.findIndex(c => c.id === id); if(idx === -1) return;
+            cheques[idx].chequeNo = document.getElementById('cq-no').value; cheques[idx].bank = document.getElementById('cq-bank').value;
+            cheques[idx].dueDate = document.getElementById('cq-date').value; cheques[idx].amount = parseFloat(document.getElementById('cq-amt').value);
+            cheques[idx].status = document.getElementById('cq-status').value;
+            localStorage.setItem('hab_chq_v43', JSON.stringify(cheques)); closeModal('chq-edit-modal'); renderAll(); checkChequeMaturationAlerts();
+        }
+        function deleteCheque(id) {
+            if(confirm("Delete this cheque record?")) { cheques = cheques.filter(c => c.id !== id); localStorage.setItem('hab_chq_v43', JSON.stringify(cheques)); renderAll(); checkChequeMaturationAlerts(); }
+        }
+
 
         // --- RENDER TABLES ---
         function renderEstimates() {
@@ -1886,6 +1686,7 @@
                         <td class="p-3 text-center space-x-1 whitespace-nowrap">
                             <button onclick="convertToInvoice('${d.no}')" class="bg-indigo-600 text-white px-2 py-1 rounded text-[11px] font-bold shadow"><i class="fa-solid fa-right-left"></i> Convert to Invoice</button>
                             <button onclick="viewPrintable('${d.no}')" class="bg-slate-800 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="duplicateDocument('${d.no}')" class="bg-teal-600 text-white px-2 py-1 rounded font-bold text-[11px]" title="Copy to New"><i class="fa-solid fa-copy"></i></button>
                             <button onclick="openDocModal('edit', null, '${d.no}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-pen"></i></button>
                             <button onclick="deleteDocument('${d.no}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -1927,6 +1728,7 @@
                         <td class="p-3 text-center space-x-1 whitespace-nowrap">
                             <button onclick="convertToInvoice('${d.no}')" class="bg-indigo-600 text-white px-2 py-1 rounded text-[11px] font-bold shadow"><i class="fa-solid fa-right-left"></i> Convert to Invoice</button>
                             <button onclick="viewPrintable('${d.no}')" class="bg-slate-800 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="duplicateDocument('${d.no}')" class="bg-teal-600 text-white px-2 py-1 rounded font-bold text-[11px]" title="Copy to New"><i class="fa-solid fa-copy"></i></button>
                             <button onclick="openDocModal('edit', null, '${d.no}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-pen"></i></button>
                             <button onclick="deleteDocument('${d.no}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -1968,6 +1770,7 @@
                         <td class="p-3 text-center space-x-1 whitespace-nowrap">
                             <button onclick="convertToInvoice('${d.no}')" class="bg-indigo-600 text-white px-2 py-1 rounded text-[11px] font-bold shadow"><i class="fa-solid fa-right-left"></i> Convert to Invoice</button>
                             <button onclick="viewPrintable('${d.no}')" class="bg-slate-800 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="duplicateDocument('${d.no}')" class="bg-teal-600 text-white px-2 py-1 rounded font-bold text-[11px]" title="Copy to New"><i class="fa-solid fa-copy"></i></button>
                             <button onclick="openDocModal('edit', null, '${d.no}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-pen"></i></button>
                             <button onclick="deleteDocument('${d.no}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -1992,6 +1795,7 @@
                         <td class="p-3 font-bold ${bal<=0?'text-emerald-600':'text-rose-600'}">Rs. ${d.paid.toFixed(2)}</td>
                         <td class="p-3 text-center space-x-1 whitespace-nowrap">
                             <button onclick="viewPrintable('${d.no}')" class="bg-slate-800 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-print"></i></button>
+                            <button onclick="duplicateDocument('${d.no}')" class="bg-teal-600 text-white px-2 py-1 rounded font-bold text-[11px]" title="Copy to New"><i class="fa-solid fa-copy"></i></button>
                             <button onclick="openDocModal('edit', null, '${d.no}')" class="bg-amber-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-pen"></i></button>
                             <button onclick="deleteDocument('${d.no}')" class="bg-rose-500 text-white px-2 py-1 rounded font-bold text-[11px]"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -2046,12 +1850,14 @@
                         <td class="p-3">No: <strong>${c.chequeNo}</strong><br><span class="text-slate-500 text-[10px]">${c.bank}</span></td>
                         <td class="p-3 font-bold text-slate-700">${c.dueDate}</td><td class="p-3 font-extrabold text-slate-800">Rs. ${c.amount.toFixed(2)}</td>
                         <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badge}">${c.status}</span></td>
-                        <td class="p-3 text-center">
-                            <select onchange="updateChequeStatus('${c.id}', this.value)" class="p-1 border rounded text-[11px] font-bold bg-white">
+                        <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                            <select onchange="updateChequeStatus('${c.id}', this.value)" class="p-1 border rounded text-[11px] font-bold bg-white mr-1">
                                 <option value="Pending" ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
                                 <option value="Finished" ${c.status === 'Finished' ? 'selected' : ''}>Finished</option>
                                 <option value="Rejected" ${c.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
                             </select>
+                            <button onclick="editChequeModal('${c.id}')" class="bg-amber-500 text-white px-2 py-1 rounded text-[10px]"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteCheque('${c.id}')" class="bg-rose-500 text-white px-2 py-1 rounded text-[10px]"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>`;
             });
@@ -2069,41 +1875,66 @@
         }
 
         function updateChequeStatus(chqId, newStatus) {
-            const idx = cheques.findIndex(c => c.id === chqId);
-            if (idx === -1) return;
-            cheques[idx].status = newStatus; localStorage.setItem('hab_chq_v43', JSON.stringify(cheques));
-            renderAll(); checkChequeMaturationAlerts();
+            const idx = cheques.findIndex(c => c.id === chqId); if (idx === -1) return;
+            cheques[idx].status = newStatus; localStorage.setItem('hab_chq_v43', JSON.stringify(cheques)); renderAll(); checkChequeMaturationAlerts();
         }
 
         function renderSuppliers() {
             const tbody = document.getElementById('sup-tbody'); tbody.innerHTML = '';
-            let totalSum = 0;
+            let totalSum = 0, inStockQty = 0, soldQty = 0;
+            
             suppliers.forEach((s, index) => {
                 totalSum += s.cost;
-                tbody.innerHTML += `<tr class="border-b text-xs hover:bg-slate-50"><td class="p-3 text-slate-500 font-bold">${index + 1}</td><td class="p-3">${s.date}</td><td class="p-3 font-bold">${s.shop}</td><td class="p-3"><strong>${s.partName}</strong><br><span class="text-indigo-600 font-bold">S/N: ${s.serialNo}</span></td><td class="p-3 text-rose-600 font-extrabold">Rs. ${s.cost.toFixed(2)}</td><td class="p-3 text-slate-700">${s.warPeriod}</td><td class="p-3 font-bold text-blue-700">${s.soldDocNo || 'In Casing Stock'}</td><td class="p-3">${s.claimStatus}</td><td class="p-3 text-center"><button onclick="openSupModal('edit', '${s.id}')" class="bg-amber-500 text-white px-2 py-1 rounded"><i class="fa-solid fa-pen"></i></button></td></tr>`;
+                if (s.soldDocNo) soldQty++; else inStockQty++;
+                
+                let stockStatus = s.soldDocNo ? 
+                    `<span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold border border-blue-300 block mt-1"><i class="fa-solid fa-file-invoice mr-1"></i>Sold: ${s.soldDocNo}</span>` : 
+                    `<span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold border border-emerald-300 block mt-1"><i class="fa-solid fa-boxes-stacked mr-1"></i>In Stock</span>`;
+
+                tbody.innerHTML += `<tr class="border-b text-xs hover:bg-slate-50">
+                    <td class="p-3 text-slate-500 font-bold">${index + 1}</td>
+                    <td class="p-3">${s.date}</td>
+                    <td class="p-3 font-bold">${s.shop}</td>
+                    <td class="p-3"><strong>${s.partName}</strong><br><span class="text-indigo-600 font-bold">S/N: ${s.serialNo}</span></td>
+                    <td class="p-3 text-rose-600 font-extrabold">Rs. ${s.cost.toFixed(2)}</td>
+                    <td class="p-3 text-slate-700">${s.warPeriod}</td>
+                    <td class="p-3 font-bold">${stockStatus}</td>
+                    <td class="p-3">${s.claimStatus}</td>
+                    <td class="p-3 text-center space-x-1 whitespace-nowrap">
+                        <button onclick="openSupModal('edit', '${s.id}')" class="bg-amber-500 text-white px-2 py-1 rounded" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteSupplierPart('${s.id}')" class="bg-rose-500 text-white px-2 py-1 rounded" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
             });
-            document.getElementById('sup-total-sum').innerText = 'Rs. ' + totalSum.toFixed(2);
+            
+            document.getElementById('sup-total-sum').innerHTML = `
+                <span class="text-rose-600 font-extrabold text-sm mr-4">Total Value: Rs. ${totalSum.toFixed(2)}</span> 
+                <span class="text-emerald-700 text-[11px] bg-emerald-100 border border-emerald-300 px-2 py-1 rounded font-bold mr-2"><i class="fa-solid fa-check-circle mr-1"></i>In Stock Qty: ${inStockQty}</span> 
+                <span class="text-blue-700 text-[11px] bg-blue-100 border border-blue-300 px-2 py-1 rounded font-bold"><i class="fa-solid fa-cart-shopping mr-1"></i>Sold Qty: ${soldQty}</span>
+            `;
         }
 
         function renderFinance() {
             const tbody = document.getElementById('fin-tbody'); tbody.innerHTML = ''; const ledger = [];
             documents.forEach(d => {
                 if (d.payments && d.payments.length > 0) {
-                    d.payments.forEach(p => {
-                        if (p.amount > 0) {
-                            ledger.push({ date: p.date, cat: 'Customer Remittance', desc: `${d.no} log (${p.method})`, in: p.amount, out: 0 });
-                        }
-                    });
+                    d.payments.forEach(p => { if (p.amount > 0) ledger.push({ id: p.id, type: 'income', date: p.date, cat: 'Customer Remittance', desc: `${d.no} log (${p.method})`, in: p.amount, out: 0 }); });
                 } else if (d.paid > 0) {
-                    ledger.push({ date: d.date, cat: 'Customer Remittance', desc: `${d.no} log`, in: d.paid, out: 0 });
+                    ledger.push({ id: 'inc-'+d.no, type: 'income', date: d.date, cat: 'Customer Remittance', desc: `${d.no} log`, in: d.paid, out: 0 });
                 }
             });
-            suppliers.forEach(s => { if (s.paid === 'Paid in Full') ledger.push({ date: s.date, cat: 'Spares Purchase', desc: `${s.partName} buy cost`, in: 0, out: s.cost }); });
-            expenses.forEach(e => { ledger.push({ date: e.date, cat: e.cat, desc: e.desc, in: 0, out: e.amt }); });
+            suppliers.forEach(s => { if (s.paid === 'Paid in Full') ledger.push({ id: s.id, type: 'sup', date: s.date, cat: 'Spares Purchase', desc: `${s.partName} buy cost`, in: 0, out: s.cost }); });
+            expenses.forEach(e => { ledger.push({ id: e.id, type: 'expense', date: e.date, cat: e.cat, desc: e.desc, in: 0, out: e.amt }); });
             ledger.sort((a, b) => new Date(b.date) - new Date(a.date));
             let totIn = 0, totOut = 0;
-            ledger.forEach((l, index) => { totIn += l.in; totOut += l.out;
-                tbody.innerHTML += `<tr class="border-b text-xs"><td class="p-2 text-slate-500 font-bold">${index + 1}</td><td class="p-2">${l.date}</td><td class="p-2 font-bold">${l.cat}</td><td class="p-2">${l.desc}</td><td class="p-2 text-emerald-600 font-extrabold">${l.in>0?'Rs. '+l.in.toFixed(2):'-'}</td><td class="p-2 text-rose-600 font-extrabold">${l.out>0?'Rs. '+l.out.toFixed(2):'-'}</td><td class="p-2 text-center text-slate-400 italic">Auto</td></tr>`;
+            
+            ledger.forEach((l, index) => { 
+                totIn += l.in; totOut += l.out;
+                let actionHtml = `<span class="text-slate-400 italic text-[10px]">Auto</span>`;
+                if(l.type === 'expense') {
+                    actionHtml = `<button onclick="openExpModal('edit', '${l.id}')" class="bg-amber-500 text-white px-2 py-1 rounded text-[10px] mr-1"><i class="fa-solid fa-pen"></i></button><button onclick="deleteExpense('${l.id}')" class="bg-rose-500 text-white px-2 py-1 rounded text-[10px]"><i class="fa-solid fa-trash"></i></button>`;
+                }
+                tbody.innerHTML += `<tr class="border-b text-xs"><td class="p-2 text-slate-500 font-bold">${index + 1}</td><td class="p-2">${l.date}</td><td class="p-2 font-bold">${l.cat}</td><td class="p-2">${l.desc}</td><td class="p-2 text-emerald-600 font-extrabold">${l.in>0?'Rs. '+l.in.toFixed(2):'-'}</td><td class="p-2 text-rose-600 font-extrabold">${l.out>0?'Rs. '+l.out.toFixed(2):'-'}</td><td class="p-2 text-center whitespace-nowrap">${actionHtml}</td></tr>`;
             });
             document.getElementById('fin-total-in').innerText = `Rs. ${totIn.toFixed(2)}`; document.getElementById('fin-total-out').innerText = `Rs. ${totOut.toFixed(2)}`;
             const net = totIn - totOut; document.getElementById('fin-net-bal').innerText = `Rs. ${net.toFixed(2)}`; document.getElementById('fin-net-bal').className = `p-3 font-extrabold text-base ${net>=0?'text-emerald-700':'text-rose-700'}`;
@@ -2126,11 +1957,18 @@
             document.getElementById('p-shop-email').innerText = `E-mail - ${shopConfig.email}`;
             document.getElementById('p-shop-reg').innerText = `Reg. Num. ${shopConfig.reg}`;
 
-            document.getElementById('p-doc-type').innerText = d.type === 'Bulk Estimate' ? 'ESTIMATE' : d.type;
+            let printType = d.type;
+            if (d.type === 'Bulk Estimate' || d.type === 'Estimate') {
+                printType = 'Rough estimate';
+            }
+            document.getElementById('p-doc-type').innerText = printType;
             document.getElementById('p-doc-no').innerText = d.no;
             document.getElementById('p-date').innerText = `Date: ${d.date}`;
             
-            if (d.type === 'Quotation') { document.getElementById('p-validity-box').classList.remove('hidden'); document.getElementById('p-validity-text').innerText = d.validPeriod || '1 Week'; }
+            if ((d.type === 'Quotation' || d.type === 'Estimate' || d.type === 'Bulk Estimate') && d.validPeriod) { 
+                document.getElementById('p-validity-box').classList.remove('hidden'); 
+                document.getElementById('p-validity-text').innerText = d.validPeriod; 
+            }
             else document.getElementById('p-validity-box').classList.add('hidden');
 
             document.getElementById('p-cust-name').innerText = d.custName;
@@ -2162,22 +2000,35 @@
                     const qty = parseFloat(it.qty || 1);
                     const price = parseFloat(it.price || 0);
                     const totalStr = `Rs. ${(price * qty).toFixed(2)}`;
-                    const priceCols = `<td class="p-2 border border-slate-700 text-center font-bold">${qty}</td><td class="p-2 border border-slate-700 text-right text-slate-600">Rs. ${price.toFixed(2)}</td><td class="p-2 text-right font-extrabold text-slate-900 border border-slate-700">${totalStr}</td>`;
+                    const priceCols = `<td class="p-2 border border-slate-700 text-center font-bold align-top">${qty}</td><td class="p-2 border border-slate-700 text-right text-slate-600 align-top">Rs. ${price.toFixed(2)}</td><td class="p-2 text-right font-extrabold text-slate-900 border border-slate-700 align-top">${totalStr}</td>`;
                     
+                    const formattedDesc = (it.desc || '').replace(/\n/g, '<br>');
+                    const catHtml = `<strong class="text-[13px] font-extrabold text-black block mb-1">${it.cat}</strong>`;
+                    const descHtml = `<span class="text-[11px] font-semibold text-black leading-relaxed">${formattedDesc}</span>`;
+                    
+                    let warPrintHtml = '';
+                    if (!it.war || it.war === 'No Warranty' || it.war === 'None' || it.war === '-') {
+                        warPrintHtml = `<span class="font-bold text-slate-800">N/A</span>`;
+                    } else {
+                        const wStatus = getWarrantyExpiry(d.date, it.war);
+                        warPrintHtml = `<span class="font-bold text-indigo-700">${it.war}</span><br><span class="text-[9px] font-extrabold ${wStatus.color}">${wStatus.status}</span>`;
+                    }
+                    if(it.partSerial) {
+                        warPrintHtml += `<br><span class="text-[9px] text-slate-600 font-bold mt-1 block">S/N: ${it.partSerial}</span>`;
+                    }
+
                     if (hideSn && hideWar) {
-                        tbodyHtml += `<tr class="text-slate-800 font-medium"><td class="p-2 border border-slate-700"><strong class="text-slate-900">${it.cat}</strong><br><span class="text-slate-600">${it.desc}</span></td>${priceCols}</tr>`;
+                        tbodyHtml += `<tr class="text-slate-800 font-medium"><td class="p-2 border border-slate-700 align-top">${catHtml}${descHtml}</td>${priceCols}</tr>`;
                     } else if (!hideSn && !hideWar) {
                         let serialCell = '';
-                        if (index === 0) serialCell = `<td class="p-2 font-extrabold text-blue-800 border border-slate-700" rowspan="${rowCount}">[PC S/N: ${serial}]</td>`;
-                        const wStatus = getWarrantyExpiry(d.date, it.war);
-                        tbodyHtml += `<tr class="text-slate-800 font-medium">${serialCell}<td class="p-2 border border-slate-700"><strong class="text-slate-900">${it.cat}</strong><br><span class="text-slate-600">${it.desc}</span></td><td class="p-2 border border-slate-700"><span class="font-bold text-indigo-700">${it.war}</span><br><span class="text-[9px] font-extrabold ${wStatus.color}">${wStatus.status}</span><br><span class="text-[9px] text-slate-400 font-bold">${it.partSerial?'S/N: '+it.partSerial:''}</span></td>${priceCols}</tr>`;
+                        if (index === 0) serialCell = `<td class="p-2 font-extrabold text-blue-800 border border-slate-700 align-top" rowspan="${rowCount}">[PC S/N: ${serial}]</td>`;
+                        tbodyHtml += `<tr class="text-slate-800 font-medium">${serialCell}<td class="p-2 border border-slate-700 align-top">${catHtml}${descHtml}</td><td class="p-2 border border-slate-700 align-top">${warPrintHtml}</td>${priceCols}</tr>`;
                     } else if (hideSn && !hideWar) {
-                        const wStatus = getWarrantyExpiry(d.date, it.war);
-                        tbodyHtml += `<tr class="text-slate-800 font-medium"><td class="p-2 border border-slate-700"><strong class="text-slate-900">${it.cat}</strong><br><span class="text-slate-600">${it.desc}</span></td><td class="p-2 border border-slate-700"><span class="font-bold text-indigo-700">${it.war}</span><br><span class="text-[9px] font-extrabold ${wStatus.color}">${wStatus.status}</span><br><span class="text-[9px] text-slate-400 font-bold">${it.partSerial?'S/N: '+it.partSerial:''}</span></td>${priceCols}</tr>`;
+                        tbodyHtml += `<tr class="text-slate-800 font-medium"><td class="p-2 border border-slate-700 align-top">${catHtml}${descHtml}</td><td class="p-2 border border-slate-700 align-top">${warPrintHtml}</td>${priceCols}</tr>`;
                     } else if (!hideSn && hideWar) {
                         let serialCell = '';
-                        if (index === 0) serialCell = `<td class="p-2 font-extrabold text-blue-800 border border-slate-700" rowspan="${rowCount}">[PC S/N: ${serial}]</td>`;
-                        tbodyHtml += `<tr class="text-slate-800 font-medium">${serialCell}<td class="p-2 border border-slate-700"><strong class="text-slate-900">${it.cat}</strong><br><span class="text-slate-600">${it.desc}</span></td>${priceCols}</tr>`;
+                        if (index === 0) serialCell = `<td class="p-2 font-extrabold text-blue-800 border border-slate-700 align-top" rowspan="${rowCount}">[PC S/N: ${serial}]</td>`;
+                        tbodyHtml += `<tr class="text-slate-800 font-medium">${serialCell}<td class="p-2 border border-slate-700 align-top">${catHtml}${descHtml}</td>${priceCols}</tr>`;
                     }
                 });
                 tbodyHtml += '</tbody>';
@@ -2225,7 +2076,6 @@
             const cust = customers.find(x => x.id === doc.custId);
             const email = cust && cust.email && cust.email !== '-' ? cust.email : '';
             
-            // Generate PDF first
             html2pdf().set({ pagebreak: { mode: ['css', 'legacy'], avoid: 'tr' }, margin: 0.3, filename: `${docNo}_H.A.BROTHERS.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2.5, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('print-area'))
             .toPdf().get('pdf').then(function (pdf) {
                 var totalPages = pdf.internal.getNumberOfPages();
@@ -2291,17 +2141,11 @@
         function factoryReset() {
             const pwd = prompt("WARNING: This will permanently delete ALL data! Enter reset password (0000) to confirm:");
             if (pwd === "0000") {
-                localStorage.clear();
-                alert("System has been factory reset. Reloading...");
-                window.location.reload();
-            } else if (pwd !== null) {
-                alert("Incorrect password. Reset cancelled.");
-            }
+                localStorage.clear(); alert("System has been factory reset. Reloading..."); window.location.reload();
+            } else if (pwd !== null) { alert("Incorrect password. Reset cancelled."); }
         }
 
-        function logoutSystem() {
-            document.body.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-slate-900 text-white"><button onclick="location.reload()" class="bg-red-700 font-bold px-6 py-2.5 rounded-lg">Log Back In</button></div>`;
-        }
+        function logoutSystem() { document.body.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-slate-900 text-white"><button onclick="location.reload()" class="bg-red-700 font-bold px-6 py-2.5 rounded-lg">Log Back In</button></div>`; }
     </script>
 </body>
 </html>

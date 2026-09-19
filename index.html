@@ -44,14 +44,42 @@
     <!-- Firebase SDK Compat -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
-<div id="cloud-loader" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900 text-white flex-col">
+<div id="cloud-loader" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900 text-white flex-col" style="display:none;">
     <i class="fa-solid fa-cloud-arrow-down text-6xl animate-bounce mb-4 text-blue-500"></i>
     <h2 class="text-2xl font-bold">Syncing with Cloud...</h2>
     <p class="text-slate-400 mt-2">Please wait, checking for cloud backups.</p>
 </div>
 
+<!-- Notun Login Screen Overlay -->
+<div id="login-screen" class="fixed inset-0 bg-slate-900 z-[200] flex items-center justify-center">
+    <div class="bg-white p-8 rounded-xl shadow-2xl max-w-md w-full">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-red-700 rounded-lg flex items-center justify-center text-white font-bold text-3xl shadow mx-auto mb-3">
+                <i class="fa-solid fa-desktop"></i>
+            </div>
+            <h2 class="font-extrabold text-2xl text-slate-800">H.A. BROTHERS PC HOUSE</h2>
+            <p class="text-xs text-slate-500 mt-1">Authorized ERP Login Only</p>
+        </div>
+        <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1">Email Address</label>
+                <input type="email" id="login-email" required class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none" placeholder="example@gmail.com">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-1">Password</label>
+                <input type="password" id="login-password" required class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none" placeholder="••••••••">
+            </div>
+            <div id="login-error" class="text-red-600 text-xs font-bold hidden text-center bg-red-50 p-2 rounded"></div>
+            <button type="submit" id="login-btn" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-3 rounded-lg transition shadow-lg flex justify-center items-center"><i class="fa-solid fa-right-to-bracket mr-2"></i> Login to System</button>
+        </form>
+    </div>
+</div>
+
+<!-- MAIN APP CONTENT (Prothome hide kora thakbe) -->
+<div id="app-content" style="display: none;">
     <!-- Top Navbar -->
     <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -457,6 +485,7 @@
             </div>
         </div>
     </main>
+</div>
 
     <!-- SYSTEM MODALS -->
     
@@ -883,11 +912,14 @@
             </div>
         </div>
     </div>
+</div> <!-- End of app-content -->
 
     <!-- CORE ERP SYSTEM ENGINE CONTROLS -->
     <script>
-        // --- FIREBASE CONFIGURATION ---
+        // --- FIREBASE CONFIGURATION & AUTHENTICATION ---
         let db = null;
+        const allowedEmails = ['tharindum2022@gmail.com', 'habrotherspchouse2015@gmail.com'];
+
         try {
             if (typeof firebase !== 'undefined') {
                 const firebaseConfig = {
@@ -898,13 +930,79 @@
                     messagingSenderId: "999549926709",
                     appId: "1:999549926709:web:42610fafc11d4a9ef5207c"
                 };
-                firebase.initializeApp(firebaseConfig);
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
                 db = firebase.firestore();
+                
+                // Auth State Observer - Check if user is logged in
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (user) {
+                        if (allowedEmails.includes(user.email)) {
+                            // Login Pass
+                            document.getElementById('login-screen').style.display = 'none';
+                            document.getElementById('app-content').style.display = 'block';
+                            document.getElementById('cloud-loader').style.display = 'flex'; // show loader while syncing
+                            syncFromCloud(); // Cloud theke data fetch korbe
+                        } else {
+                            // Unauthorized Email
+                            firebase.auth().signOut();
+                            showLoginError("Access Denied! Unauthorized email detected.");
+                        }
+                    } else {
+                        // Not logged in
+                        document.getElementById('login-screen').style.display = 'flex';
+                        document.getElementById('app-content').style.display = 'none';
+                        document.getElementById('cloud-loader').style.display = 'none';
+                    }
+                });
+
             } else {
                 console.warn("Firebase SDK blocked or offline. Running purely local.");
             }
         } catch(e) { console.error("Firebase Init Error:", e); }
+
+        function showLoginError(msg) {
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.innerText = msg;
+            errorDiv.classList.remove('hidden');
+        }
+
+        // Handle Form Submit
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('login-btn');
+            
+            if (!allowedEmails.includes(email)) {
+                showLoginError("Access denied! This email is not authorized to use the ERP.");
+                return;
+            }
+            
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Authenticating...`;
+            
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    btn.innerHTML = `<i class="fa-solid fa-right-to-bracket mr-2"></i> Login to System`;
+                    // onAuthStateChanged will automatically show the app
+                })
+                .catch((error) => {
+                    showLoginError("Invalid password or email. Please try again.");
+                    btn.innerHTML = `<i class="fa-solid fa-right-to-bracket mr-2"></i> Login to System`;
+                });
+        }
         
+        function logoutSystem() { 
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().signOut().then(() => {
+                    location.reload();
+                });
+            } else {
+                location.reload();
+            }
+        }
+
         let customers = JSON.parse(localStorage.getItem('hab_cust_v43')) || [];
         let documents = JSON.parse(localStorage.getItem('hab_docs_v43')) || [];
         let suppliers = JSON.parse(localStorage.getItem('hab_sup_v43')) || [];
@@ -914,7 +1012,7 @@
         
         async function syncFromCloud() {
             renderAll();
-            if (typeof db === 'undefined' || !db) { document.getElementById('cloud-loader')?.remove(); return; }
+            if (typeof db === 'undefined' || !db) { document.getElementById('cloud-loader').style.display = 'none'; return; }
             try {
                 const docSnap = await db.collection('backup').doc('system_data').get();
                 if (docSnap.exists) {
@@ -932,7 +1030,7 @@
                     let initData = { documents: localStorage.getItem('hab_docs_v43') || '[]', customers: localStorage.getItem('hab_cust_v43') || '[]', suppliers: localStorage.getItem('hab_sup_v43') || '[]', expenses: localStorage.getItem('hab_exp_v43') || '[]', cheques: localStorage.getItem('hab_chq_v43') || '[]', docCounter: localStorage.getItem('hab_cnt_v43') || '1001', shopConfig: localStorage.getItem('hab_cfg_v43') || '{}' };
                     await db.collection('backup').doc('system_data').set(initData).catch(e => console.log('Init sync err:', e));
                 }
-            } catch (error) { console.error("Firebase Sync Failed:", error); } finally { document.getElementById('cloud-loader')?.remove(); }
+            } catch (error) { console.error("Firebase Sync Failed:", error); } finally { document.getElementById('cloud-loader').style.display = 'none'; }
         }
         
         const originalSetItem = localStorage.setItem;
@@ -952,7 +1050,7 @@
             } catch(e) { console.error("Cloud Sync Error", e); }
         };
         
-        window.addEventListener('load', syncFromCloud);
+        // window.addEventListener('load', syncFromCloud); // Commented out, now called after login
         
         let sortCol = -1; let sortAsc = true;
         function sortTable(thEl, colIdx, isNumeric = false) {
@@ -2144,8 +2242,6 @@
                 localStorage.clear(); alert("System has been factory reset. Reloading..."); window.location.reload();
             } else if (pwd !== null) { alert("Incorrect password. Reset cancelled."); }
         }
-
-        function logoutSystem() { document.body.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-slate-900 text-white"><button onclick="location.reload()" class="bg-red-700 font-bold px-6 py-2.5 rounded-lg">Log Back In</button></div>`; }
     </script>
 </body>
 </html>

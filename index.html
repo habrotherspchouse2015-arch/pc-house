@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>H.A. BROTHERS PC HOUSE - Pro ERP v4.3</title>
+    <!-- Browser PC Icon (Favicon) Added Here -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22><path fill=%22%23b91c1c%22 d=%22M0 64C0 28.7 28.7 0 64 0H384c35.3 0 64 28.7 64 64V352c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zm64 0V288H384V64H64zm288 384v32H160V448H352zM96 448H64c-17.7 0-32 14.3-32 32s14.3 32 32 32H448c17.7 0 32-14.3 32-32s-14.3-32-32-32H416V448h32c8.8 0 16-7.2 16-16s-7.2-16-16-16H64c-8.8 0-16 7.2-16 16s7.2 16 16 16H96z%22/></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -203,7 +205,10 @@
         <div id="customers" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <div><h2 class="text-xl font-bold">Customer CRM Directory</h2></div>
-                <button onclick="openModal('cust-modal')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Register New Customer</button>
+                <div class="flex space-x-2">
+                    <button onclick="exportPDF('cust-table', 'Customers.pdf')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF Download</button>
+                    <button onclick="openModal('cust-modal')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Register New Customer</button>
+                </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
@@ -222,7 +227,10 @@
         <div id="estimates" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <div><h2 class="text-xl font-bold text-pink-700"><i class="fa-solid fa-microscope mr-2"></i>Lab Computer Estimates</h2></div>
-                <button onclick="openDocModal('new', 'Estimate')" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Estimate</button>
+                <div class="flex space-x-2">
+                    <button onclick="exportPDF('estimates-table', 'Estimates.pdf')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF Download</button>
+                    <button onclick="openDocModal('new', 'Estimate')" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Estimate</button>
+                </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
@@ -244,7 +252,10 @@
         <div id="bulk_estimates" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <div><h2 class="text-xl font-bold text-orange-700"><i class="fa-solid fa-boxes-stacked mr-2"></i>Bulk Estimates</h2></div>
-                <button onclick="openDocModal('new', 'Bulk Estimate')" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Bulk Estimate</button>
+                <div class="flex space-x-2">
+                    <button onclick="exportPDF('bulk-estimates-table', 'Bulk_Estimates.pdf')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF Download</button>
+                    <button onclick="openDocModal('new', 'Bulk Estimate')" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Bulk Estimate</button>
+                </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
@@ -266,7 +277,10 @@
         <div id="quotes" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <div><h2 class="text-xl font-bold text-amber-700"><i class="fa-solid fa-file-lines mr-2"></i>Price Quotations (Estimates)</h2></div>
-                <button onclick="openDocModal('new', 'Quotation')" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Quotation</button>
+                <div class="flex space-x-2">
+                    <button onclick="exportPDF('quotes-table', 'Quotations.pdf')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF Download</button>
+                    <button onclick="openDocModal('new', 'Quotation')" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Quotation</button>
+                </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
@@ -288,7 +302,10 @@
         <div id="invoices" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <div><h2 class="text-xl font-bold text-blue-700"><i class="fa-solid fa-file-invoice-dollar mr-2"></i>Formal Billing Invoices</h2></div>
-                <button onclick="openDocModal('new', 'Invoice')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Invoice</button>
+                <div class="flex space-x-2">
+                    <button onclick="exportPDF('invoices-table', 'Invoices.pdf')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF Download</button>
+                    <button onclick="openDocModal('new', 'Invoice')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Create New Invoice</button>
+                </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
@@ -372,7 +389,10 @@
                 <!-- Cheques Ledger View -->
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 md:col-span-2 overflow-hidden flex flex-col">
                     <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
-                        <span class="text-xs font-bold text-slate-700 uppercase"><i class="fa-solid fa-money-check mr-1 text-amber-600"></i> Cheques Realtime Ledger</span>
+                        <div class="flex items-center space-x-3">
+                            <span class="text-xs font-bold text-slate-700 uppercase"><i class="fa-solid fa-money-check mr-1 text-amber-600"></i> Cheques Realtime Ledger</span>
+                            <button onclick="exportPDF('chq-table', 'Cheques.pdf')" class="bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded text-[10px] font-bold transition shadow flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF</button>
+                        </div>
                         <input type="text" onkeyup="filterTable('chq-table', this.value)" placeholder="Search cheques..." class="p-1 border rounded text-xs w-48">
                     </div>
                     <div class="overflow-x-auto flex-grow">
@@ -389,7 +409,10 @@
         <div id="suppliers" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <div><h2 class="text-xl font-bold">Supplier Parts & Serial Ledger</h2></div>
-                <button onclick="openSupModal('new')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Add Bulk Supplier Stock</button>
+                <div class="flex space-x-2">
+                    <button onclick="exportPDF('sup-table', 'Suppliers_Stock.pdf')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF Download</button>
+                    <button onclick="openSupModal('new')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Add Bulk Supplier Stock</button>
+                </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
@@ -414,7 +437,10 @@
         <div id="finance" class="tab-content">
             <div class="flex justify-between items-center mb-4">
                 <div><h2 class="text-xl font-bold">Income & Expense Statement</h2></div>
-                <button onclick="openExpModal('new')" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Add Shop Expense</button>
+                <div class="flex space-x-2">
+                    <button onclick="exportPDF('fin-table', 'Finance_Ledger.pdf')" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-file-pdf mr-1"></i> PDF Download</button>
+                    <button onclick="openExpModal('new')" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow flex items-center"><i class="fa-solid fa-plus mr-1.5"></i> Add Shop Expense</button>
+                </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-3 bg-slate-50 border-b flex justify-between items-center">
@@ -937,6 +963,13 @@
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
                 }
+                
+                // ADDED: OFFLINE PERSISTENCE FOR FIREBASE
+                firebase.firestore().enablePersistence({ synchronizeTabs: true })
+                    .catch((err) => {
+                        console.error("Offline persistence error:", err);
+                    });
+
                 db = firebase.firestore();
                 
                 // Auth State Observer - Check if user is logged in
@@ -1053,8 +1086,6 @@
                 if (Object.keys(update).length > 0) db.collection('backup').doc('system_data').set(update, { merge: true }).catch(err => console.log('Sync Error:', err));
             } catch(e) { console.error("Cloud Sync Error", e); }
         };
-        
-        // window.addEventListener('load', syncFromCloud); // Commented out, now called after login
         
         let sortCol = -1; let sortAsc = true;
         function sortTable(thEl, colIdx, isNumeric = false) {

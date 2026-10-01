@@ -80,7 +80,7 @@
     </div>
 </div>
 
-<!-- MAIN APP CONTENT (Prothome hide kora thakbe) -->
+<!-- MAIN APP CONTENT -->
 <div id="app-content" style="display: none;">
     <!-- Top Navbar -->
     <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40">
@@ -952,19 +952,20 @@
 
         try {
             if (typeof firebase !== 'undefined') {
+                // UPDATE: Your new provided config
                 const firebaseConfig = {
-                    apiKey: "AIzaSyA-mES7YmbNfQW_7-0mMqJ0BGR6PHniM2U",
-                    authDomain: "pc-house-39068.firebaseapp.com",
-                    projectId: "pc-house-39068",
-                    storageBucket: "pc-house-39068.firebasestorage.app",
-                    messagingSenderId: "999549926709",
-                    appId: "1:999549926709:web:42610fafc11d4a9ef5207c"
+                    apiKey: "AIzaSyDxtvka2SyWF6_6sjUW1KIryVPqEygKOys",
+                    authDomain: "pc-house-1ed2f.firebaseapp.com",
+                    projectId: "pc-house-1ed2f",
+                    storageBucket: "pc-house-1ed2f.firebasestorage.app",
+                    messagingSenderId: "489215977998",
+                    appId: "1:489215977998:web:f1a480090603b4610eaa5f"
                 };
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
                 }
                 
-                // ADDED: OFFLINE PERSISTENCE FOR FIREBASE
+                // ADDED: OFFLINE PERSISTENCE FOR FIREBASE (Ensures data saves offline first)
                 firebase.firestore().enablePersistence({ synchronizeTabs: true })
                     .catch((err) => {
                         console.error("Offline persistence error:", err);
@@ -1051,23 +1052,29 @@
             renderAll();
             if (typeof db === 'undefined' || !db) { document.getElementById('cloud-loader').style.display = 'none'; return; }
             try {
-                const docSnap = await db.collection('backup').doc('system_data').get();
-                if (docSnap.exists) {
-                    const data = docSnap.data();
-                    let updated = false;
-                    if (data.documents && data.documents !== '[]') { documents = JSON.parse(data.documents); originalSetItem.call(localStorage, 'hab_docs_v43', data.documents); updated = true; }
-                    if (data.customers && data.customers !== '[]') { customers = JSON.parse(data.customers); originalSetItem.call(localStorage, 'hab_cust_v43', data.customers); updated = true; }
-                    if (data.suppliers && data.suppliers !== '[]') { suppliers = JSON.parse(data.suppliers); originalSetItem.call(localStorage, 'hab_sup_v43', data.suppliers); updated = true; }
-                    if (data.expenses && data.expenses !== '[]') { expenses = JSON.parse(data.expenses); originalSetItem.call(localStorage, 'hab_exp_v43', data.expenses); updated = true; }
-                    if (data.cheques && data.cheques !== '[]') { cheques = JSON.parse(data.cheques); originalSetItem.call(localStorage, 'hab_chq_v43', data.cheques); updated = true; }
-                    if (data.docCounter) { docCounter = parseInt(data.docCounter); originalSetItem.call(localStorage, 'hab_cnt_v43', data.docCounter.toString()); updated = true; }
-                    if (data.shopConfig && data.shopConfig !== '{}') { shopConfig = JSON.parse(data.shopConfig); originalSetItem.call(localStorage, 'hab_cfg_v43', data.shopConfig); updated = true; }
-                    if (updated) renderAll();
-                } else {
-                    let initData = { documents: localStorage.getItem('hab_docs_v43') || '[]', customers: localStorage.getItem('hab_cust_v43') || '[]', suppliers: localStorage.getItem('hab_sup_v43') || '[]', expenses: localStorage.getItem('hab_exp_v43') || '[]', cheques: localStorage.getItem('hab_chq_v43') || '[]', docCounter: localStorage.getItem('hab_cnt_v43') || '1001', shopConfig: localStorage.getItem('hab_cfg_v43') || '{}' };
-                    await db.collection('backup').doc('system_data').set(initData).catch(e => console.log('Init sync err:', e));
-                }
-            } catch (error) { console.error("Firebase Sync Failed:", error); } finally { document.getElementById('cloud-loader').style.display = 'none'; }
+                // MULTI-DEVICE SUPPORT: Use onSnapshot for real-time live sync between devices
+                db.collection('backup').doc('system_data').onSnapshot((docSnap) => {
+                    if (docSnap.exists) {
+                        const data = docSnap.data();
+                        let updated = false;
+                        if (data.documents && data.documents !== '[]' && data.documents !== localStorage.getItem('hab_docs_v43')) { documents = JSON.parse(data.documents); originalSetItem.call(localStorage, 'hab_docs_v43', data.documents); updated = true; }
+                        if (data.customers && data.customers !== '[]' && data.customers !== localStorage.getItem('hab_cust_v43')) { customers = JSON.parse(data.customers); originalSetItem.call(localStorage, 'hab_cust_v43', data.customers); updated = true; }
+                        if (data.suppliers && data.suppliers !== '[]' && data.suppliers !== localStorage.getItem('hab_sup_v43')) { suppliers = JSON.parse(data.suppliers); originalSetItem.call(localStorage, 'hab_sup_v43', data.suppliers); updated = true; }
+                        if (data.expenses && data.expenses !== '[]' && data.expenses !== localStorage.getItem('hab_exp_v43')) { expenses = JSON.parse(data.expenses); originalSetItem.call(localStorage, 'hab_exp_v43', data.expenses); updated = true; }
+                        if (data.cheques && data.cheques !== '[]' && data.cheques !== localStorage.getItem('hab_chq_v43')) { cheques = JSON.parse(data.cheques); originalSetItem.call(localStorage, 'hab_chq_v43', data.cheques); updated = true; }
+                        if (data.docCounter && data.docCounter !== localStorage.getItem('hab_cnt_v43')) { docCounter = parseInt(data.docCounter); originalSetItem.call(localStorage, 'hab_cnt_v43', data.docCounter.toString()); updated = true; }
+                        if (data.shopConfig && data.shopConfig !== '{}' && data.shopConfig !== localStorage.getItem('hab_cfg_v43')) { shopConfig = JSON.parse(data.shopConfig); originalSetItem.call(localStorage, 'hab_cfg_v43', data.shopConfig); updated = true; }
+                        if (updated) renderAll();
+                    } else {
+                        let initData = { documents: localStorage.getItem('hab_docs_v43') || '[]', customers: localStorage.getItem('hab_cust_v43') || '[]', suppliers: localStorage.getItem('hab_sup_v43') || '[]', expenses: localStorage.getItem('hab_exp_v43') || '[]', cheques: localStorage.getItem('hab_chq_v43') || '[]', docCounter: localStorage.getItem('hab_cnt_v43') || '1001', shopConfig: localStorage.getItem('hab_cfg_v43') || '{}' };
+                        db.collection('backup').doc('system_data').set(initData).catch(e => console.log('Init sync err:', e));
+                    }
+                    document.getElementById('cloud-loader').style.display = 'none';
+                }, (error) => {
+                    console.error("Realtime sync error:", error);
+                    document.getElementById('cloud-loader').style.display = 'none';
+                });
+            } catch (error) { console.error("Firebase Sync Failed:", error); document.getElementById('cloud-loader').style.display = 'none'; }
         }
         
         const originalSetItem = localStorage.setItem;
@@ -1719,6 +1726,21 @@
             const rows = document.querySelectorAll('.sup-item-row');
             
             if (rows.length === 0) { alert("Add at least one stock item!"); return; }
+
+            // SN DUPLICATE CHECK (Check if SN already added previously)
+            let duplicateFound = false;
+            rows.forEach(row => {
+                const sn = row.querySelector('.s-serial').value.trim();
+                if (sn) {
+                    const exists = suppliers.find(s => s.serialNo.toLowerCase() === sn.toLowerCase() && s.id !== editId);
+                    if (exists) {
+                        alert(`Me SN number eka (${sn}) add karala tiyanne! Karunakara wena SN ekak add karanna.`);
+                        duplicateFound = true;
+                    }
+                }
+            });
+
+            if (duplicateFound) return; // Stop saving if duplicate found
 
             if (editId) {
                 // Edit Single

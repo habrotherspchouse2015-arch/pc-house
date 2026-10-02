@@ -1308,7 +1308,13 @@
                                 </div>
                                 <div class="md:col-span-3">
                                     <label class="font-bold text-slate-700">Work Description *</label>
-                                    <div class="doc-item-desc-container w-full"><textarea required placeholder="Select category first..." class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-slate-800 doc-item-desc min-h-[80px] whitespace-pre-wrap">${data.desc || ''}</textarea></div>
+                                    <div class="doc-item-desc-container w-full">
+                                        <textarea required placeholder="Select category first..." class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-slate-800 doc-item-desc min-h-[80px] whitespace-pre-wrap">${data.desc || ''}</textarea>
+                                    </div>
+                                    <label class="flex items-center space-x-2 mt-2 text-[10px] font-bold text-indigo-700 bg-indigo-50 p-1.5 rounded border border-indigo-200 cursor-pointer w-max">
+                                        <input type="checkbox" class="doc-item-soft-war rounded" ${data.softWar ? 'checked' : ''}>
+                                        <span>Print 3-Months OS/Software Warranty Note</span>
+                                    </label>
                                 </div>
                             </div>
                             <button type="button" onclick="addCatDescGroup(this, '${rowId}')" class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1.5 rounded font-bold hover:bg-blue-100 transition shadow-sm w-full text-left"><i class="fa-solid fa-plus mr-1"></i> Add Another Service & Description to this PC</button>
@@ -1401,6 +1407,7 @@
                     pcSerial: row.querySelector('.doc-item-pc').value.trim() || 'General PC',
                     cat: cats,
                     desc: descs,
+                    softWar: row.querySelector('.doc-item-soft-war') ? row.querySelector('.doc-item-soft-war').checked : false,
                     partSerial: row.querySelector('.doc-item-serial').value.trim() || '',
                     originalPartSerial: row.querySelector('.doc-item-org-serial').value.trim() || null,
                     war: row.querySelector('.doc-item-war').value,
@@ -1599,7 +1606,7 @@
 
         function openClaimModal(docNo, itemIdx) {
             const doc = documents.find(d => d.no === docNo); if (!doc) return;
-            document.getElementById('cl-doc-no').value = docNo; document.getElementById('cl-item-idx').value = itemIdx; document.getElementById('cl-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('cl-doc-no').value = docNo; document.getElementById('cl-item-idx').value = itemIdx; document.getElementById('cl-date').value = new DatetoISOString().split('T')[0];
             document.getElementById('claim-item-info').innerHTML = `Claim Context: <strong class="text-blue-900">${doc.items[itemIdx].cat}</strong><br>PC Serial: ${doc.items[itemIdx].pcSerial} <br> Current Part S/N: <strong class="text-rose-600">${doc.items[itemIdx].partSerial || 'N/A'}</strong>`;
             openModal('claim-modal');
         }
@@ -2189,7 +2196,11 @@
                     
                     const formattedDesc = (it.desc || '').replace(/\n/g, '<br>');
                     const catHtml = `<strong class="text-[13px] font-extrabold text-black block mb-1">${it.cat}</strong>`;
-                    const descHtml = `<span class="text-[11px] font-semibold text-black leading-relaxed">${formattedDesc}</span>`;
+                    let descHtml = `<span class="text-[11px] font-semibold text-black leading-relaxed">${formattedDesc}</span>`;
+                    
+                    if (it.softWar) {
+                        descHtml += `<span class="text-[10px] text-indigo-800 font-extrabold mt-1.5 pt-1 border-t border-dashed border-slate-300 block"><i class="fa-solid fa-shield-halved mr-1"></i> Special Note: 3 Months Warranty applicable for OS & Software installation only.</span>`;
+                    }
                     
                     let warPrintHtml = '';
                     if (!it.war || it.war === 'No Warranty' || it.war === 'None' || it.war === '-') {

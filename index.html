@@ -784,6 +784,7 @@
                         <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-sn" class="cursor-pointer"> <span>Hide PC S/N on Print</span></label>
                         <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-war" class="cursor-pointer"> <span>Hide Warranty on Print</span></label>
                         <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-date" class="cursor-pointer"> <span>Hide Date on Print</span></label>
+                        <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-war-date" class="cursor-pointer"> <span>Hide Warranty End Date</span></label>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mt-2">
                         <div>
@@ -1228,7 +1229,7 @@
         function openDocModal(mode, forceType = null, docNo = null) {
             document.getElementById('doc-form').reset(); document.getElementById('doc-items-container').innerHTML = '';
             document.getElementById('d-discount-pct').value = '0.00'; document.getElementById('d-tax-pct').value = '0.00'; document.getElementById('d-discount').value = '0.00'; document.getElementById('d-tax').value = '0.00';
-            document.getElementById('d-hide-sn').checked = false; document.getElementById('d-hide-war').checked = false; document.getElementById('d-hide-date').checked = false;
+            document.getElementById('d-hide-sn').checked = false; document.getElementById('d-hide-war').checked = false; document.getElementById('d-hide-date').checked = false; document.getElementById('d-hide-war-date').checked = false;
             
             let supDatalist = document.getElementById('sup-stock-list');
             if (!supDatalist) { supDatalist = document.createElement('datalist'); supDatalist.id = 'sup-stock-list'; document.body.appendChild(supDatalist); }
@@ -1245,7 +1246,7 @@
                 document.getElementById('d-no').value = d.no; document.getElementById('d-date').value = d.date || new Date().toISOString().split('T')[0];
                 document.getElementById('d-type').value = d.type; document.getElementById('d-cust').value = d.custId;
                 if (d.validPeriod !== undefined && d.validPeriod !== null) document.getElementById('d-validity').value = d.validPeriod;
-                document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true; document.getElementById('d-hide-date').checked = d.hideDate === true;
+                document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true; document.getElementById('d-hide-date').checked = d.hideDate === true; document.getElementById('d-hide-war-date').checked = d.hideWarDate === true;
                 
                 let subtotal = (d.items || []).reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
                 document.getElementById('d-subtotal').value = subtotal.toFixed(2); document.getElementById('d-discount-pct').value = (subtotal > 0 && d.discount) ? ((d.discount / subtotal) * 100).toFixed(2) : '0.00';
@@ -1416,7 +1417,7 @@
             const newDoc = {
                 no: docNo, type, date: document.getElementById('d-date').value || new Date().toISOString().split('T')[0],
                 validPeriod: type === 'Quotation' || type === 'Bulk Estimate' || type === 'Estimate' ? document.getElementById('d-validity').value : null,
-                incBank: document.getElementById('d-inc-bank').checked, hideSn: document.getElementById('d-hide-sn').checked, hideWar: document.getElementById('d-hide-war').checked, hideDate: document.getElementById('d-hide-date').checked,
+                incBank: document.getElementById('d-inc-bank').checked, hideSn: document.getElementById('d-hide-sn').checked, hideWar: document.getElementById('d-hide-war').checked, hideDate: document.getElementById('d-hide-date').checked, hideWarDate: document.getElementById('d-hide-war-date').checked,
                 custId, custName: custObj ? custObj.name : 'Client', custPhone: custObj ? custObj.phone : '', custWhatsapp: custObj ? custObj.whatsapp : '', custAddr: custObj ? custObj.addr : '', 
                 items, discount, tax, total, paid: payments.reduce((s,p)=>s+p.amount, 0), payMethod: 'Cash', payments
             };
@@ -1473,7 +1474,7 @@
             const d = documents.find(x => x.no === docNo); if (!d) return;
             openDocModal('new', d.type);
             document.getElementById('d-cust').value = d.custId; if (d.validPeriod !== undefined && d.validPeriod !== null) document.getElementById('d-validity').value = d.validPeriod;
-            document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true; document.getElementById('d-hide-date').checked = d.hideDate === true;
+            document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true; document.getElementById('d-hide-date').checked = d.hideDate === true; document.getElementById('d-hide-war-date').checked = d.hideWarDate === true;
             let subtotal = (d.items || []).reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
             document.getElementById('d-subtotal').value = subtotal.toFixed(2); document.getElementById('d-discount-pct').value = (subtotal > 0 && d.discount) ? ((d.discount / subtotal) * 100).toFixed(2) : '0.00';
             let afterDisc = subtotal - (d.discount || 0); document.getElementById('d-tax-pct').value = (afterDisc > 0 && d.tax) ? ((d.tax / afterDisc) * 100).toFixed(2) : '0.00';
@@ -2195,7 +2196,11 @@
                         warPrintHtml = `<span class="font-bold text-slate-800">N/A</span>`;
                     } else {
                         const wStatus = getWarrantyExpiry(d.date, it.war);
-                        warPrintHtml = `<span class="font-bold text-indigo-700">${it.war}</span><br><span class="text-[9px] font-extrabold ${wStatus.color}">${wStatus.status}</span>`;
+                        if (d.hideWarDate) {
+                            warPrintHtml = `<span class="font-bold text-indigo-700">${it.war}</span>`;
+                        } else {
+                            warPrintHtml = `<span class="font-bold text-indigo-700">${it.war}</span><br><span class="text-[9px] font-extrabold ${wStatus.color}">${wStatus.status}</span>`;
+                        }
                     }
                     if(it.partSerial) {
                         warPrintHtml += `<br><span class="text-[9px] text-slate-600 font-bold mt-1 block">S/N: ${it.partSerial}</span>`;

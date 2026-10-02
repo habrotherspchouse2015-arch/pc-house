@@ -780,9 +780,10 @@
                     <div class="grid grid-cols-3 gap-2">
                         <div><label class="font-bold text-slate-500">Sub Total</label><input type="number" id="d-subtotal" readonly class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-sm bg-slate-100"></div>
                     </div>
-                    <div class="flex items-center space-x-4 mt-2">
+                    <div class="flex flex-wrap items-center gap-4 mt-2">
                         <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-sn" class="cursor-pointer"> <span>Hide PC S/N on Print</span></label>
                         <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-war" class="cursor-pointer"> <span>Hide Warranty on Print</span></label>
+                        <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-date" class="cursor-pointer"> <span>Hide Date on Print</span></label>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mt-2">
                         <div>
@@ -1227,7 +1228,7 @@
         function openDocModal(mode, forceType = null, docNo = null) {
             document.getElementById('doc-form').reset(); document.getElementById('doc-items-container').innerHTML = '';
             document.getElementById('d-discount-pct').value = '0.00'; document.getElementById('d-tax-pct').value = '0.00'; document.getElementById('d-discount').value = '0.00'; document.getElementById('d-tax').value = '0.00';
-            document.getElementById('d-hide-sn').checked = false; document.getElementById('d-hide-war').checked = false;
+            document.getElementById('d-hide-sn').checked = false; document.getElementById('d-hide-war').checked = false; document.getElementById('d-hide-date').checked = false;
             
             let supDatalist = document.getElementById('sup-stock-list');
             if (!supDatalist) { supDatalist = document.createElement('datalist'); supDatalist.id = 'sup-stock-list'; document.body.appendChild(supDatalist); }
@@ -1244,7 +1245,7 @@
                 document.getElementById('d-no').value = d.no; document.getElementById('d-date').value = d.date || new Date().toISOString().split('T')[0];
                 document.getElementById('d-type').value = d.type; document.getElementById('d-cust').value = d.custId;
                 if (d.validPeriod !== undefined && d.validPeriod !== null) document.getElementById('d-validity').value = d.validPeriod;
-                document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true;
+                document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true; document.getElementById('d-hide-date').checked = d.hideDate === true;
                 
                 let subtotal = (d.items || []).reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
                 document.getElementById('d-subtotal').value = subtotal.toFixed(2); document.getElementById('d-discount-pct').value = (subtotal > 0 && d.discount) ? ((d.discount / subtotal) * 100).toFixed(2) : '0.00';
@@ -1415,7 +1416,7 @@
             const newDoc = {
                 no: docNo, type, date: document.getElementById('d-date').value || new Date().toISOString().split('T')[0],
                 validPeriod: type === 'Quotation' || type === 'Bulk Estimate' || type === 'Estimate' ? document.getElementById('d-validity').value : null,
-                incBank: document.getElementById('d-inc-bank').checked, hideSn: document.getElementById('d-hide-sn').checked, hideWar: document.getElementById('d-hide-war').checked,
+                incBank: document.getElementById('d-inc-bank').checked, hideSn: document.getElementById('d-hide-sn').checked, hideWar: document.getElementById('d-hide-war').checked, hideDate: document.getElementById('d-hide-date').checked,
                 custId, custName: custObj ? custObj.name : 'Client', custPhone: custObj ? custObj.phone : '', custWhatsapp: custObj ? custObj.whatsapp : '', custAddr: custObj ? custObj.addr : '', 
                 items, discount, tax, total, paid: payments.reduce((s,p)=>s+p.amount, 0), payMethod: 'Cash', payments
             };
@@ -1472,7 +1473,7 @@
             const d = documents.find(x => x.no === docNo); if (!d) return;
             openDocModal('new', d.type);
             document.getElementById('d-cust').value = d.custId; if (d.validPeriod !== undefined && d.validPeriod !== null) document.getElementById('d-validity').value = d.validPeriod;
-            document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true;
+            document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true; document.getElementById('d-hide-date').checked = d.hideDate === true;
             let subtotal = (d.items || []).reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
             document.getElementById('d-subtotal').value = subtotal.toFixed(2); document.getElementById('d-discount-pct').value = (subtotal > 0 && d.discount) ? ((d.discount / subtotal) * 100).toFixed(2) : '0.00';
             let afterDisc = subtotal - (d.discount || 0); document.getElementById('d-tax-pct').value = (afterDisc > 0 && d.tax) ? ((d.tax / afterDisc) * 100).toFixed(2) : '0.00';
@@ -2140,7 +2141,13 @@
             }
             document.getElementById('p-doc-type').innerText = printType;
             document.getElementById('p-doc-no').innerText = d.no;
-            document.getElementById('p-date').innerText = `Date: ${d.date}`;
+            
+            if (d.hideDate) {
+                document.getElementById('p-date').style.display = 'none';
+            } else {
+                document.getElementById('p-date').style.display = 'block';
+                document.getElementById('p-date').innerText = `Date: ${d.date}`;
+            }
             
             if ((d.type === 'Quotation' || d.type === 'Estimate' || d.type === 'Bulk Estimate') && d.validPeriod) { 
                 document.getElementById('p-validity-box').classList.remove('hidden'); 

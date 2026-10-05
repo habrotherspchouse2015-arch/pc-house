@@ -785,6 +785,18 @@
                         <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-war" class="cursor-pointer"> <span>Hide Warranty on Print</span></label>
                         <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-date" class="cursor-pointer"> <span>Hide Date on Print</span></label>
                         <label class="flex items-center space-x-2 text-xs font-bold text-slate-700 cursor-pointer"><input type="checkbox" id="d-hide-war-date" class="cursor-pointer"> <span>Hide Warranty End Date</span></label>
+                        
+                        <!-- NEW GLOBAL NOTE TOGGLE -->
+                        <label class="flex items-center space-x-2 text-xs font-bold text-indigo-800 cursor-pointer bg-indigo-50 px-2 py-1 rounded border border-indigo-200">
+                            <input type="checkbox" id="d-global-soft-war" class="cursor-pointer rounded text-indigo-600">
+                            <span>Global OS/Software Warranty:</span>
+                            <select id="d-global-soft-war-period" class="bg-transparent border-b border-indigo-400 outline-none ml-1 font-extrabold cursor-pointer">
+                                <option value="1 Month">1 Month</option>
+                                <option value="3 Months" selected>3 Months</option>
+                                <option value="6 Months">6 Months</option>
+                                <option value="1 Year">1 Year</option>
+                            </select>
+                        </label>
                     </div>
                     <div class="grid grid-cols-2 gap-4 mt-2">
                         <div>
@@ -921,6 +933,11 @@
                             <div class="flex justify-between text-emerald-600 font-bold"><span>Total Cash Settled:</span><span id="p-paid">Rs. 0.00</span></div>
                             <div class="flex justify-between border-t border-double border-slate-400 pt-1 font-extrabold text-rose-600 text-xs"><span>Remaining Net Balance:</span><span id="p-bal">Rs. 0.00</span></div>
                         </div>
+                    </div>
+
+                    <!-- NEW GLOBAL WARRANTY NOTE -->
+                    <div id="p-global-soft-war-box" class="hidden bg-indigo-50 p-2 rounded mb-1.5 border border-indigo-200 text-[10px] text-indigo-950 font-extrabold items-center">
+                        <i class="fa-solid fa-shield-halved text-indigo-600 mr-2 text-sm"></i> Special Note: <span id="p-global-soft-war-text" class="mx-1 text-red-600">3 Months</span> Warranty applicable for OS & Software installation only.
                     </div>
 
                     <!-- Warranty policy documentation footer block -->
@@ -1230,6 +1247,7 @@
             document.getElementById('doc-form').reset(); document.getElementById('doc-items-container').innerHTML = '';
             document.getElementById('d-discount-pct').value = '0.00'; document.getElementById('d-tax-pct').value = '0.00'; document.getElementById('d-discount').value = '0.00'; document.getElementById('d-tax').value = '0.00';
             document.getElementById('d-hide-sn').checked = false; document.getElementById('d-hide-war').checked = false; document.getElementById('d-hide-date').checked = false; document.getElementById('d-hide-war-date').checked = false;
+            document.getElementById('d-global-soft-war').checked = false; document.getElementById('d-global-soft-war-period').value = '3 Months';
             
             let supDatalist = document.getElementById('sup-stock-list');
             if (!supDatalist) { supDatalist = document.createElement('datalist'); supDatalist.id = 'sup-stock-list'; document.body.appendChild(supDatalist); }
@@ -1248,6 +1266,9 @@
                 if (d.validPeriod !== undefined && d.validPeriod !== null) document.getElementById('d-validity').value = d.validPeriod;
                 document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true; document.getElementById('d-hide-date').checked = d.hideDate === true; document.getElementById('d-hide-war-date').checked = d.hideWarDate === true;
                 
+                document.getElementById('d-global-soft-war').checked = d.globalSoftWar === true;
+                if (d.globalSoftWarPeriod) document.getElementById('d-global-soft-war-period').value = d.globalSoftWarPeriod;
+
                 let subtotal = (d.items || []).reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
                 document.getElementById('d-subtotal').value = subtotal.toFixed(2); document.getElementById('d-discount-pct').value = (subtotal > 0 && d.discount) ? ((d.discount / subtotal) * 100).toFixed(2) : '0.00';
                 let afterDisc = subtotal - (d.discount || 0); document.getElementById('d-tax-pct').value = (afterDisc > 0 && d.tax) ? ((d.tax / afterDisc) * 100).toFixed(2) : '0.00';
@@ -1313,7 +1334,13 @@
                                     </div>
                                     <label class="flex items-center space-x-2 mt-2 text-[10px] font-bold text-indigo-700 bg-indigo-50 p-1.5 rounded border border-indigo-200 cursor-pointer w-max">
                                         <input type="checkbox" class="doc-item-soft-war rounded" ${data.softWar ? 'checked' : ''}>
-                                        <span>Print 3-Months OS/Software Warranty Note</span>
+                                        <span>Print OS/Software Warranty Note:</span>
+                                        <select class="doc-item-soft-war-period bg-transparent border-b border-indigo-300 outline-none cursor-pointer ml-1 text-indigo-900 font-extrabold">
+                                            <option value="1 Month" ${data.softWarPeriod === '1 Month' ? 'selected' : ''}>1 Month</option>
+                                            <option value="3 Months" ${!data.softWarPeriod || data.softWarPeriod === '3 Months' ? 'selected' : ''}>3 Months</option>
+                                            <option value="6 Months" ${data.softWarPeriod === '6 Months' ? 'selected' : ''}>6 Months</option>
+                                            <option value="1 Year" ${data.softWarPeriod === '1 Year' ? 'selected' : ''}>1 Year</option>
+                                        </select>
                                     </label>
                                 </div>
                             </div>
@@ -1408,6 +1435,7 @@
                     cat: cats,
                     desc: descs,
                     softWar: row.querySelector('.doc-item-soft-war') ? row.querySelector('.doc-item-soft-war').checked : false,
+                    softWarPeriod: row.querySelector('.doc-item-soft-war-period') ? row.querySelector('.doc-item-soft-war-period').value : '3 Months',
                     partSerial: row.querySelector('.doc-item-serial').value.trim() || '',
                     originalPartSerial: row.querySelector('.doc-item-org-serial').value.trim() || null,
                     war: row.querySelector('.doc-item-war').value,
@@ -1425,6 +1453,8 @@
                 no: docNo, type, date: document.getElementById('d-date').value || new Date().toISOString().split('T')[0],
                 validPeriod: type === 'Quotation' || type === 'Bulk Estimate' || type === 'Estimate' ? document.getElementById('d-validity').value : null,
                 incBank: document.getElementById('d-inc-bank').checked, hideSn: document.getElementById('d-hide-sn').checked, hideWar: document.getElementById('d-hide-war').checked, hideDate: document.getElementById('d-hide-date').checked, hideWarDate: document.getElementById('d-hide-war-date').checked,
+                globalSoftWar: document.getElementById('d-global-soft-war').checked,
+                globalSoftWarPeriod: document.getElementById('d-global-soft-war-period').value,
                 custId, custName: custObj ? custObj.name : 'Client', custPhone: custObj ? custObj.phone : '', custWhatsapp: custObj ? custObj.whatsapp : '', custAddr: custObj ? custObj.addr : '', 
                 items, discount, tax, total, paid: payments.reduce((s,p)=>s+p.amount, 0), payMethod: 'Cash', payments
             };
@@ -1448,6 +1478,10 @@
                 document.getElementById('d-discount-pct').value = (qSubtotal > 0 && q.discount) ? ((q.discount / qSubtotal) * 100).toFixed(2) : '0.00';
                 let qAfterDisc = qSubtotal - (q.discount || 0); document.getElementById('d-tax-pct').value = (qAfterDisc > 0 && q.tax) ? ((q.tax / qAfterDisc) * 100).toFixed(2) : '0.00';
                 document.getElementById('d-discount').value = q.discount || 0; document.getElementById('d-tax').value = q.tax || 0;
+                
+                document.getElementById('d-global-soft-war').checked = q.globalSoftWar === true;
+                if (q.globalSoftWarPeriod) document.getElementById('d-global-soft-war-period').value = q.globalSoftWarPeriod;
+
                 document.getElementById('doc-items-container').innerHTML = ''; (q.items || []).forEach(item => addDocItemRow(item)); updateDocBalance();
                 q.status = 'Converted'; localStorage.setItem('hab_docs_v43', JSON.stringify(documents)); renderAll();
             }
@@ -1468,6 +1502,10 @@
                 document.getElementById('d-discount-pct').value = (qSubtotal > 0 && q.discount) ? ((q.discount / qSubtotal) * 100).toFixed(2) : '0.00';
                 let qAfterDisc = qSubtotal - (q.discount || 0); document.getElementById('d-tax-pct').value = (qAfterDisc > 0 && q.tax) ? ((q.tax / qAfterDisc) * 100).toFixed(2) : '0.00';
                 document.getElementById('d-discount').value = q.discount || 0; document.getElementById('d-tax').value = q.tax || 0;
+
+                document.getElementById('d-global-soft-war').checked = q.globalSoftWar === true;
+                if (q.globalSoftWarPeriod) document.getElementById('d-global-soft-war-period').value = q.globalSoftWarPeriod;
+
                 document.getElementById('doc-items-container').innerHTML = ''; (q.items || []).forEach(item => addDocItemRow(item)); updateDocBalance();
                 q.status = 'Converted'; localStorage.setItem('hab_docs_v43', JSON.stringify(documents)); renderAll();
             }
@@ -1482,6 +1520,10 @@
             openDocModal('new', d.type);
             document.getElementById('d-cust').value = d.custId; if (d.validPeriod !== undefined && d.validPeriod !== null) document.getElementById('d-validity').value = d.validPeriod;
             document.getElementById('d-inc-bank').checked = d.incBank !== false; document.getElementById('d-hide-sn').checked = d.hideSn === true; document.getElementById('d-hide-war').checked = d.hideWar === true; document.getElementById('d-hide-date').checked = d.hideDate === true; document.getElementById('d-hide-war-date').checked = d.hideWarDate === true;
+            
+            document.getElementById('d-global-soft-war').checked = d.globalSoftWar === true;
+            if (d.globalSoftWarPeriod) document.getElementById('d-global-soft-war-period').value = d.globalSoftWarPeriod;
+
             let subtotal = (d.items || []).reduce((sum, item) => sum + ((parseFloat(item.price) || 0) * (parseFloat(item.qty) || 1)), 0);
             document.getElementById('d-subtotal').value = subtotal.toFixed(2); document.getElementById('d-discount-pct').value = (subtotal > 0 && d.discount) ? ((d.discount / subtotal) * 100).toFixed(2) : '0.00';
             let afterDisc = subtotal - (d.discount || 0); document.getElementById('d-tax-pct').value = (afterDisc > 0 && d.tax) ? ((d.tax / afterDisc) * 100).toFixed(2) : '0.00';
@@ -2199,7 +2241,8 @@
                     let descHtml = `<span class="text-[11px] font-semibold text-black leading-relaxed">${formattedDesc}</span>`;
                     
                     if (it.softWar) {
-                        descHtml += `<span class="text-[10px] text-indigo-800 font-extrabold mt-1.5 pt-1 border-t border-dashed border-slate-300 block"><i class="fa-solid fa-shield-halved mr-1"></i> Special Note: 3 Months Warranty applicable for OS & Software installation only.</span>`;
+                        const period = it.softWarPeriod || '3 Months';
+                        descHtml += `<span class="text-[10px] text-indigo-800 font-extrabold mt-1.5 pt-1 border-t border-dashed border-slate-300 block"><i class="fa-solid fa-shield-halved mr-1"></i> Special Note: ${period} Warranty applicable for OS & Software installation only.</span>`;
                     }
                     
                     let warPrintHtml = '';
@@ -2252,6 +2295,16 @@
             document.getElementById('p-total').innerText = `Rs. ${d.total.toFixed(2)}`;
             document.getElementById('p-paid').innerText = `Rs. ${d.paid.toFixed(2)} (${d.payMethod || 'Cash'})`;
             document.getElementById('p-bal').innerText = `Rs. ${(d.total - d.paid).toFixed(2)}`;
+
+            // SHOW/HIDE GLOBAL WARRANTY NOTE
+            if (d.globalSoftWar) {
+                document.getElementById('p-global-soft-war-box').classList.remove('hidden');
+                document.getElementById('p-global-soft-war-box').classList.add('flex');
+                document.getElementById('p-global-soft-war-text').innerText = d.globalSoftWarPeriod || '3 Months';
+            } else {
+                document.getElementById('p-global-soft-war-box').classList.add('hidden');
+                document.getElementById('p-global-soft-war-box').classList.remove('flex');
+            }
 
             openModal('print-modal');
         }

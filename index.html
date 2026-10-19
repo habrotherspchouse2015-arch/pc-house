@@ -1814,17 +1814,20 @@
             const allSerialInputs = document.querySelectorAll('.doc-item-serial');
             const usedSerials = new Set();
             allSerialInputs.forEach(inp => {
-                const val = inp.value.trim();
-                if (val && inp !== changedInput) usedSerials.add(val);
+                const val = inp.value.trim().toUpperCase();
+                // N/A or empty serials should NOT be tracked — they can appear on multiple PCs (bulk/no-SN items)
+                if (val && val !== 'N/A' && inp !== changedInput) usedSerials.add(inp.value.trim());
             });
 
             const supDatalist = document.getElementById('sup-stock-list');
             if (!supDatalist) return;
 
-            // Rebuild datalist: exclude sold SNs AND SNs already selected in other rows
+            const currentDocNo = document.getElementById('d-no')?.value || '';
+            // Rebuild datalist: exclude sold SNs AND unique SNs already selected in other rows
             supDatalist.innerHTML = '';
             suppliers.forEach(s => {
-                const isSold = s.soldDocNo && !s.soldDocNo.includes(document.getElementById('d-no')?.value || '');
+                // isSold: has soldDocNo and that docNo is NOT the currently-open doc
+                const isSold = s.soldDocNo && s.soldDocNo !== currentDocNo;
                 const isUsedInCurrentDoc = usedSerials.has(s.serialNo);
                 if (!isSold && !isUsedInCurrentDoc) {
                     supDatalist.innerHTML += `<option value="${s.serialNo}">${s.partName}</option>`;
@@ -2004,7 +2007,7 @@
                         <div class="md:col-span-2 relative">
                             <label class="font-bold text-slate-700">Part Serial</label>
                             ${data.originalPartSerial && data.originalPartSerial !== data.partSerial ? `<span class="absolute top-0 right-0 text-[9px] bg-emerald-100 text-emerald-800 px-1 rounded font-extrabold" title="Originally: ${data.originalPartSerial}">Replaced <i class="fa-solid fa-check"></i></span>` : ''}
-                            <input type="text" list="sup-stock-list" onchange="autoFillSupplierCost(this)" placeholder="S/N..." value="${data.partSerial || ''}" class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-indigo-700 doc-item-serial">
+                            <input type="text" list="sup-stock-list" onfocus="refreshSerialDatalist(this)" onchange="autoFillSupplierCost(this)" placeholder="S/N or N/A..." value="${data.partSerial || ''}" class="w-full p-2 border border-slate-300 rounded mt-0.5 font-bold text-indigo-700 doc-item-serial">
                             <input type="hidden" class="doc-item-org-serial" value="${data.originalPartSerial || ''}">
                         </div>
                         <div class="md:col-span-1">
@@ -2830,7 +2833,7 @@
             container.insertAdjacentHTML('beforeend', `
             <div class="sup-item-row bg-white p-3 rounded-lg border border-slate-300 shadow-sm relative grid grid-cols-1 md:grid-cols-12 gap-3 items-end text-xs" id="${id}">
                 <div class="md:col-span-3"><label class="font-bold text-slate-700 block mb-1">Part Name *</label><input type="text" required class="s-part w-full p-2 border rounded font-bold" value="${data.partName || ''}"></div>
-                <div class="md:col-span-2"><label class="font-bold text-slate-700 block mb-1">Serial (S/N) *</label><input type="text" required class="s-serial w-full p-2 border rounded font-bold text-indigo-700" value="${data.serialNo || ''}"></div>
+                <div class="md:col-span-2"><label class="font-bold text-slate-700 block mb-1">Serial (S/N) <span class="text-slate-400 font-normal text-[10px]">— N/A if none</span></label><input type="text" required class="s-serial w-full p-2 border rounded font-bold text-indigo-700" placeholder="S/N or N/A" value="${data.serialNo || ''}"></div>
                 <div class="md:col-span-2"><label class="font-bold text-slate-700 block mb-1">Cost (Rs.) *</label><input type="number" step="0.01" required class="s-cost w-full p-2 border rounded font-extrabold text-rose-700 bg-rose-50" value="${data.cost || ''}"></div>
                 <div class="md:col-span-2"><label class="font-bold text-slate-700 block mb-1">Pay Status</label><select class="s-paid w-full p-2 border rounded font-bold"><option ${data.paid==='Paid in Full'?'selected':''}>Paid in Full</option><option ${data.paid==='Credit / Pending'?'selected':''}>Credit / Pending</option></select></div>
                 <div class="md:col-span-2"><label class="font-bold text-slate-700 block mb-1">Warranty</label><select class="s-war w-full p-2 border rounded font-bold">
@@ -2877,7 +2880,8 @@
             let duplicateFound = false;
             rows.forEach(row => {
                 const sn = row.querySelector('.s-serial').value.trim();
-                if (sn) {
+                // N/A or empty SN = no unique constraint (bulk/no-serial items allowed)
+                if (sn && sn.toUpperCase() !== 'N/A') {
                     const exists = suppliers.find(s => s.serialNo.toLowerCase() === sn.toLowerCase() && s.id !== editId);
                     if (exists) {
                         alert(`Me SN number eka (${sn}) kalin add karala tiyanawa!`);
@@ -3712,7 +3716,7 @@
 
             let printType = d.type;
             if (d.type === 'Bulk Estimate' || d.type === 'Estimate') printType = 'Rough estimate';
-            else if (d.type === 'Bill' || docNo.startsWith('BILL')) printType = 'COMMERCIAL BILL';
+            else if (d.type === 'Bill' || docNo.startsWith('BILL')) printType = 'BILL';
             
             document.getElementById('p-doc-type').innerText = printType;
             document.getElementById('p-doc-no').innerText = d.no;
